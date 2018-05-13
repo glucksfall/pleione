@@ -62,6 +62,9 @@ def main():
 		python_requires='~=3.0',
 		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 		install_requires=['numpy', 'pandas'],
+		package_data={
+			'ucrits': ['utables/ucrit.csv'],
+		},
 		#data_files=[('my_data', ['data/ucrit.csv'])],
 		project_urls={
 			'Bug Reports': 'https://github.com/glucksfall/pleione/issues',
