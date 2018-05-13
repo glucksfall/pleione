@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # Always prefer setuptools over distutils
-from ez_setup import use_setuptools
-use_setuptools()
+#from ez_setup import use_setuptools
+#use_setuptools()
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
@@ -11,7 +11,7 @@ import versioneer
 
 def main():
 
-    cmdclass = versioneer.get_cmdclass()
+	cmdclass = versioneer.get_cmdclass()
 
 	here = path.abspath(path.dirname(__file__))
 
