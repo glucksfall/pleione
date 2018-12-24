@@ -13,7 +13,8 @@
 /*.egg-info
 
 # others
-MANIFEST.in
-setup.cfg
-setup.py
-versioneer.py
+/Makefile
+/MANIFEST.in
+/setup.cfg
+/setup.py
+/versioneer.py
