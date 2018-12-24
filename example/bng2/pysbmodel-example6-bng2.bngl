@@ -1,0 +1,65 @@
+begin model
+begin parameters
+  f                  1.000000e-02
+  NA                 6.022140e+23
+  EGF_conc_nM        1.000000e+00
+  KD1__FREE__        1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  km1__FREE__        1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  K2RT__FREE__       1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  km2__FREE__        1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  kphos__FREE__      1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  kdephos__FREE__    1.000000e+00 # loguniform[0.01 100] factor[0.2 0.1]
+  Vecf               2.1e-9*f
+  EGF_conc           1.0e-9*EGF_conc_nM
+  EGF_copy_number    EGF_conc*NA*Vecf
+  EGFR_copy_number   100000.0*f
+  KD1                KD1__FREE__
+  km1                km1__FREE__
+  kp1_nMs            km1*KD1^(-1)
+  kp1_Ms             1000000000.0*kp1_nMs
+  kp1                kp1_Ms*(NA*Vecf)^(-1)
+  K2RT               K2RT__FREE__
+  km2                km2__FREE__
+  kp2                K2RT*km2*EGFR_copy_number^(-1)
+  kp3                0.2*kp2
+  kphos              kphos__FREE__
+  kdephos            kdephos__FREE__
+end parameters
+
+begin molecule types
+  L(r)
+  R(l,r,Y~n~P)
+end molecule types
+
+begin observables
+  Molecules Ltot      L()
+  Species freeL     L(r)
+  Molecules Rtot      R()
+  Molecules RLbonds   L(r!1).R(l!1)
+  Molecules pR        R(Y~P)
+end observables
+
+begin species
+  L(r)         EGF_copy_number
+  R(l,r,Y~n)   EGFR_copy_number
+end species
+
+begin reaction rules
+  r1:  L(r) + R(l) <-> L(r!1).R(l!1)    kp1, km1
+  r2:  R(l!+,r) + R(l!+,r) -> R(l!+,r!1).R(l!+,r!1)    kp2
+  r3:  R(r!1).R(r!1) -> R(r) + R(r)    km2
+  r4:  R(l,r) + R(l,r) -> R(l,r!1).R(l,r!1)    kp3
+  r5:  R(r!+,Y~n) -> R(r!+,Y~P)    kphos
+  r6:  R(Y~P) -> R(Y~n)    kdephos
+end reaction rules
+
+end model
+
+# actions
+# Simulate for 600 seconds to reach equilibrium
+# simulate({method=>"nf",t_start=>0,t_end=>600,n_steps=>1,suffix=>"equil",get_final_state=>1})
+simulate({method=>"nf",t_start=>0,t_end=>600,n_steps=>1,get_final_state=>1})
+# Add ligand
+setConcentration("L(r)","EGF_copy_number")
+# Simulate for 60 seconds. This simulation output is fit to the data
+simulate({method=>"nf",t_start=>0,t_end=>60,n_steps=>12,suffix=>"example6",get_final_state=>0})

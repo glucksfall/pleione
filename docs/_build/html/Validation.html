@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Model Validation &mdash; pleione  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Objective Functions" href="ObjectiveFunctions.html" />
+    <link rel="prev" title="Parameterization with NFsim" href="engines/nfsim.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pleione
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ParameterEstimation.html">Parameters estimation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="engines/kasim.html">Parameterization with KaSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/piskas.html">Parameterization with PISKaS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/bng2.html">Parameterization with BioNetGen2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/nfsim.html">Parameterization with NFsim</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Model Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ObjectiveFunctions.html">Objective Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Python3.html">Compiling Python3 from source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SLURM.html">Installing SLURM in your machine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pleione</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="ParameterEstimation.html">Parameters estimation</a> &raquo;</li>
+        
+      <li>Model Validation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Validation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="model-validation">
+<h1>Model Validation<a class="headerlink" href="#model-validation" title="Permalink to this headline">¶</a></h1>
+<p>Pleione’s parameter calibration scripts call an external script to calculate
+fitness to experimental data. You could use one of the following script to
+calculate the fitness of your parameterized model against an independent
+experimental data set:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m pleione.bng2-doerror --data foo --sims bar <span class="se">\</span>
+--file output.txt --error MWUT --crit utable.txt
+</pre></div>
+</div>
+<p><em>OR</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m pleione.kasim-doerror --data foo --sims bar <span class="se">\</span>
+--file output.txt --error MWUT --crit utable.txt
+</pre></div>
+</div>
+<p><em>OR</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m pleione.nfsim-doerror --data foo --sims bar <span class="se">\</span>
+--file output.txt --error MWUT --crit utable.txt
+</pre></div>
+</div>
+<p><em>OR</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m pleione.piskas-doerror --data foo --sims bar <span class="se">\</span>
+--file output.txt --error MWUT --crit utable.txt
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Fitness Function</strong>
+Pleione currently support ten goodness of fit functions. To calculate more
+than one function, include a comma-only separated list such as <code class="docutils literal notranslate"><span class="pre">MWUT,SSQ</span></code>.
+In doing so, this will calculate the contribution of both o more metrics to
+the overall error and aid to validate of dischard a model calibration.
+More information in <a class="reference internal" href="ObjectiveFunctions.html#fitneess-functions"><span class="std std-ref">Objective Functions</span></a></p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Need Help?</strong>
+Type <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pleione.$STOCH_ENGINE-doerror</span> <span class="pre">--help</span></code> where
+<code class="docutils literal notranslate"><span class="pre">$STOCH_ENGINE</span></code> can be the currently supported stochastic engines: BNG2,
+NFsim, KaSim and PISKaS (all in lower cases, for instance <code class="docutils literal notranslate"><span class="pre">nfsim-doerror</span></code>)</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ObjectiveFunctions.html" class="btn btn-neutral float-right" title="Objective Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="engines/nfsim.html" class="btn btn-neutral" title="Parameterization with NFsim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Rodrigo Santibáñez.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

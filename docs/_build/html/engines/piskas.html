@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Parameterization with PISKaS &mdash; pleione  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Parameterization with BioNetGen2" href="bng2.html" />
+    <link rel="prev" title="Parameterization with KaSim" href="kasim.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pleione
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../ParameterEstimation.html">Parameters estimation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kasim.html">Parameterization with KaSim</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameterization with PISKaS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bng2.html">Parameterization with BioNetGen2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nfsim.html">Parameterization with NFsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Validation.html">Model Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ObjectiveFunctions.html">Objective Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Python3.html">Compiling Python3 from source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SLURM.html">Installing SLURM in your machine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pleione</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../ParameterEstimation.html">Parameters estimation</a> &raquo;</li>
+        
+      <li>Parameterization with PISKaS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/engines/piskas.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="parameterization-with-piskas">
+<h1>Parameterization with PISKaS<a class="headerlink" href="#parameterization-with-piskas" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic">
+<li><p class="first"><strong>Prepare the model</strong></p>
+<p>Pleione parmeterization methods find which variables will be calibrated using
+the symbol <code class="docutils literal notranslate"><span class="pre">#</span></code> (number sign, hash or pound sign) followed by:</p>
+<blockquote>
+<div><ul class="simple">
+<li>An initial distribution type: <code class="docutils literal notranslate"><span class="pre">uniform</span></code>, <code class="docutils literal notranslate"><span class="pre">loguniform</span></code>, <code class="docutils literal notranslate"><span class="pre">lognormal</span></code></li>
+<li>An initial search space: <code class="docutils literal notranslate"><span class="pre">[min</span> <span class="pre">max]</span></code> or <code class="docutils literal notranslate"><span class="pre">[mean</span> <span class="pre">standard_deviation]</span></code>
+in the case <code class="docutils literal notranslate"><span class="pre">lognormal</span></code> was selected.</li>
+<li>A type of mutation: <code class="docutils literal notranslate"><span class="pre">uniform</span></code> or <code class="docutils literal notranslate"><span class="pre">loguniform</span></code> to use a new search
+space; or <code class="docutils literal notranslate"><span class="pre">factor</span></code> to perform a local mutation search</li>
+<li>A search space for mutated parameters: <code class="docutils literal notranslate"><span class="pre">[min</span> <span class="pre">max]</span></code> or
+<code class="docutils literal notranslate"><span class="pre">[probability</span> <span class="pre">fold_change]</span></code></li>
+<li>An optional mutation rate per parameter. Without it, a global mutation
+rate is used.</li>
+</ul>
+</div></blockquote>
+<p>For instace:</p>
+</li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>%var: <span class="s1">&#39;KD1__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+%var: <span class="s1">&#39;km1__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+%var: <span class="s1">&#39;K2RT__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+%var: <span class="s1">&#39;km2__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+%var: <span class="s1">&#39;kphos__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+%var: <span class="s1">&#39;kdephos__FREE__&#39;</span> <span class="m">1</span>.000000e+00 <span class="c1"># loguniform[0.01 100] factor[0.2 0.1]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Factor mutation:</strong> This type of mutation strategy comes from BioNetFit and
+selects a random value from the range <code class="docutils literal notranslate"><span class="pre">0.9</span> <span class="pre">*</span> <span class="pre">old_value,</span> <span class="pre">1.1</span> <span class="pre">*</span> <span class="pre">old_value</span></code>
+if the declared value is <code class="docutils literal notranslate"><span class="pre">0.1</span></code> with probability <code class="docutils literal notranslate"><span class="pre">0.2</span></code>.</p>
+</div>
+<ol class="arabic" start="2">
+<li><p class="first"><strong>Prepare the data files</strong></p>
+<p>PISKaS produce simulations files with the following format. Please prepare
+data files with the same format, including the initial space in each row.</p>
+</li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>example <span class="nb">time</span> <span class="s1">&#39;RLbonds&#39;</span> <span class="s1">&#39;pR&#39;</span>
+ <span class="m">6</span>.000000E+02 <span class="m">0</span> <span class="m">355</span>.3
+ <span class="m">6</span>.100000E+02 <span class="m">114</span>.072 <span class="m">356</span>.44
+ <span class="m">6</span>.200000E+02 <span class="m">139</span>.1838 <span class="m">349</span>.96
+ <span class="m">6</span>.300000E+02 <span class="m">149</span>.1534 <span class="m">343</span>.98
+ <span class="m">6</span>.400000E+02 <span class="m">156</span>.8684 <span class="m">342</span>.6
+ <span class="m">6</span>.500000E+02 <span class="m">156</span>.788 <span class="m">335</span>.62
+ <span class="m">6</span>.600000E+02 <span class="m">163</span>.6668 <span class="m">337</span>.48
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>An extra column name?</strong> PISKaS produces one output for each compartment
+declared in the model. Therefore, adding the name of the compartment as the
+first column allows the code to identify the corresponding experimental data
+with the simulated compartment and apply correctly the fitness function.
+Finally, the model error is the sum of each fitness per compartment.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>About the example model:</strong> The model has three parts: An equilibration of
+600 seconds, then the model is modified to add a quantity of <code class="docutils literal notranslate"><span class="pre">L(r)</span></code> agents,
+and then perform the actual simulation for 60 seconds. Despite BNG2 and NFsim,
+PISKaS reports the whole simulation, so to compare effectively, we must offset
+the time of the experimental data by 600.</p>
+</div>
+<ol class="arabic" start="2">
+<li><p class="first"><strong>Prepare a sbatch configuration file</strong></p>
+<p>Use the following code as template to make a shell script and queue it with
+sbatch. Note that the <code class="docutils literal notranslate"><span class="pre">export</span></code> statement is inside the code to tell SLURM
+to add the path and ensure proper execution when pleione was cloned with
+git. Also, <code class="docutils literal notranslate"><span class="pre">python3</span></code> redirects to either the system installed executable
+(with pandas installed either as admin or user) or redirects to the user
+compiled executable if an alias exists for it.</p>
+</li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+
+<span class="c1">#SBATCH --no-requeue</span>
+<span class="c1">#SBATCH --partition=cpu</span>
+
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --cpus-per-task=1</span>
+
+<span class="c1">#SBATCH --job-name=pleione-piskas</span>
+<span class="c1">#SBATCH --output=stdout.txt</span>
+<span class="c1">#SBATCH --error=stderr.txt</span>
+
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PYTHONPATH</span><span class="s2">:</span><span class="nv">$HOME</span><span class="s2">/opt/git-glucksfall-pleione-master&quot;</span>
+
+<span class="nv">MODEL</span><span class="o">=</span>pysbmodel-example6-piskas.kappa
+<span class="nv">FINAL</span><span class="o">=</span><span class="m">660</span>
+<span class="nv">STEPS</span><span class="o">=</span><span class="m">66</span>
+
+<span class="nv">PARTITION</span><span class="o">=</span><span class="nv">$SLURM_JOB_PARTITION</span>
+<span class="nv">DATA</span><span class="o">=</span>../exp-data/piskas/data-*.txt
+
+<span class="nv">NUM_ITER</span><span class="o">=</span><span class="m">100</span>
+<span class="nv">NUM_SIMS</span><span class="o">=</span><span class="m">10</span>
+<span class="nv">POP_SIZE</span><span class="o">=</span><span class="m">100</span>
+<span class="nv">POP_BEST</span><span class="o">=</span><span class="m">0</span>
+
+<span class="nv">SWAP</span><span class="o">=</span><span class="m">0</span>.5
+<span class="nv">RATE</span><span class="o">=</span><span class="m">0</span>.5
+<span class="nv">ERROR</span><span class="o">=</span><span class="s2">&quot;MWUT&quot;</span>
+<span class="nv">UTABLE</span><span class="o">=</span>./ucrit.txt
+
+python3 -m pleione.piskas --model<span class="o">=</span><span class="nv">$MODEL</span> --final<span class="o">=</span><span class="nv">$FINAL</span> --steps<span class="o">=</span><span class="nv">$STEPS</span> <span class="se">\</span>
+--iter<span class="o">=</span><span class="nv">$NUM_ITER</span> --pops<span class="o">=</span><span class="nv">$POP_SIZE</span> --sims<span class="o">=</span><span class="nv">$NUM_SIMS</span> --best<span class="o">=</span><span class="nv">$POP_BEST</span> <span class="se">\</span>
+--data<span class="o">=</span><span class="nv">$DATA</span> --rate<span class="o">=</span><span class="nv">$RATE</span> --swap<span class="o">=</span><span class="nv">$SWAP</span> --error<span class="o">=</span><span class="nv">$ERROR</span> --crit<span class="o">=</span><span class="nv">$UTABLE</span> <span class="se">\</span>
+--slurm<span class="o">=</span><span class="nv">$PARTITION</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>sbatch or python multiproccesing?</strong> To execute Pleione outside a SLURM
+queue, simple execute the shell script with <code class="docutils literal notranslate"><span class="pre">sh</span></code>, <code class="docutils literal notranslate"><span class="pre">bash</span></code> or any shell
+interpreter without the <code class="docutils literal notranslate"><span class="pre">slurm</span></code> option. Be aware that, if SLURM is
+running in the same machine, Pleione subprocess would impact negatively in
+other user’s threads, and viceversa, since a cpu core could execute
+concurrently two threads.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Need help?</strong> type <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pleione.piskas</span> <span class="pre">--help</span></code> to find out the
+available command options.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bng2.html" class="btn btn-neutral float-right" title="Parameterization with BioNetGen2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="kasim.html" class="btn btn-neutral" title="Parameterization with KaSim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Rodrigo Santibáñez.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

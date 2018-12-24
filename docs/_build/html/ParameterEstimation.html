@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Parameters estimation &mdash; pleione  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Parameterization with KaSim" href="engines/kasim.html" />
+    <link rel="prev" title="Installation" href="Installation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pleione
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parameters estimation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="engines/kasim.html">Parameterization with KaSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/piskas.html">Parameterization with PISKaS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/bng2.html">Parameterization with BioNetGen2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engines/nfsim.html">Parameterization with NFsim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Validation.html">Model Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ObjectiveFunctions.html">Objective Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Python3.html">Compiling Python3 from source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SLURM.html">Installing SLURM in your machine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pleione</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Parameters estimation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/ParameterEstimation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="parameters-estimation">
+<h1>Parameters estimation<a class="headerlink" href="#parameters-estimation" title="Permalink to this headline">¶</a></h1>
+<p>Pleione’s parameterization methods rely on Computational Load Distribution. The
+naïve approach is to use the python’s <em>multiprocessing</em> API and each simulation
+distributed within the Pool of available (minus one) cores. This approach would
+make pleione’s methods compatible with Microsoft Windows and Apple OS X.
+However, to take fully advantage of High-Performance Computing architectures,
+pleione’s methods rely on SLURM –<em>Simple Linux Utility for Resource
+Management</em>– (<a class="reference external" href="https://slurm.schedmd.com/">SLURM</a>) to distribute simulations through your infrastructure,
+remote infrastructures, and cloud services like Google Compute Engine, Microsoft
+Azure, and Amazon Elastic Compute Cloud.</p>
+<p>Up to date, pleione’s parameterization methods rely on 4 simulations engines:
+KaSim and PISKaS simulate <em>kappa</em> language models. Unlike KaSim, PISKaS is able
+to simulate multiple compartment models distributing the calculation of each
+compartment through multiple cores. In the other hand, BioNetGen2 and NFsim
+simulate <em>BioNetGen</em> language models. Despite KaSim and PISKaS, BioNetGen2 does
+not provide a Command-Line Interface to especify simulation parameters and
+rather, the simulation parameters (e.g. time to simulation, number of points to
+report, …) must be given inside the model specification. Moreover, you need to
+especify the simulation engine to use: Deterministic simulation through <em>CVODE</em>,
+the Stochastic Simulation Algorithm <em>SSA</em>, Exact Hybrid Particle/Population
+Algorithm <em>HPP</em>, and the Partition-Leap Algorithm <em>PLA</em>. Moreover, NFsim could
+be used by BioNetGen2 to simulate models or called externally after creating the
+model xml especification with BioNetGen2 –xml option.</p>
+<p>Because the software requirements and differences, we provide specific
+documentation to all of them rather than provide common guidelines and then
+stating the differences.</p>
+<p>Parameterization of kappa-language Rule-Based Models</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="engines/kasim.html">Parameterization with KaSim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/piskas.html">Parameterization with PISKaS</a></li>
+</ul>
+</div>
+<p>Parameterization of BioNetGen language Rule-Based Models</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="engines/bng2.html">Parameterization with BioNetGen2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engines/nfsim.html">Parameterization with NFsim</a></li>
+</ul>
+</div>
+<p>Common to all parameterization methods, there are 9 algebraic objective
+functions and one statistical function already implemented in the code.
+Moreover, the code sort the models by their rank and therefore, ranks can be
+added and sorted again, making the possibility to use a Multiple Objective
+Genetic Algorithm.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Validation.html">Model Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ObjectiveFunctions.html">Objective Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions/algebraics.html">Algebraic Objective Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/statistical.html">Statistical Objective Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/multiple.html">Multiple Objective Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Installation instructions:</strong>
+Instructions to install KaSim, BioNetGen, NFsim, and PISKaS are
+available in their source code webpages. Nonetheless, here you will find
+basic information to clone using git or download the software and install
+it.</p>
+<p class="last">To install SLURM, you should have admin access to your infrastructure and an
+UNIX-based OS. Detailed instructions are provided here:
+<a class="reference internal" href="SLURM.html#slurm-instructions"><span class="std std-ref">Installing SLURM in your machine</span></a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="engines/kasim.html" class="btn btn-neutral float-right" title="Parameterization with KaSim" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Rodrigo Santibáñez.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
