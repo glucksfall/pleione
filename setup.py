@@ -28,7 +28,7 @@ def main():
 		long_description_content_type='text/markdown',
 		url='https://github.com/glucksfall/pleione',
 		author='Rodrigo Santibáñez',
-		author_email='rlsantibanez@uc.cl',
+		author_email='glucksfall@users.noreply.github.com',
 		classifiers=[
 			'Development Status :: 1 - Planning',
 			#'Development Status :: 2 - Pre-Alpha',
@@ -64,12 +64,12 @@ def main():
 		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 		install_requires=['numpy', 'pandas'],
 		package_data={
-			'example': ['example']
+			'example': ['example'],
 			'ucrits': ['example/ucrit.csv'],
 		},
 		#data_files=[('my_data', ['data/ucrit.csv'])],
 		project_urls={
-			'Manual': 'https://pleione.readthedocs.io'
+			'Manual': 'https://pleione.readthedocs.io',
 			'Bug Reports': 'https://github.com/glucksfall/pleione/issues',
 			'Source': 'https://github.com/glucksfall/pleione',
 		},
