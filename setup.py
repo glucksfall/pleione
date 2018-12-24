@@ -21,6 +21,7 @@ def main():
 
 	setup(
 		name='pleione',
+		license='GPLv3+',
 		version=versioneer.get_version(),
 		description='A Genetic Algorithm implementation in Python for Rule-Based Models',
 		long_description=long_description,
@@ -63,13 +64,13 @@ def main():
 		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 		install_requires=['numpy', 'pandas'],
 		package_data={
-			'ucrits': ['utables/ucrit.csv'],
+			'example': ['example']
+			'ucrits': ['example/ucrit.csv'],
 		},
 		#data_files=[('my_data', ['data/ucrit.csv'])],
 		project_urls={
+			'Manual': 'https://pleione.readthedocs.io'
 			'Bug Reports': 'https://github.com/glucksfall/pleione/issues',
-			#'Funding': 'https://donate.pypi.org',
-			#'Say Thanks!': 'http://saythanks.io/to/example',
 			'Source': 'https://github.com/glucksfall/pleione',
 		},
 	)
