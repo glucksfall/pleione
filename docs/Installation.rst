@@ -45,7 +45,7 @@ the package from `python package index <https://pypi.org/project/pleione/>`_.
 
    .. code-block:: bash
 
-	pip3 install pleione-0.1.dev1-py3-none-any.whl --user
+	pip3 install -i https://test.pypi.org/simple/ pleione --user
 
    .. note::
 	**Why Python3?**:
