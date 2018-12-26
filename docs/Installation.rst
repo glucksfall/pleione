@@ -30,13 +30,13 @@ the package from `python package index <https://pypi.org/project/pleione/>`_.
 
    .. code-block:: bash
 
-	pip3 install pleione --user
+	pip3 install -i https://test.pypi.org/simple/ pleione --user
 
    If you have system rights, you could install pleione for all users with
 
    .. code-block:: bash
 
-	sudo -H pip3 install pleione
+	sudo -H pip3 install -i https://test.pypi.org/simple/ pleione
 
 2. **Download from python package index**
 
