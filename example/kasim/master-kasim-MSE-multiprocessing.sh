@@ -1,5 +1,5 @@
 #!/bin/sh
-export PYTHONPATH="$PYTHONPATH:$HOME/opt/github-repositories/glucksfall-pleione"
+export PYTHONPATH="$PYTHONPATH:$HOME/opt/github-repositories/glucksfall.pleione"
 
 MODEL=pysbmodel-example6-kasim.kappa
 FINAL=660

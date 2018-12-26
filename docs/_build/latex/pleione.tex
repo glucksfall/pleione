@@ -8,21 +8,14 @@
 \PassOptionsToPackage{warn}{textcomp}
 \usepackage[utf8]{inputenc}
 \ifdefined\DeclareUnicodeCharacter
- \ifdefined\DeclareUnicodeCharacterAsOptional
-  \DeclareUnicodeCharacter{"00A0}{\nobreakspace}
-  \DeclareUnicodeCharacter{"2500}{\sphinxunichar{2500}}
-  \DeclareUnicodeCharacter{"2502}{\sphinxunichar{2502}}
-  \DeclareUnicodeCharacter{"2514}{\sphinxunichar{2514}}
-  \DeclareUnicodeCharacter{"251C}{\sphinxunichar{251C}}
-  \DeclareUnicodeCharacter{"2572}{\textbackslash}
- \else
-  \DeclareUnicodeCharacter{00A0}{\nobreakspace}
-  \DeclareUnicodeCharacter{2500}{\sphinxunichar{2500}}
-  \DeclareUnicodeCharacter{2502}{\sphinxunichar{2502}}
-  \DeclareUnicodeCharacter{2514}{\sphinxunichar{2514}}
-  \DeclareUnicodeCharacter{251C}{\sphinxunichar{251C}}
-  \DeclareUnicodeCharacter{2572}{\textbackslash}
- \fi
+% support both utf8 and utf8x syntaxes
+\edef\sphinxdqmaybe{\ifdefined\DeclareUnicodeCharacterAsOptional\string"\fi}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe00A0}{\nobreakspace}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe2500}{\sphinxunichar{2500}}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe2502}{\sphinxunichar{2502}}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe2514}{\sphinxunichar{2514}}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe251C}{\sphinxunichar{251C}}
+  \DeclareUnicodeCharacter{\sphinxdqmaybe2572}{\textbackslash}
 \fi
 \usepackage{cmap}
 \usepackage[T1]{fontenc}
@@ -32,6 +25,7 @@
 \usepackage[Bjarne]{fncychap}
 \usepackage{sphinx}
 
+\fvset{fontsize=\small}
 \usepackage{geometry}
 
 % Include hyperref last.
@@ -47,6 +41,9 @@
 
 \addto\captionsenglish{\renewcommand{\literalblockcontinuedname}{continued from previous page}}
 \addto\captionsenglish{\renewcommand{\literalblockcontinuesname}{continues on next page}}
+\addto\captionsenglish{\renewcommand{\sphinxnonalphabeticalgroupname}{Non-alphabetical}}
+\addto\captionsenglish{\renewcommand{\sphinxsymbolsname}{Symbols}}
+\addto\captionsenglish{\renewcommand{\sphinxnumbersname}{Numbers}}
 
 \addto\extrasenglish{\def\pageautorefname{page}}
 
@@ -55,17 +52,19 @@
 
 
 \title{pleione Documentation}
-\date{Jul 12, 2018}
+\date{Dec 25, 2018}
 \release{}
 \author{Rodrigo Santibáñez}
 \newcommand{\sphinxlogo}{\vbox{}}
 \renewcommand{\releasename}{}
 \makeindex
-
 \begin{document}
 
+\pagestyle{empty}
 \maketitle
+\pagestyle{plain}
 \sphinxtableofcontents
+\pagestyle{normal}
 \phantomsection\label{\detokenize{index::doc}}
 
 
@@ -73,16 +72,19 @@ Pleione is a python3 package that implement methods that are common to
 traditional modeling frameworks, and apply them to analyze Rule-Based Models.
 
 Here you’ll find the necessary documentation to install and use the methods in
-pleione. At the moment, pleione parameterizes Rule-Based Models written
+Pleione. At the moment, Pleione parameterizes Rule-Based Models written
 either in \sphinxstyleemphasis{BioNetGen} (\sphinxhref{http://www.csb.pitt.edu/Faculty/Faeder/?page\_id=409}{BioNetGen}) or \sphinxstyleemphasis{kappa} language (\sphinxhref{https://www.kappalanguage.org/}{Kappa}). Models are
 simulated with BNG2 (\sphinxhref{https://github.com/RuleWorld/bionetgen}{BioNetGen2}), NFsim (\sphinxhref{https://github.com/RuleWorld/nfsim}{NFsim}), KaSim (\sphinxhref{https://github.com/Kappa-Dev/KaSim}{KaSim}), or
-PISKaS (\sphinxhref{https://github.com/DLab/PISKaS}{PISKaS}). Pleione implements a Genetic Algorithm with elitism, on the
-contrary of BioNetFit (\sphinxhref{https://github.com/RuleWorld/BioNetFit}{BioNetFit}) that implements a parental selection within
-an inverse distribution. Nonetheless, pleione’s methods to parameterize
-Rule-Based Models include both, elitism and inverse methods.
+PISKaS (\sphinxhref{https://github.com/DLab/PISKaS}{PISKaS}). Please contact us or write an issue to include your
+favorite stochastic simulator to Pleione (\sphinxurl{https://github.com/glucksfall/pleione/issues}).
 
-The plan to add methods into pleione includes a sensitivity analysis and a
-parameterization method employing a Particle Swarm Optimization protocol. You
+Pleione implements a Genetic Algorithm with elitism, on the
+contrary of BioNetFit (\sphinxhref{https://github.com/RuleWorld/BioNetFit}{BioNetFit}) that implements a parents selection within
+an distribution probability that is inverse to the rank. Nonetheless, pleione’s
+methods to parameterize Rule-Based Models include both, elitism and inverse methods.
+
+The plan to add methods into Pleione includes a sensitivity analysis and a
+parameterization employing a Particle Swarm Optimization protocol. You
 could write us if you wish to add methods into pleione or aid in the development
 of them.
 
@@ -91,6 +93,9 @@ of them.
 \label{\detokenize{Installation:installation}}\label{\detokenize{Installation::doc}}
 There are two different ways to install pleione:
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Install pleione natively (Recommended).}
 
@@ -116,6 +121,9 @@ The recommended approach is to use system tools, or install them if
 necessary. To install python packages, you could use pip, or download
 the package from \sphinxhref{https://pypi.org/project/pleione/}{python package index}.
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Install with system tools}
 
@@ -173,6 +181,9 @@ pleione would be installed.
 
 \section{Option 2: Clone the Github repository}
 \label{\detokenize{Installation:option-2-clone-the-github-repository}}\begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Clone with git}
 
@@ -232,6 +243,9 @@ Parameterization of kappa-language Rule-Based Models
 
 \section{Parameterization with KaSim}
 \label{\detokenize{engines/kasim:parameterization-with-kasim}}\label{\detokenize{engines/kasim::doc}}\begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Prepare the model}
 
@@ -291,6 +305,9 @@ selects a random value from the range \sphinxcode{\sphinxupquote{0.9 * old\_valu
 if the declared value is \sphinxcode{\sphinxupquote{0.1}} with probability \sphinxcode{\sphinxupquote{0.2}}.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare the data files}
@@ -320,6 +337,9 @@ KaSim reports the whole simulation, so to compare effectively, we must offset
 the time of the experimental data by 600.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare a sbatch configuration file}
@@ -390,6 +410,9 @@ available command options.
 
 \section{Parameterization with PISKaS}
 \label{\detokenize{engines/piskas:parameterization-with-piskas}}\label{\detokenize{engines/piskas::doc}}\begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Prepare the model}
 
@@ -437,6 +460,9 @@ selects a random value from the range \sphinxcode{\sphinxupquote{0.9 * old\_valu
 if the declared value is \sphinxcode{\sphinxupquote{0.1}} with probability \sphinxcode{\sphinxupquote{0.2}}.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare the data files}
@@ -474,6 +500,9 @@ PISKaS reports the whole simulation, so to compare effectively, we must offset
 the time of the experimental data by 600.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare a sbatch configuration file}
@@ -546,6 +575,9 @@ Parameterization of BioNetGen language Rule-Based Models
 
 \section{Parameterization with BioNetGen2}
 \label{\detokenize{engines/bng2:parameterization-with-bionetgen2}}\label{\detokenize{engines/bng2::doc}}\begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Prepare the model}
 
@@ -593,6 +625,9 @@ selects a random value from the range \sphinxcode{\sphinxupquote{0.9 * old\_valu
 if the declared value is \sphinxcode{\sphinxupquote{0.1}} with probability \sphinxcode{\sphinxupquote{0.2}}.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare the data files}
@@ -614,6 +649,9 @@ data files with the same format, including the initial space in each row.
  \PYG{l+m}{6}.00000000E+01  \PYG{l+m}{1}.63666800E+02  \PYG{l+m}{3}.37480000E+02
 \end{sphinxVerbatim}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{2}
 \item {} 
 \sphinxstylestrong{Prepare a sbatch configuration file}
@@ -681,6 +719,9 @@ available command options.
 
 \section{Parameterization with NFsim}
 \label{\detokenize{engines/nfsim:parameterization-with-nfsim}}\label{\detokenize{engines/nfsim::doc}}\begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \item {} 
 \sphinxstylestrong{Prepare the model}
 
@@ -728,6 +769,9 @@ selects a random value from the range \sphinxcode{\sphinxupquote{0.9 * old\_valu
 if the declared value is \sphinxcode{\sphinxupquote{0.1}} with probability \sphinxcode{\sphinxupquote{0.2}}.
 \end{sphinxadmonition}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare the data files}
@@ -749,6 +793,9 @@ time, RLbonds, pR
 \PYG{l+m}{6}.00000000E+01, \PYG{l+m}{1}.63666800E+02, \PYG{l+m}{3}.37480000E+02
 \end{sphinxVerbatim}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 \sphinxstylestrong{Prepare a sbatch configuration file}
@@ -1031,6 +1078,9 @@ simulated values (\(sim_j\)):
 \end{DUlineblock}
 \end{quote}
 \begin{enumerate}
+\def\theenumi{\arabic{enumi}}
+\def\labelenumi{\theenumi .}
+\makeatletter\def\p@enumii{\p@enumi \theenumi .}\makeatother
 \setcounter{enumi}{1}
 \item {} 
 We determine if \(U_{exp}\) is statistically significant:

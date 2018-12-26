@@ -11,7 +11,7 @@
 #SBATCH --output=stdout.txt
 #SBATCH --error=stderr.txt
 
-export PYTHONPATH="$PYTHONPATH:$HOME/opt/github-repositories/glucksfall-pleione"
+export PYTHONPATH="$PYTHONPATH:$HOME/opt/github-repositories/glucksfall.pleione"
 
 MODEL=pysbmodel-example6-piskas.kappa
 FINAL=660
