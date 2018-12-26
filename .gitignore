@@ -1,6 +1,3 @@
-# pre upload
-/pleione/
-
 # Compiled python modules.
 *__pycache__
 *.pyc
