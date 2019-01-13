@@ -12,8 +12,104 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'nfsim-v1.12.1'
 
-import argparse, glob, multiprocessing, os, re, subprocess, sys, time
+import argparse, glob, multiprocessing, os, random, re, shutil, subprocess, sys, time
 import pandas, numpy
+
+class custom:
+	class random:
+		def seed(number):
+			if args.legacy is True:
+				random.seed(args.seed)
+			else:
+				numpy.random.seed(args.seed)
+
+		def random():
+			if args.legacy is True:
+				return random.random()
+			else:
+				return numpy.random.random()
+
+		def uniform(lower, upper):
+			if args.legacy is True:
+				return random.uniform(lower, upper)
+			else:
+				return numpy.random.uniform(lower, upper, None)
+
+		def lognormal(lower, upper):
+			if args.legacy is True:
+				return random.lognormvariate(lower, upper)
+			else:
+				return numpy.random.lognormal(lower, upper, None)
+
+def safe_checks():
+	if shutil.which(opts['python']) is None:
+		error_msg = 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
+			'You could use --python {:s}'.format(opts['python'], shutil.which('python3'))
+		print(error_msg)
+		raise OSError(error_msg)
+
+	# check for simulators
+	if shutil.which(opts['bng2']) is None:
+		error_msg = 'BNG2 (at {:s}) can\'t be called to perform simulations.\n' \
+			'Check the path to BNG2.'.format(opts['bng2'])
+		print(error_msg)
+		raise OSError(error_msg)
+	#if shutil.which(opts['kasim']) is None:
+		#error_msg = 'KaSim (at {:s}) can\'t be called to perform simulations.\n' \
+			#'Check the path to KaSim.'.format(opts['kasim'])
+		#print(error_msg)
+		#raise OSError(error_msg)
+	if shutil.which(opts['nfsim']) is None:
+		error_msg = 'NFsim (at {:s}) can\'t be called to perform simulations.\n' \
+			'Check the path to NFsim.'.format(opts['nfsim'])
+		print(error_msg)
+		raise OSError(error_msg)
+	#if shutil.which(opts['piskas']) is None:
+		#error_msg = 'PISKaS (at {:s}) can\'t be called to perform simulations.\n' \
+			#'Check the path to PISKaS.'.format(opts['piskas'])
+		#print(error_msg)
+		#raise OSError(error_msg)
+
+	# check for slurm
+	if opts['slurm'] is not None or opts['slurm'] == '':
+		if shutil.which('sinfo') is None:
+			error_msg = 'You specified a SLURM partition but SLURM isn\'t installed on your system.\n' \
+				'Delete --slurm to use the python multiprocessing API or install SLURM (https://pleione.readthedocs.io/en/latest/SLURM.html)'
+			print(error_msg)
+			raise OSError(error_msg)
+		else:
+			cmd = 'sinfo -hp {:s}'.format(opts['slurm'])
+			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
+			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+			if out == b'':
+				error_msg = 'You specified an invalid SLURM partition.\n' \
+					'Please, use --slurm $SLURM_JOB_PARTITION or delete --slurm to use the python multiprocessing API'
+				print(error_msg)
+				raise OSError(error_msg)
+
+	# check if model file exists
+	if not os.path.isfile(opts['model']):
+		error_msg = 'The "{:s}" file cannot be opened.\n' \
+			'Please, check the path to the model file.'.format(opts['model'])
+		print(error_msg)
+		raise OSError(error_msg)
+
+	# check if data files exist
+	if len(opts['data']) == 1: # shlex
+		if len(glob.glob(opts['data'][0])) == 0:
+			error_msg = 'The path "{:s}" is empty.\n' \
+				'Please, check the path to the data files'.format(opts['data'][0])
+			print(error_msg)
+			raise OSError(error_msg)
+	else:
+		for data in opts['data']: # each file was declared explicitly
+			if not os.path.isfile(data):
+				error_msg = 'The "{:s}" file cannot be opened.\n' \
+					'Please, check the path to the data file.'.format(data)
+				print(error_msg)
+				raise OSError(error_msg)
+
+	return 0
 
 def parallelize(cmd):
 	proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -32,7 +128,7 @@ def argsparser():
 	parser.add_argument('--error'  , metavar = 'str'  , type = str  , required = True , nargs = '+', help = 'list of supported goodness of fit functions')
 	parser.add_argument('--data'   , metavar = 'str'  , type = str  , required = True , nargs = '+', help = 'data files to parameterize')
 
-	# usefull paths
+	# useful paths
 	parser.add_argument('--bng2'   , metavar = 'path' , type = str  , required = False, default = '~/bin/bng2'    , help = 'BioNetGen path')
 	#parser.add_argument('--kasim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/kasim4'  , help = 'KaSim path')
 	parser.add_argument('--nfsim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/nfsim'   , help = 'NFsim path')
@@ -52,7 +148,7 @@ def argsparser():
 	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover points: multiple or single point')
 	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation rate')
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
-	parser.add_argument('--self'   , metavar = 'str'  , type = str , required = False, default = False           , help = 'allow self recombination?')
+	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
 
 	# other options
@@ -67,8 +163,11 @@ def argsparser():
 	parser.add_argument('--fitness', metavar = 'str'  , type = str  , required = False, default = 'goodness'      , help = 'folder to save the goodness for each parameter set')
 	parser.add_argument('--ranking', metavar = 'str'  , type = str  , required = False, default = 'ranking'       , help = 'folder to save the ranking per iteration')
 
-	# TO BE DEPRECATED, only with publishing purposes. If the user wants to know the behavior of other functions, the option --dev should be maintained
-	parser.add_argument('--dev'    , metavar = 'str' , type = str  , required = False, default = None            , help = 'calculate all error functions')
+	# TO BE DEPRECATED, only with publishing purposes.
+	# the random standard library does not have a random.choice with an optional probability list, therefore, Pleione uses numpy.random.choice
+	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'use random.random instead of numpy.random')
+	# If the user wants to know the behavior of other functions, the option --dev should be maintained
+	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all error functions')
 
 	args = parser.parse_args()
 
@@ -77,12 +176,13 @@ def argsparser():
 			parser.error('--error MWUT requires --crit file')
 		if args.dev is not None:
 			parser.error('--dev requires --crit file')
+		args.crit = 'dummy-file.txt' # the file is not read by the error calculation script
 
 	if args.seed is None:
 		if sys.platform.startswith('linux'):
 			args.seed = int.from_bytes(os.urandom(4), byteorder = 'big')
 		else:
-			parser.error('pleione requires a --seed number')
+			parser.error('pleione requires --seed integer')
 
 	return args
 
@@ -187,11 +287,11 @@ def populate():
 				upper = stdv = float(parameters[par_keys[line]][5])
 
 				if parameters[par_keys[line]][3] == 'uniform':
-					population[line, ind] = numpy.random.uniform(lower, upper, None)
+					population[line, ind] = custom.random.uniform(lower, upper)
 				elif parameters[par_keys[line]][3] == 'loguniform':
-					population[line, ind] = numpy.exp(numpy.random.uniform(numpy.log(lower), numpy.log(upper), None))
+					population[line, ind] = numpy.exp(custom.random.uniform(numpy.log(lower), numpy.log(upper)))
 				elif parameters[par_keys[line]][3] == 'lognormal':
-					population[line, ind] = numpy.random.lognormal(mean, stdv, None)
+					population[line, ind] = custom.random.lognormal(mean, stdv)
 				else:
 					raise ValueError('Declare uniform/loguniform/lognormal for a valid range to look for parameter values at the first iteration')
 
@@ -295,7 +395,7 @@ def simulate():
 
 			# use SLURM Workload Manager
 			if opts['slurm'] is not None:
-				cmd = 'sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_nfsim}""'.format(**job_desc)
+				cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_nfsim}""'.format(**job_desc))
 				cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 				out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 				while err == sbatch_error:
@@ -321,7 +421,7 @@ def simulate():
 	# simulate with multiprocessing.Pool
 	else:
 		with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-			pool.map(parallelize, sorted(squeue))
+			pool.map(parallelize, sorted(squeue), chunksize = 1)
 
 	return population
 
@@ -382,7 +482,7 @@ def evaluate():
 	# calc error with multiprocessing.Pool
 	else:
 		with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-			pool.map(parallelize, sorted(squeue))
+			pool.map(parallelize, sorted(squeue), chunksize = 1)
 
 	return population
 
@@ -414,7 +514,7 @@ def ranking():
 		for ind in range(0, opts['pop_size']):
 			jobs[population['model', ind]] += {k: v for v, k in enumerate(rank['{:s}'.format(fitfunc[name])])}[population['model', ind]]
 
-	# create an 'ordered' list of individuals from the 'population' dictionary by incresing fitness
+	# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness
 	rank = sorted(jobs, key = jobs.get, reverse = False)
 
 	# find the index that match best individual with the 'population' dictionary keys and store the rank (a list) in the population dictionary
@@ -486,12 +586,11 @@ def mutate():
 		population['error', ind] = best_population['error', ind]
 
 	# User defined best population
+	top = opts['pop_best']
 	if opts['pop_best'] == 0:
 		top = opts['pop_size']
 	elif opts['pop_best'] == 1:
 		opts['self_rec'] == True # allow self recombination to generate descendants from only one parent
-	else:
-		top = opts['pop_best']
 
 	# probability distribution to select parents
 	if opts['dist_type'] == 'uniform':
@@ -516,9 +615,14 @@ def mutate():
 			# choose two random individuals from the best population (reindexed from 0 to 'pop_best' size)
 			n1 = numpy.random.choice(range(top), p = prob[0:top])
 			n2 = numpy.random.choice(range(top), p = prob[0:top])
+
+			#n1 = random.choice(range(top))
+			#n2 = random.choice(range(top))
+
 			if opts['self_rec'] == False and not opts['pop_size'] == 1:
 				while n2 == n1:
 					n2 = numpy.random.choice(range(top), p = prob[0:top])
+					#n2 = random.choice(range(top))
 
 		# perform multiple or single crossover
 		if opts['xpoints'] == 'multiple':
@@ -528,12 +632,12 @@ def mutate():
 				population[par_keys[par], ind + 1] = best_population[par_keys[par], n2]
 
 				# swap parameter values using a probability threshold
-				if opts['mut_swap'] >= numpy.random.random():
+				if opts['mut_swap'] >= custom.random.random():
 					population[par_keys[par], ind] = best_population[par_keys[par], n2]
 					population[par_keys[par], ind + 1] = best_population[par_keys[par], n1]
 
 		elif opts['xpoints'] == 'single':
-			point = numpy.random.uniform(0, len(par_keys), None)
+			point = custom.random.uniform(0, len(par_keys))
 			for par in range(0, len(par_keys)):
 				# create children and do not swap parameters!
 				if par <= point:
@@ -555,24 +659,25 @@ def mutate():
 	for ind in range(opts['pop_best'], opts['pop_size']):
 		for par in range(0, len(par_keys)):
 			if parameters[par_keys[par]][6] == 'factor':
-				if float(parameters[par_keys[par]][7]) >= numpy.random.random():
-					population[par_keys[par], ind] = population[par_keys[par], ind] * numpy.random.uniform(1.0 - float(parameters[par_keys[par]][8]), 1.0 + float(parameters[par_keys[par]][8]), None)
+				if float(parameters[par_keys[par]][7]) >= custom.random.random():
+					population[par_keys[par], ind] = population[par_keys[par], ind] * \
+						custom.random.uniform(1.0 - float(parameters[par_keys[par]][8]), 1.0 + float(parameters[par_keys[par]][8]))
 
 			elif parameters[par_keys[par]][6] == 'uniform' or parameters[par_keys[par]][6] == 'loguniform':
 				lower = float(parameters[par_keys[par]][7])
 				upper = float(parameters[par_keys[par]][8])
 
-				if parameters[par_keys[par]][9] is None and opts['mut_rate'] >= numpy.random.random():
+				if parameters[par_keys[par]][9] is None and opts['mut_rate'] >= custom.random.random():
 					if parameters[par_keys[par]][6] == 'uniform':
-						population[par_keys[par], ind] = numpy.random.uniform(lower, upper, None)
+						population[par_keys[par], ind] = custom.random.uniform(lower, upper)
 					if parameters[par_keys[par]][6] == 'loguniform':
-						population[par_keys[par], ind] = numpy.exp(numpy.random.uniform(numpy.log(lower), numpy.log(upper), None))
+						population[par_keys[par], ind] = numpy.exp(custom.random.uniform(numpy.log(lower), numpy.log(upper)))
 
-				elif parameters[par_keys[par]][9] is not None and float(parameters[par_keys[par]][9]) >= numpy.random.random():
+				elif parameters[par_keys[par]][9] is not None and float(parameters[par_keys[par]][9]) >= custom.random.random():
 					if parameters[par_keys[par]][6] == 'uniform':
-						population[par_keys[par], ind] = numpy.random.uniform(lower, upper, None)
+						population[par_keys[par], ind] = custom.random.uniform(lower, upper)
 					if parameters[par_keys[par]][6] == 'loguniform':
-						population[par_keys[par], ind] = numpy.exp(numpy.random.uniform(numpy.log(lower), numpy.log(upper), None))
+						population[par_keys[par], ind] = numpy.exp(custom.random.uniform(numpy.log(lower), numpy.log(upper)))
 
 	return population
 
@@ -631,14 +736,19 @@ def backup():
 
 if __name__ == '__main__':
 	sbatch_error = b'sbatch: error: slurm_receive_msg: Socket timed out on send/recv operation\n' \
-				b'sbatch: error: Batch job submission failed: Socket timed out on send/recv operation'
+		b'sbatch: error: Batch job submission failed: Socket timed out on send/recv operation'
 	squeue_error = b'squeue: error: slurm_receive_msg: Socket timed out on send/recv operation\n' \
-				b'slurm_load_jobs error: Socket timed out on send/recv operation'
+		b'slurm_load_jobs error: Socket timed out on send/recv operation'
+	#sbatch_error = b'sbatch: error: Slurm temporarily unable to accept job, sleeping and retrying.'
+	#sbatch_error = b'sbatch: error: Batch job submission failed: Resource temporarily unavailable'
 
 	# general options
 	args = argsparser()
 	opts = ga_opts()
-	seed = numpy.random.seed(opts['rng_seed'])
+	seed = custom.random.seed(opts['rng_seed'])
+
+	# perform safe checks prior to any calculation
+	safe_checks()
 
 	# clean the working directory
 	clean()

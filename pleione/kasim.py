@@ -43,41 +43,35 @@ class custom:
 
 def safe_checks():
 	if shutil.which(opts['python']) is None:
-		error_msg = 'python3 (at {:s}) can\'t be called to perform calculation error\n' \
+		error_msg = 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}'.format(opts['python'], shutil.which('python3'))
 		print(error_msg)
 		raise OSError(error_msg)
 
 	# check for simulators
 	#if shutil.which(opts['bng2']) is None:
-		#error_msg = 'BNG2 (at {:s}) can\'t be called to perform simulations\n' \
+		#error_msg = 'BNG2 (at {:s}) can\'t be called to perform simulations.\n' \
 			#'Check the path to BNG2.'.format(opts['bng2'])
 		#print(error_msg)
 		#raise OSError(error_msg)
 	if shutil.which(opts['kasim']) is None:
-		error_msg = 'KaSim (at {:s}) can\'t be called to perform simulations\n' \
+		error_msg = 'KaSim (at {:s}) can\'t be called to perform simulations.\n' \
 			'Check the path to KaSim.'.format(opts['kasim'])
 		print(error_msg)
 		raise OSError(error_msg)
 	#if shutil.which(opts['nfsim']) is None:
-		#error_msg = 'NFsim (at {:s}) can\'t be called to perform simulations\n' \
+		#error_msg = 'NFsim (at {:s}) can\'t be called to perform simulations.\n' \
 			#'Check the path to NFsim.'.format(opts['nfsim'])
 		#print(error_msg)
 		#raise OSError(error_msg)
-	#if shutil.which(opts['kasim']) is None:
-		#error_msg = 'PISKaS (at {:s}) can\'t be called to perform simulations\n' \
+	#if shutil.which(opts['piskas']) is None:
+		#error_msg = 'PISKaS (at {:s}) can\'t be called to perform simulations.\n' \
 			#'Check the path to PISKaS.'.format(opts['piskas'])
 		#print(error_msg)
 		#raise OSError(error_msg)
 
 	# check for slurm
-	if opts['slurm'] is None or opts['slurm'] == '':
-		error_msg = 'You didn\'t specified a valid SLURM partition.\n' \
-			'Please, use --slurm $SLURM_JOB_PARTITION or delete --slurm to use the python multiprocessing API'
-		print(error_msg)
-		raise OSError(error_msg)
-
-	if opts['slurm'] is not None:
+	if opts['slurm'] is not None or opts['slurm'] == '':
 		if shutil.which('sinfo') is None:
 			error_msg = 'You specified a SLURM partition but SLURM isn\'t installed on your system.\n' \
 				'Delete --slurm to use the python multiprocessing API or install SLURM (https://pleione.readthedocs.io/en/latest/SLURM.html)'
@@ -90,6 +84,28 @@ def safe_checks():
 			if out == b'':
 				error_msg = 'You specified an invalid SLURM partition.\n' \
 					'Please, use --slurm $SLURM_JOB_PARTITION or delete --slurm to use the python multiprocessing API'
+				print(error_msg)
+				raise OSError(error_msg)
+
+	# check if model file exists
+	if not os.path.isfile(opts['model']):
+		error_msg = 'The "{:s}" file cannot be opened.\n' \
+			'Please, check the path to the model file.'.format(opts['model'])
+		print(error_msg)
+		raise OSError(error_msg)
+
+	# check if data files exist
+	if len(opts['data']) == 1: # shlex
+		if len(glob.glob(opts['data'][0])) == 0:
+			error_msg = 'The path "{:s}" is empty.\n' \
+				'Please, check the path to the data files'.format(opts['data'][0])
+			print(error_msg)
+			raise OSError(error_msg)
+	else:
+		for data in opts['data']: # each file was declared explicitly
+			if not os.path.isfile(data):
+				error_msg = 'The "{:s}" file cannot be opened.\n' \
+					'Please, check the path to the data file.'.format(data)
 				print(error_msg)
 				raise OSError(error_msg)
 
@@ -148,7 +164,7 @@ def argsparser():
 	parser.add_argument('--ranking', metavar = 'str'  , type = str  , required = False, default = 'ranking'       , help = 'folder to save the ranking per iteration')
 
 	# TO BE DEPRECATED, only with publishing purposes.
-	# the random built-in package does not have a random.choice with an optional probability list, therefor, Pleione uses numpy.random.choice
+	# the random standard library does not have a random.choice with an optional probability list, therefore, Pleione uses numpy.random.choice
 	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'use random.random instead of numpy.random')
 	# If the user wants to know the behavior of other functions, the option --dev should be maintained
 	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all error functions')
@@ -358,7 +374,7 @@ def simulate():
 
 			# use SLURM Workload Manager
 			if opts['slurm'] is not None:
-				cmd = 'sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_kasim}""'.format(**job_desc)
+				cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_kasim}""'.format(**job_desc))
 				cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 				out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 				while err == sbatch_error:
@@ -477,7 +493,7 @@ def ranking():
 		for ind in range(0, opts['pop_size']):
 			jobs[population['model', ind]] += {k: v for v, k in enumerate(rank['{:s}'.format(fitfunc[name])])}[population['model', ind]]
 
-	# create an 'ordered' list of individuals from the 'population' dictionary by incresing fitness
+	# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness
 	rank = sorted(jobs, key = jobs.get, reverse = False)
 
 	# find the index that match best individual with the 'population' dictionary keys and store the rank (a list) in the population dictionary
@@ -584,8 +600,8 @@ def mutate():
 
 			if opts['self_rec'] == False and not opts['pop_size'] == 1:
 				while n2 == n1:
-					#n2 = numpy.random.choice(range(top), p = prob[0:top])
-					n2 = random.choice(range(top))
+					n2 = numpy.random.choice(range(top), p = prob[0:top])
+					#n2 = random.choice(range(top))
 
 		# perform multiple or single crossover
 		if opts['xpoints'] == 'multiple':
@@ -649,7 +665,7 @@ def clean():
 	cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 	out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
-	return
+	return 0
 
 def backup():
 	folder_results = opts['results'] + '_' + opts['systime']
@@ -695,7 +711,7 @@ def backup():
 	cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 	out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
-	return
+	return 0
 
 if __name__ == '__main__':
 	sbatch_error = b'sbatch: error: slurm_receive_msg: Socket timed out on send/recv operation\n' \
