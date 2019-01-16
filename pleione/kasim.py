@@ -184,6 +184,9 @@ def argsparser():
 		else:
 			parser.error('pleione requires --seed integer')
 
+	if not args.legacy and args.dist == 'inverse':
+		parser.error('legacy uses the random standard library that don\'t support a non-uniform random choice.')
+
 	return args
 
 def ga_opts():
@@ -350,10 +353,11 @@ def simulate():
 	for ind in range(0, opts['pop_size']):
 		model = population['model', ind]
 
-		with open(model + '.sh', 'w') as file:
-			for line in range(0, len(par_keys)):
-				if parameters[line][0] == 'par':
-					file.write('-var {:s} {:.7g}\n'.format(parameters[line][1], population[line, ind]))
+		if not os.path.exists(model + '.sh'):
+			with open(model + '.sh', 'w') as file:
+				for line in range(0, len(par_keys)):
+					if parameters[line][0] == 'par':
+						file.write('-var {:s} {:.7g}\n'.format(parameters[line][1], population[line, ind]))
 
 	# submit simulations to the queue
 	squeue = []
@@ -363,29 +367,30 @@ def simulate():
 			model = population['model', ind]
 			output = '{:s}.{:03d}.out.txt'.format(model, sim)
 
-			# read the parameters (Yeap, I could read the population dictionary, but this was the original implementation)
-			cmd = 'cat {:s}.sh'.format(model)
-			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-			free_params = out.decode('utf-8').replace('\n', ' ')
-
-			#job_desc['exec_kasim'] = '{:s} -load-sim {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format(opts['kasim'], opts['bin_file'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
-			job_desc['exec_kasim'] = '{:s} -i {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format(opts['kasim'], opts['model'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
-
-			# use SLURM Workload Manager
-			if opts['slurm'] is not None:
-				cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_kasim}""'.format(**job_desc))
+			if not os.path.exists(output):
+				# read the parameters (Yeap, I could read the population dictionary, but this was the original implementation)
+				cmd = 'cat {:s}.sh'.format(model)
 				cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 				out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-				while err == sbatch_error:
-					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-				squeue.append(out.decode('utf-8')[20:-1])
+				free_params = out.decode('utf-8').replace('\n', ' ')
 
-			# use multiprocessing.Pool
-			else:
-				cmd = os.path.expanduser(job_desc['exec_kasim'])
-				cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-				squeue.append(cmd)
+				#job_desc['exec_kasim'] = '{:s} -load-sim {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format(opts['kasim'], opts['bin_file'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
+				job_desc['exec_kasim'] = '{:s} -i {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format(opts['kasim'], opts['model'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
+
+				# use SLURM Workload Manager
+				if opts['slurm'] is not None:
+					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_kasim}""'.format(**job_desc))
+					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
+					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+					while err == sbatch_error:
+						out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+					squeue.append(out.decode('utf-8')[20:-1])
+
+				# use multiprocessing.Pool
+				else:
+					cmd = os.path.expanduser(job_desc['exec_kasim'])
+					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
+					squeue.append(cmd)
 
 	# check if squeued jobs have finished
 	if opts['slurm'] is not None:
@@ -591,17 +596,20 @@ def mutate():
 					n2 = numpy.random.choice(ranked_population[0:top], p = prob[0:top])
 
 		elif opts['pop_best'] != 0:
-			# choose two random individuals from the best population (reindexed from 0 to 'pop_best' size)
-			n1 = numpy.random.choice(range(top), p = prob[0:top])
-			n2 = numpy.random.choice(range(top), p = prob[0:top])
-
-			#n1 = random.choice(range(top))
-			#n2 = random.choice(range(top))
+			if not args.legacy:
+				# choose two random individuals from the best population (reindexed from 0 to 'pop_best' size)
+				n1 = numpy.random.choice(range(top), p = prob[0:top])
+				n2 = numpy.random.choice(range(top), p = prob[0:top])
+			else:
+				n1 = random.choice(range(top))
+				n2 = random.choice(range(top))
 
 			if opts['self_rec'] == False and not opts['pop_size'] == 1:
 				while n2 == n1:
-					n2 = numpy.random.choice(range(top), p = prob[0:top])
-					#n2 = random.choice(range(top))
+					if args.legacy:
+						n2 = numpy.random.choice(range(top), p = prob[0:top])
+					else:
+						n2 = random.choice(range(top))
 
 		# perform multiple or single crossover
 		if opts['xpoints'] == 'multiple':
