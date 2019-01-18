@@ -18,25 +18,25 @@ import pandas, numpy
 class custom:
 	class random:
 		def seed(number):
-			if args.legacy is True:
+			if args.legacy:
 				random.seed(args.seed)
 			else:
 				numpy.random.seed(args.seed)
 
 		def random():
-			if args.legacy is True:
+			if args.legacy:
 				return random.random()
 			else:
 				return numpy.random.random()
 
 		def uniform(lower, upper):
-			if args.legacy is True:
+			if args.legacy:
 				return random.uniform(lower, upper)
 			else:
 				return numpy.random.uniform(lower, upper, None)
 
 		def lognormal(lower, upper):
-			if args.legacy is True:
+			if args.legacy:
 				return random.lognormvariate(lower, upper)
 			else:
 				return numpy.random.lognormal(lower, upper, None)
