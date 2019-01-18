@@ -185,7 +185,8 @@ def argsparser():
 			parser.error('pleione requires --seed integer')
 
 	if not args.legacy and args.dist == 'inverse':
-		parser.error('legacy uses the random standard library that don\'t support a non-uniform random choice.')
+		parser.error('legacy uses the random standard library that don\'t support a non-uniform random choice.\n' \
+			'Please delete legacy or set to False.')
 
 	return args
 
