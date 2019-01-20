@@ -315,7 +315,7 @@ def simulate():
 			with open('{:s}_{:03d}.bngl'.format(population['model', ind], sim), 'w') as file:
 				for line in range(0, len(par_keys)):
 					if parameters[line][0] == 'par':
-						file.write('{:s} {:f}\n'.format(parameters[line][1], population[line, ind]))
+						file.write('{:s} {:.7g}\n'.format(parameters[line][1], population[line, ind]))
 					else:
 						file.write(re.sub(r'suffix\s*?=\s*?>\s*\".*\"', 'suffix=>""', parameters[line]))
 

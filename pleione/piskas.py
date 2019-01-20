@@ -326,7 +326,7 @@ def simulate():
 		with open(model + '.kappa', 'w') as file:
 			for line in range(len(par_keys)):
 				if parameters[line][0] == 'par':
-					file.write('%var: \'{:s}\' {:f}\n'.format(parameters[line][1], population[line, ind]))
+					file.write('%var: \'{:s}\' {:.7g}\n'.format(parameters[line][1], population[line, ind]))
 				else:
 					file.write(parameters[line])
 

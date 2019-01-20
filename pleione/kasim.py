@@ -92,7 +92,7 @@ def safe_checks():
 		error_msg = 'The "{:s}" file cannot be opened.\n' \
 			'Please, check the path to the model file.'.format(opts['model'])
 		print(error_msg)
-		raise OSError(error_msg)
+		raise ValueError(error_msg)
 
 	# check if data files exist
 	if len(opts['data']) == 1: # shlex
@@ -108,6 +108,17 @@ def safe_checks():
 					'Please, check the path to the data file.'.format(data)
 				print(error_msg)
 				raise OSError(error_msg)
+
+	# check GA options
+	if opts['mut_swap'] > 1.0:
+		error_msg = 'Parameter swap (or recombination) probability must be a float between zero and one.'
+		print(error_msg)
+		raise ValueError(error_msg)
+
+	if opts['mut_rate'] > 1.0:
+		error_msg = 'Parameter mutation probability must be a float between zero and one.'
+		print(error_msg)
+		raise ValueError(error_msg)
 
 	return 0
 
@@ -144,9 +155,9 @@ def argsparser():
 	parser.add_argument('--inds'   , metavar = 'int'  , type = int  , required = False, default = 100             , help = 'number of individuals per population')
 	parser.add_argument('--sims'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of simulations per individual')
 	parser.add_argument('--best'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of individuals per parental population')
-	parser.add_argument('--swap'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q1: global swap prob rate between parents')
+	parser.add_argument('--swap'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q1: global swap probability between parents')
 	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover points: multiple or single point')
-	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation rate')
+	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation probability')
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
 	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
@@ -268,11 +279,42 @@ def configurate():
 				matched.group(8), # upper bound or factor
 				matched.group(9), # specific mutation rate (optional)
 				]
+
+			# Check validity of parameters
+			if matched.group(3) == 'loguniform':
+				if matched.group(4) == 0:
+					error_msg = 'Lower bound for parameter {:s} initial population cannot be zero.'.format(matched.group(1))
+					print(error_msg)
+					raise ValueError(error_msg)
+			if matched.group(6) == 'loguniform':
+				if matched.group(4) == 0:
+					error_msg = 'Lower bound for parameter {:s} search space cannot be zero.'.format(matched.group(1))
+					print(error_msg)
+					raise ValueError(error_msg)
+
+			if matched.group(6) == 'factor':
+				if matched.group(7) > 1.0:
+					error_msg = 'Mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
+					print(error_msg)
+					raise ValueError(error_msg)
+				if matched.group(8) > 1.0:
+					error_msg = 'Mutation foldchange for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
+					print(error_msg)
+					raise ValueError(error_msg)
+
+			if matched.group(9) is not None and matched.group(9) > 1.0:
+				error_msg = 'Specific mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
+				print(error_msg)
+				raise ValueError(error_msg)
+
 		else:
 			parameters[line] = data[line]
 
 	if num_pars == 0:
-		raise ValueError('No variables to parameterize.')
+		error_msg = 'No variables to parameterize.\n' \
+			'Check if selected variables follow the regex (See Manual).'
+		print(error_msg)
+		raise ValueError(error_msg)
 
 	return parameters
 
