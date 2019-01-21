@@ -150,6 +150,7 @@ def argsparser():
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
 	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
+	parser.add_argument('--format' , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
 
 	# other options
 	#parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax')
@@ -211,6 +212,7 @@ def ga_opts():
 		'self_rec'  : args.self,
 		'xpoints'   : args.cross,
 		'crit_vals' : args.crit,
+		'par_fmt'   : args.format,
 		#'syntax'    : args.syntax, # kasim4 only
 		#'binary'    : args.binary, # kasim4 only
 		#'equil'     : args.equil, # nfsim only
@@ -311,13 +313,14 @@ def simulate():
 
 	# generate a kappa file per model
 	par_keys = list(parameters.keys())
+	par_string = '%var: \'{:s}\' {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(0, opts['pop_size']):
 		model = population['model', ind]
 
 		with open(model + '.kappa', 'w') as file:
 			for line in range(len(par_keys)):
 				if parameters[line][0] == 'par':
-					file.write('%var: \'{:s}\' {:f}\n'.format(parameters[line][1], population[line, ind]))
+					file.write(par_string.format(parameters[line][1], population[line, ind]))
 				else:
 					file.write(parameters[line])
 

@@ -161,6 +161,7 @@ def argsparser():
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
 	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
+	parser.add_argument('--format' , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
 
 	# other options
 	parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax')
@@ -226,6 +227,7 @@ def ga_opts():
 		'self_rec'  : args.self,
 		'xpoints'   : args.cross,
 		'crit_vals' : args.crit,
+		'par_fmt'   : args.format,
 		'syntax'    : args.syntax, # kasim only
 		'binary'    : args.binary, # kasim only
 		#'equil'     : args.equil, # nfsim only
@@ -282,27 +284,27 @@ def configurate():
 
 			# Check validity of parameters
 			if matched.group(3) == 'loguniform':
-				if matched.group(4) == 0:
+				if float(matched.group(4)) == 0.0:
 					error_msg = 'Lower bound for parameter {:s} initial population cannot be zero.'.format(matched.group(1))
 					print(error_msg)
 					raise ValueError(error_msg)
 			if matched.group(6) == 'loguniform':
-				if matched.group(4) == 0:
+				if float(matched.group(4)) == 0.0:
 					error_msg = 'Lower bound for parameter {:s} search space cannot be zero.'.format(matched.group(1))
 					print(error_msg)
 					raise ValueError(error_msg)
 
 			if matched.group(6) == 'factor':
-				if matched.group(7) > 1.0:
+				if float(matched.group(7)) > 1.0:
 					error_msg = 'Mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
 					print(error_msg)
 					raise ValueError(error_msg)
-				if matched.group(8) > 1.0:
+				if float(matched.group(8)) > 1.0:
 					error_msg = 'Mutation foldchange for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
 					print(error_msg)
 					raise ValueError(error_msg)
 
-			if matched.group(9) is not None and matched.group(9) > 1.0:
+			if matched.group(9) is not None and float(matched.group(9)) > 1.0:
 				error_msg = 'Specific mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
 				print(error_msg)
 				raise ValueError(error_msg)
@@ -393,6 +395,7 @@ def simulate():
 
 	# generate a sh file per model
 	par_keys = list(parameters.keys())
+	par_string = '-var {:s} {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(0, opts['pop_size']):
 		model = population['model', ind]
 
@@ -400,7 +403,7 @@ def simulate():
 			with open(model + '.sh', 'w') as file:
 				for line in range(0, len(par_keys)):
 					if parameters[line][0] == 'par':
-						file.write('-var {:s} {:.7g}\n'.format(parameters[line][1], population[line, ind]))
+						file.write(par_string.format(parameters[line][1], population[line, ind]))
 
 	# submit simulations to the queue
 	squeue = []

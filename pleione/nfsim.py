@@ -150,6 +150,7 @@ def argsparser():
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
 	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
+	parser.add_argument('--format' , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
 
 	# other options
 	#parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax')
@@ -211,6 +212,7 @@ def ga_opts():
 		'self_rec'  : args.self,
 		'xpoints'   : args.cross,
 		'crit_vals' : args.crit,
+		'par_fmt'   : args.format,
 		#'syntax'    : args.syntax, # kasim only
 		#'binary'    : args.binary, # kasim only
 		'equil'     : args.equil, # nfsim only
@@ -310,6 +312,7 @@ def make_xml():
 		}
 
 	par_keys = list(parameters.keys())
+	par_string = '{:s} {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(0, opts['pop_size']):
 		with open(population['model', ind] + '.bngl', 'w') as file:
 			for line in range(0, len(par_keys)):
@@ -369,6 +372,7 @@ def simulate():
 
 	# generate a rnf file per model
 	par_keys = list(parameters.keys())
+	par_string = '  set {:s} {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(0, opts['pop_size']):
 		model = population['model', ind]
 		rnfile = '{:s}.rnf'.format(model)
@@ -376,7 +380,7 @@ def simulate():
 			file.write('begin\n')
 			for line in range(0, len(par_keys)):
 				if parameters[line][0] == 'par':
-					file.write('  set {:s} {:f}\n'.format(parameters[line][1], population[line, ind]))
+					file.write(par_string.format(parameters[line][1], population[line, ind]))
 			file.write('  update\n')
 			file.write('  eq {:f}\n'.format(opts['equil']))
 			file.write('  sim {:s} {:s}\n'.format(opts['final'], opts['steps']))
