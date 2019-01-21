@@ -175,7 +175,7 @@ def argsparser():
 	if args.crit is None:
 		if set(args.error).issuperset(set(['MWUT'])):
 			parser.error('--error MWUT requires --crit file')
-		if args.dev is not None:
+		if args.dev:
 			parser.error('--dev requires --crit file')
 		args.crit = 'dummy-file.txt' # the file is not read by the error calculation script
 
@@ -258,7 +258,7 @@ def configurate():
 	num_pars = 0
 	parameters = {}
 
-	for line in range(0, len(data)):
+	for line in range(len(data)):
 		matched = re.match(regex, data[line])
 		if matched:
 			num_pars += 1
@@ -293,7 +293,7 @@ def populate():
 			population['error_{:s}'.format(cpu), ind] = opts['max_error']
 		population['error', ind] = opts['max_error']
 
-		for line in range(0, len(par_keys)):
+		for line in range(len(par_keys)):
 			if parameters[line][0] == 'par':
 				lower = mean = float(parameters[par_keys[line]][4])
 				upper = stdv = float(parameters[par_keys[line]][5])
@@ -360,7 +360,7 @@ def simulate():
 
 	# check if squeued jobs have finished
 	if opts['slurm'] is not None:
-		for job_id in range(0, len(squeue)):
+		for job_id in range(len(squeue)):
 			cmd = 'squeue --noheader -j{:s}'.format(squeue[job_id])
 			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
@@ -402,7 +402,7 @@ def evaluate():
 			output = '{:s}.{:s}.txt'.format(model, cpu)
 
 			job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
-			if args.dev is not None:
+			if args.dev:
 				job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
 
 			# use SLURM Workload Manager
@@ -422,7 +422,7 @@ def evaluate():
 
 	# check if squeued jobs have finished
 	if opts['slurm'] is not None:
-		for job_id in range(0, len(squeue)):
+		for job_id in range(len(squeue)):
 			cmd = 'squeue --noheader -j{:s}'.format(squeue[job_id])
 			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
@@ -441,34 +441,40 @@ def ranking():
 	for ind in range(opts['pop_size']):
 		for cpu in compartments:
 			with open('{:s}.{:s}.txt'.format(population['model', ind], cpu), 'r') as file:
-				data = pandas.read_csv(file, delimiter = '\t', header = None).set_index(0, drop = True).rename_axis(None, axis = 0).rename(columns = {1: 'value'})
+				data = pandas.read_csv(file, delimiter = '\t', header = None).set_index(0, drop = True).rename_axis(None, axis = 0).rename(columns = { 1 : 'value' })
 
-			if args.dev is not None:
+			if args.dev:
 				fitfunc = list(data.index)
 			else:
 				fitfunc = opts['error']
 
 			# and store the error in the population dictionary
 			for name in range(len(fitfunc)):
-				population['{:s}'.format(fitfunc[name]), ind, cpu] = data.loc['{:s}'.format(fitfunc[name]), 'value']
+				population[fitfunc[name], ind, cpu] = data.loc[fitfunc[name], 'value']
+
+	for ind in range(opts['pop_size']):
+		for name in range(len(fitfunc)):
+			population[fitfunc[name], ind] = 0
+			for cpu in compartments:
+				population[fitfunc[name], ind] += population[fitfunc[name], ind, cpu]
 
 	# now that everything is stored in the population dict, we proceed to rank models by the selected error function(s)
 	jobs = {}
 	rank = {}
-	#fitfunc = opts['error']
-
-	for name in range(len(fitfunc)):
-		for ind in range(opts['pop_size']):
-			jobs[population['model', ind]] = 0
-			for cpu in compartments:
-				jobs[population['model', ind]] += population['{:s}'.format(fitfunc[name]), ind, cpu]
-			population['{:s}'.format(fitfunc[name]), ind] = jobs[population['model', ind]]
-		rank['{:s}'.format(fitfunc[name])] = sorted(jobs, key = jobs.get, reverse = False)
+	fitfunc = opts['error']
 
 	for ind in range(opts['pop_size']):
+		jobs[population['model', ind]] = 0
 		for name in range(len(fitfunc)):
-			jobs[population['model', ind]] += {key : value for value, key in enumerate(rank['{:s}'.format(fitfunc[name])])}[population['model', ind]]
+			for cpu in compartments:
+				jobs[population['model', ind]] += population[fitfunc[name], ind, cpu]
+		# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness, one per fitness function
+		rank[fitfunc[name]] = sorted(jobs, key = jobs.get, reverse = False)
 
+	for ind in range(opts['pop_size']):
+		jobs[population['model', ind]] = 0
+		for name in range(len(fitfunc)):
+			jobs[population['model', ind]] += { key : value for value, key in enumerate(rank[fitfunc[name]]) }[population['model', ind]]
 	# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness
 	rank = sorted(jobs, key = jobs.get, reverse = False)
 
@@ -485,7 +491,7 @@ def ranking():
 	# save the population dictionary as a report file
 	par_keys = list(set([key[0] for key in population.keys() if str(key[0]).isdigit()]))
 
-	if args.dev is not None:
+	if args.dev:
 		fitfunc = sorted(list(data.index))
 
 	with open('{:s}_{:03d}.txt'.format(opts['outfile'], iter), 'w') as file:
@@ -520,13 +526,13 @@ def ranking():
 			for name in range(len(fitfunc)):
 				for cpu in compartments:
 					if fitfunc[name] != 'MWUT':
-						file.write('{:.6e}\t'.format(float(population['{:s}'.format(fitfunc[name]), ind, cpu])))
+						file.write('{:.6e}\t'.format(float(population[fitfunc[name], ind, cpu])))
 					else:
-						file.write('{:.0f}\t'.format(float(population['{:s}'.format(fitfunc[name]), ind, cpu])))
+						file.write('{:.0f}\t'.format(float(population[fitfunc[name], ind, cpu])))
 				if fitfunc[name] != 'MWUT':
-					file.write('{:.6e}\t'.format(float(population['{:s}'.format(fitfunc[name]), ind])))
+					file.write('{:.6e}\t'.format(float(population[fitfunc[name], ind])))
 				else:
-					file.write('{:.0f}\t'.format(float(population['{:s}'.format(fitfunc[name]), ind])))
+					file.write('{:.0f}\t'.format(float(population[fitfunc[name], ind])))
 			for key in range(len(par_keys)):
 				file.write('{:.6e}\t'.format(float(population[par_keys[key], ind])))
 			file.write('\n')
@@ -544,15 +550,15 @@ def mutate():
 		best_population = population
 	else:
 		best_population = {}
-		for best in range(0, opts['pop_best']):
-			for key in range(0, len(par_keys)):
+		for best in range(opts['pop_best']):
+			for key in range(len(par_keys)):
 				best_population[par_keys[key], best] = population[par_keys[key], ranked_population[best]]
 			best_population['model', best] = population['model', ranked_population[best]]
 			best_population['error', best] = population['error', ranked_population[best]]
 
 	# fill the population dictionary with the elite, because population is a global variable
-	for ind in range(0, opts['pop_best']):
-		for par in range(0, len(par_keys)):
+	for ind in range(opts['pop_best']):
+		for par in range(len(par_keys)):
 			population[par_keys[par], ind] = best_population[par_keys[par], ind]
 		population['model', ind] = best_population['model', ind]
 		population['error', ind] = best_population['error', ind]
@@ -598,7 +604,7 @@ def mutate():
 
 		# perform multiple or single crossover
 		if opts['xpoints'] == 'multiple':
-			for par in range(0, len(par_keys)):
+			for par in range(len(par_keys)):
 				# create children
 				population[par_keys[par], ind] = best_population[par_keys[par], n1]
 				population[par_keys[par], ind + 1] = best_population[par_keys[par], n2]
@@ -610,7 +616,7 @@ def mutate():
 
 		elif opts['xpoints'] == 'single':
 			point = custom.random.uniform(0, len(par_keys))
-			for par in range(0, len(par_keys)):
+			for par in range(len(par_keys)):
 				# create children and do not swap parameters!
 				if par <= point:
 					population[par_keys[par], ind] = best_population[par_keys[par], n1]
@@ -629,7 +635,7 @@ def mutate():
 
 	# mutate parameter values
 	for ind in range(opts['pop_best'], opts['pop_size']):
-		for par in range(0, len(par_keys)):
+		for par in range(len(par_keys)):
 			if parameters[par_keys[par]][6] == 'factor':
 				if float(parameters[par_keys[par]][7]) >= custom.random.random():
 					population[par_keys[par], ind] = population[par_keys[par], ind] * \
@@ -731,7 +737,7 @@ if __name__ == '__main__':
 	population = populate()
 
 	# main Genetic Algorithm
-	for iter in range(0, opts['num_iter']):
+	for iter in range(opts['num_iter']):
 		population = simulate()
 		population = evaluate()
 		population = ranking()

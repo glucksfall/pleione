@@ -175,7 +175,7 @@ def argsparser():
 	if args.crit is None:
 		if set(args.error).issuperset(set(['MWUT'])):
 			parser.error('--error MWUT requires --crit file')
-		if args.dev is not None:
+		if args.dev:
 			parser.error('--dev requires --crit file')
 		args.crit = 'dummy-file.txt' # the file is not read by the error calculation script
 
@@ -392,7 +392,7 @@ def evaluate():
 		output = '{:s}.txt'.format(model)
 
 		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
-		if args.dev is not None:
+		if args.dev:
 			job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
 
 		# use SLURM Workload Manager
@@ -432,7 +432,7 @@ def ranking():
 		with open('{:s}.txt'.format(population['model', ind]), 'r') as file:
 			data = pandas.read_csv(file, delimiter = '\t', header = None).set_index(0, drop = False).rename_axis(None, axis = 0).drop(0, axis = 1).rename(columns = {1: 'value'})
 
-		if args.dev is not None:
+		if args.dev:
 			fitfunc = list(data.index)
 		else:
 			fitfunc = opts['error']
@@ -452,8 +452,9 @@ def ranking():
 		rank['{:s}'.format(fitfunc[name])] = sorted(jobs, key = jobs.get, reverse = False)
 
 	for name in range(0, len(fitfunc)):
+		jobs[population['model', ind]] = 0
 		for ind in range(0, opts['pop_size']):
-			jobs[population['model', ind]] += {k: v for v, k in enumerate(rank['{:s}'.format(fitfunc[name])])}[population['model', ind]]
+			jobs[population['model', ind]] += { key : value for value, key in enumerate(rank['{:s}'.format(fitfunc[name])]) }[population['model', ind]]
 
 	# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness
 	rank = sorted(jobs, key = jobs.get, reverse = False)
@@ -471,7 +472,7 @@ def ranking():
 	# save the population dictionary as a report file
 	par_keys = list(set([x[0] for x in population.keys() if str(x[0]).isdigit()]))
 
-	if args.dev is not None:
+	if args.dev:
 		fitfunc = sorted(list(data.index))
 
 	with open('{:s}_{:03d}.txt'.format(opts['outfile'], iter), 'w') as file:

@@ -31,7 +31,7 @@ def read_sims(files):
 		with open(infile, 'r') as file:
 			sims.append(pandas.read_csv(file, delimiter = ', ', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
-	return pandas.concat(sims, keys = range(0, len(sims))), len(sims)
+	return pandas.concat(sims, keys = range(len(sims))), len(sims)
 
 # read the data files
 def read_data(files):
@@ -40,7 +40,7 @@ def read_data(files):
 		with open(infile, 'r') as file:
 			data.append(pandas.read_csv(file, delimiter = ', ', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
-	return pandas.concat(data, keys = range(0, len(data))), len(data)
+	return pandas.concat(data, keys = range(len(data))), len(data)
 
 def do(error):
 	"""
@@ -55,16 +55,16 @@ def do(error):
 
 	# Calculate common variables this script use further to measure fitness
 	data_avrg = 0
-	for i in range(0, len_data):
+	for i in range(len_data):
 		data_avrg += data.loc[i].divide(len_data)
 
 	data_stdv = 0
-	for i in range(0, len_data):
+	for i in range(len_data):
 		data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1)
 	data_stdv = data_stdv.filter(items = list(sims.columns))
 
 	sims_avrg = 0
-	for i in range(0, len_sims):
+	for i in range(len_sims):
 		sims_avrg += sims.loc[i].divide(len_sims)
 
 	# mean square error
@@ -79,50 +79,50 @@ def do(error):
 
 	# sum of squares (from BioNetFit paper)
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += (data.loc[i] - sims.loc[j])**2
 	error['SSQ'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# mean normalized sum of squares (from BioNetFit paper)
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += ((data.loc[i] - sims.loc[j]).divide(data_avrg))**2
 	error['MNSE'] = '{:.6e}'.format(func.replace([numpy.inf, -numpy.inf], numpy.nan).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# chi-square (from BioNetFit paper)
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += ((data.loc[i] - sims.loc[j]).divide(data_stdv**0.5))**2
 	error['CHISQ'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# pair-wise square deviation
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += ((data.loc[i] - sims.loc[j])**2).divide(len_data * len_sims)
 	error['PWSD'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# pair-wise absolute deviation
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += (abs(data.loc[i] - sims.loc[j])).divide(len_data * len_sims)
 	error['APWSD'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# normalized pair-wise square deviation (also implemented in BioNetFit as equation 3, but not normalized by the number of data * sims)
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += (((data.loc[i] - sims.loc[j]).divide(data.loc[i]))**2).divide(len_data * len_sims)
 	error['NPWSD'] = '{:.6e}'.format(func.replace([numpy.inf, -numpy.inf], numpy.nan).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# normalized pair-wise absolute deviation
 	func = 0
-	for i in range(0, len_data):
-		for j in range(0, len_sims):
+	for i in range(len_data):
+		for j in range(len_sims):
 			func += (abs((data.loc[i] - sims.loc[j]).divide(data.loc[i]))).divide(len_data * len_sims)
 	error['ANPWSD'] = '{:.6e}'.format(func.replace([numpy.inf, -numpy.inf], numpy.nan).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
@@ -133,8 +133,8 @@ def do(error):
 		udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 
-		for i in range(0, len_data):
-			for j in range(0, len_sims):
+		for i in range(len_data):
+			for j in range(len_sims):
 				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 				# if data < sims count -1.0
 				diff[diff < 0] = -1.0
