@@ -322,7 +322,7 @@ def simulate():
 		}
 
 	par_keys = list(parameters.keys())
-	par_string = '%var \'{:s}\' {:.' + opts['par_fmt'] + '}\n'
+	par_string = '%var: \'{:s}\' {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(opts['pop_size']):
 		model = population['model', ind]
 
