@@ -150,7 +150,7 @@ def argsparser():
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
 	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
 	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
-	parser.add_argument('--format' , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
+	parser.add_argument('--prec' , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
 
 	# other options
 	#parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax')
@@ -212,7 +212,7 @@ def ga_opts():
 		'self_rec'  : args.self,
 		'xpoints'   : args.cross,
 		'crit_vals' : args.crit,
-		'par_fmt'   : args.format,
+		'par_fmt'   : args.prec,
 		#'syntax'    : args.syntax, # kasim only
 		#'binary'    : args.binary, # kasim only
 		#'equil'     : args.equil, # nfsim only
