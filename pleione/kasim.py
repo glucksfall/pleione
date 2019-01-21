@@ -390,7 +390,7 @@ def simulate():
 				for line in range(len(par_keys)):
 					if parameters[line][0] == 'par':
 						file.write(par_string.format(parameters[line][1], population[line, ind]))
-						free_params += par_string.format(parameters[line][1], population[line, ind]).replace('\n', '')
+						free_params += par_string.format(parameters[line][1], population[line, ind]).replace('\n', ' ')
 
 	# submit simulations to the queue
 	squeue = []
@@ -722,7 +722,7 @@ def clean():
 	]
 
 	for regex in fileregex:
-		filelist.append(glob.glob(regex)
+		filelist.append(glob.glob(regex))
 	filelist = [ item for sublist in filelist for item in sublist ]
 
 	for filename in filelist:
