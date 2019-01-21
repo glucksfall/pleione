@@ -27,30 +27,30 @@ def argsparser():
 # read simulation files
 def read_sims(files):
 	sims = []
-	for infile in files:
+	for ind, infile in enumerate(files):
 		with open(infile, 'r') as input:
 			sims.append(pandas.read_csv(input, delimiter = ' ', engine = 'python', skipfooter = 9).set_index('time', drop = True))
 
 		# mark each sim file with the corresponding compartment
 		name = infile.split('.')[-2]
-		sims[file]['compartment'] = name
-		sims[file].set_index('compartment', append = True, inplace = True)
-		sims[file] = sims[file].reorder_levels(['compartment', 'time'])
+		sims[ind]['compartment'] = name
+		sims[ind].set_index('compartment', append = True, inplace = True)
+		sims[ind] = sims[ind].reorder_levels(['compartment', 'time'])
 
 	return pandas.concat(sims, keys = range(0, len(sims))), len(sims)
 
 # read the data files
 def read_data(files):
 	data = []
-	for infile in files:
+	for ind, infile in enumerate(files):
 		with open(infile, 'r') as input:
 			data.append(pandas.read_csv(input, delimiter = ' ', engine = 'python').set_index('time'))
 
 		# mark each data file with the corresponding compartment
-		name = list(data[file].columns)[0]
-		data[file]['compartment'] = name
-		data[file].set_index('compartment', append = True, inplace = True)
-		data[file] = data[file].reorder_levels(['compartment', 'time'])
+		name = list(data[ind].columns)[0]
+		data[ind]['compartment'] = name
+		data[ind].set_index('compartment', append = True, inplace = True)
+		data[ind] = data[ind].reorder_levels(['compartment', 'time'])
 
 	return pandas.concat(data, keys = range(0, len(data))), len(data)
 
