@@ -114,57 +114,57 @@ def parallelize(cmd):
 	return 0
 
 def argsparser():
-	parser = argparse.ArgumentParser(description = 'Perform a parameterization employing a Genetic Algorithm.')
+	parser = argparse.ArgumentParser(description = 'Perform a calibration of a RBM employing a Genetic Algorithm.')
 
 	# required arguments
 	parser.add_argument('--model'  , metavar = 'str'  , type = str  , required = True , nargs = 1  , help = 'RBM with tagged variables to parameterize')
 	parser.add_argument('--final'  , metavar = 'float', type = str  , required = True , nargs = 1  , help = 'limit time to simulate')
 	parser.add_argument('--steps'  , metavar = 'float', type = str  , required = True , nargs = 1  , help = 'time steps to simulate')
 	# choose one or more fitness functions
-	parser.add_argument('--error'  , metavar = 'str'  , type = str  , required = True , nargs = '+', help = 'list of supported goodness of fit functions')
+	parser.add_argument('--error'  , metavar = 'str'  , type = str  , required = True , nargs = '+', help = 'list of supported fit functions')
 	parser.add_argument('--data'   , metavar = 'str'  , type = str  , required = True , nargs = '+', help = 'data files to parameterize')
 
 	# useful paths
-	#parser.add_argument('--bng2'   , metavar = 'path' , type = str  , required = False, default = '~/bin/bng2'    , help = 'BioNetGen path')
-	parser.add_argument('--kasim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/kasim4'  , help = 'KaSim path')
-	#parser.add_argument('--nfsim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/nfsim'   , help = 'NFsim path')
-	#parser.add_argument('--piskas' , metavar = 'path' , type = str  , required = False, default = '~/bin/piskas'  , help = 'PISKaS path')
-	parser.add_argument('--python' , metavar = 'path' , type = str  , required = False, default = '~/bin/python3' , help = 'python path')
+	#parser.add_argument('--bng2'   , metavar = 'path' , type = str  , required = False, default = '~/bin/bng2'    , help = 'BioNetGen path, default ~/bin/bng2')
+	parser.add_argument('--kasim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/kasim4'  , help = 'KaSim path, default ~/bin/kasim4')
+	#parser.add_argument('--nfsim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/nfsim'   , help = 'NFsim path, default ~/bin/nfsim')
+	#parser.add_argument('--piskas' , metavar = 'path' , type = str  , required = False, default = '~/bin/piskas'  , help = 'PISKaS path, default ~/bin/piskas')
+	parser.add_argument('--python' , metavar = 'path' , type = str  , required = False, default = '~/bin/python3' , help = 'python path, default ~/bin/python3')
 
 	# distribute computation with SLURM, otherwise with python multiprocessing API
-	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use')
+	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use, default None')
 
 	# general options
-	parser.add_argument('--seed'   , metavar = 'int'  , type = int  , required = False, default = None            , help = 'random number generator seed')
-	parser.add_argument('--iter'   , metavar = 'int'  , type = int  , required = False, default = 100             , help = 'number of iterations')
-	parser.add_argument('--inds'   , metavar = 'int'  , type = int  , required = False, default = 100             , help = 'number of individuals per population')
-	parser.add_argument('--sims'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of simulations per individual')
-	parser.add_argument('--best'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of individuals per parental population')
-	parser.add_argument('--swap'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q1: global swap probability between parents')
-	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover points: multiple or single point')
-	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation probability')
-	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection is uniform or inverse to the rank')
-	parser.add_argument('--self'   , metavar = 'True' , type = str  , required = False, default = False           , help = 'allow self recombination?')
-	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values')
-	parser.add_argument('--prec'   , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision of parameter values')
+	parser.add_argument('--seed'   , metavar = 'int'  , type = int  , required = False, default = None            , help = 'random number generator seed, default None')
+	parser.add_argument('--iter'   , metavar = 'int'  , type = int  , required = False, default = 100             , help = 'number of iterations, default 100')
+	parser.add_argument('--inds'   , metavar = 'int'  , type = int  , required = False, default = 100             , help = 'number of individuals per iteration, default 100')
+	parser.add_argument('--sims'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of simulations per individual, default 100')
+	parser.add_argument('--best'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'size of elite individuals, default 10.')
+	parser.add_argument('--swap'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q1: global parameter swap probability, default 0.5')
+	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover: multiple or single point, default multiple')
+	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation probability, default 0.5')
+	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection inverse|uniform, default inverse')
+	parser.add_argument('--self'   , metavar = 'False', type = str  , required = False, default = False           , help = 'self recombination True|False, default False')
+	parser.add_argument('--crit'   , metavar = 'path' , type = str  , required = False, default = None            , help = 'table of Mann-Whitney U-test critical values, default None')
+	parser.add_argument('--prec'   , metavar = 'str'  , type = str  , required = False, default = '7g'            , help = 'precision and format of parameter values, default 7g')
 
 	# other options
-	parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax')
-	parser.add_argument('--binary' , metavar = 'str'  , type = str  , required = False, default = 'model'         , help = 'KaSim binary prefix')
-	#parser.add_argument('--equil'  , metavar = 'float', type = float, required = False, default = 0               , help = 'equilibrate model before running the simulation')
-	#parser.add_argument('--sync'   , metavar = 'float', type = str  , required = False, default = '1.0'           , help = 'time period to syncronize compartments')
-	parser.add_argument('--output' , metavar = 'str'  , type = str  , required = False, default = 'outmodels'     , help = 'ranking files prefixes')
-	parser.add_argument('--results', metavar = 'str'  , type = str  , required = False, default = 'results'       , help = 'output folder where to move the results')
-	parser.add_argument('--parsets', metavar = 'str'  , type = str  , required = False, default = 'individuals'   , help = 'folder to save the compiled model and parameter sets')
-	parser.add_argument('--rawdata', metavar = 'str'  , type = str  , required = False, default = 'simulations'   , help = 'folder to save the simulations for each parameter set')
-	parser.add_argument('--fitness', metavar = 'str'  , type = str  , required = False, default = 'goodness'      , help = 'folder to save the goodness for each parameter set')
-	parser.add_argument('--ranking', metavar = 'str'  , type = str  , required = False, default = 'ranking'       , help = 'folder to save the ranking per iteration')
+	parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax, default 4')
+	parser.add_argument('--binary' , metavar = 'str'  , type = str  , required = False, default = 'model'         , help = 'KaSim binary prefix, default model')
+	#parser.add_argument('--equil'  , metavar = 'float', type = float, required = False, default = 0               , help = 'equilibrate model before running the simulation, default 0')
+	#parser.add_argument('--sync'   , metavar = 'float', type = str  , required = False, default = '1.0'           , help = 'time period to syncronize compartments, default 1.0')
+	parser.add_argument('--output' , metavar = 'str'  , type = str  , required = False, default = 'outmodels'     , help = 'ranking files prefixes, default outmodels')
+	parser.add_argument('--results', metavar = 'str'  , type = str  , required = False, default = 'results'       , help = 'output folder where to move the results, default results')
+	parser.add_argument('--parsets', metavar = 'str'  , type = str  , required = False, default = 'individuals'   , help = 'folder to save the generated models, default individuals')
+	parser.add_argument('--rawdata', metavar = 'str'  , type = str  , required = False, default = 'simulations'   , help = 'folder to save the simulations, default simulations')
+	parser.add_argument('--fitness', metavar = 'str'  , type = str  , required = False, default = 'goodness'      , help = 'folder to save the goodness of fit, default goodness')
+	parser.add_argument('--ranking', metavar = 'str'  , type = str  , required = False, default = 'ranking'       , help = 'folder to save the ranking summaries, default ranking')
 
 	# TO BE DEPRECATED, only with publishing purposes.
 	# the random standard library does not have a random.choice with an optional probability list, therefore, Pleione uses numpy.random.choice
-	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'use random.random instead of numpy.random')
+	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'use True: random.random instead of False: numpy.random')
 	# If the user wants to know the behavior of other functions, the option --dev should be maintained
-	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all error functions')
+	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all fitness functions, default False')
 
 	args = parser.parse_args()
 
@@ -196,7 +196,7 @@ def ga_opts():
 		'error'     : args.error,
 		'data'      : args.data,
 		#'bng2'      : os.path.expanduser(args.bng2), # bng2, nfsim only
-		'kasim'     : os.path.expanduser(args.kasim), # kasim only
+		'kasim'     : os.path.expanduser(args.kasim), # kasim4 only
 		#'piskas'    : os.path.expanduser(args.piskas), # piskas only
 		#'nfsim'     : os.path.expanduser(args.nfsim), # nfsim only
 		'python'    : os.path.expanduser(args.python),
@@ -213,8 +213,8 @@ def ga_opts():
 		'xpoints'   : args.cross,
 		'crit_vals' : args.crit,
 		'par_fmt'   : args.prec,
-		'syntax'    : args.syntax, # kasim only
-		'binary'    : args.binary, # kasim only
+		'syntax'    : args.syntax, # kasim4 only
+		#'binary'    : args.binary, # kasim4 beta only
 		#'equil'     : args.equil, # nfsim only
 		#'sync'      : args.sync, # piskas only
 		'outfile'   : args.output,
@@ -227,7 +227,7 @@ def ga_opts():
 		'home'      : os.getcwd(),
 		'null'      : '/dev/null',
 		'max_error' : numpy.nan,
-		'bin_file'  : args.model[0].split('.')[0] + '.bin', # kasim4 only
+		#'bin_file'  : args.model[0].split('.')[0] + '.bin', # kasim4 beta only
 		'systime'   : str(time.time()).split('.')[0],
 		}
 
@@ -310,8 +310,9 @@ def populate():
 	par_keys = list(parameters.keys())
 
 	population = {}
+	model_string = 'model_000_{:0' + len(str(opts['pop_size'])) + 'd}'
 	for ind in range(opts['pop_size']):
-		population['model', ind] = 'model_000_{:03d}'.format(ind)
+		population['model', ind] = model_string.format(ind)
 		population['error', ind] = opts['max_error']
 
 		for line in range(len(par_keys)):
@@ -326,7 +327,7 @@ def populate():
 				elif parameters[par_keys[line]][3] == 'lognormal':
 					population[line, ind] = custom.random.lognormal(mean, stdv)
 				else:
-					raise ValueError('Declare uniform/loguniform/lognormal for a valid range to look for parameter values at the first iteration')
+					raise ValueError('Use uniform/loguniform/lognormal for a valid range to look for parameter values at the first iteration.')
 
 	return population
 
@@ -340,14 +341,16 @@ def make_bin():
 		'job_name'  : 'child_{:s}'.format(opts['systime']),
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
-		'make_bin'  : '{:s} -i {:s} -make-sim {:s} -l 0 -o {:s} -syntax {:s} -mode batch --no-log'.format(opts['kasim'], opts['model'], opts['bin_file'], opts['null'], opts['syntax']),
+		'make_bin'  : '{:s} -i {:s} -make-sim {:s} -l 0 -o {:s} -syntax {:s} -mode batch --no-log'.format( \
+			opts['kasim'], opts['model'], opts['bin_file'], opts['null'], opts['syntax']),
 		}
 
 	# submit to the queue
 	squeue = []
 	# use SLURM Workload Manager
 	if opts['slurm'] is not None:
-		cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{make_bin}""'.format(**job_desc))
+		cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} \
+			--wrap ""{make_bin}""'.format(**job_desc))
 		cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 		out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 		while err == sbatch_error:
@@ -380,41 +383,34 @@ def simulate():
 
 	# generate a sh file per model
 	par_keys = list(parameters.keys())
-	par_string = '-var {:s} {:.' + opts['par_fmt'] + '}\n'
+	par_string = '%var: \'{:s}\' {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(opts['pop_size']):
 		model = population['model', ind]
 
-		if not os.path.exists(model + '.sh'):
-			with open(model + '.sh', 'w') as file:
-				free_params = ''
+		if not os.path.exists(model + '.kappa'):
+			with open(model + '.kappa', 'w') as file:
 				for line in range(len(par_keys)):
 					if parameters[line][0] == 'par':
 						file.write(par_string.format(parameters[line][1], population[line, ind]))
-						free_params += par_string.format(parameters[line][1], population[line, ind]).replace('\n', ' ')
+					else:
+						file.write(parameters[line])
 
 	# submit simulations to the queue
 	squeue = []
-
+	model_string = '{:s}.{:0' + len(str(opts['pop_size'])) + 'd}.out.txt'
 	for ind in range(opts['pop_size']):
 		for sim in range(opts['num_sims']):
 			model = population['model', ind]
-			output = '{:s}.{:03d}.out.txt'.format(model, sim)
+			output = model_string.format(model, sim)
 
 			if not os.path.exists(output):
-				# read the parameters (Yeap, I could read the population dictionary, but this was the original implementation)
-				#cmd = 'cat {:s}.sh'.format(model)
-				#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-				#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-				#free_params = out.decode('utf-8').replace('\n', ' ')
-
-				#job_desc['exec_kasim'] = '{:s} -load-sim {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format( \
-					#opts['kasim'], opts['bin_file'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
-				job_desc['exec_kasim'] = '{:s} -i {:s} -l {:s} -p {:s} -o {:s} -syntax {:s} {:s} -mode batch --no-log'.format( \
-					opts['kasim'], opts['model'], opts['final'], opts['steps'], output, opts['syntax'], free_params)
+				job_desc['exec_kasim'] = '{:s} -i {:s}.kappa -l {:s} -p {:s} -o {:s} -syntax {:s} --no-log'.format( \
+					opts['kasim'], model, opts['final'], opts['steps'], output, opts['syntax'])
 
 				# use SLURM Workload Manager
 				if opts['slurm'] is not None:
-					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{exec_kasim}""'.format(**job_desc))
+					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} \
+						--wrap ""{exec_kasim}""'.format(**job_desc))
 					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 					while err == sbatch_error:
@@ -508,7 +504,8 @@ def evaluate():
 def ranking():
 	for ind in range(opts['pop_size']):
 		with open('{:s}.txt'.format(population['model', ind]), 'r') as file:
-			data = pandas.read_csv(file, delimiter = '\t', header = None).set_index(0, drop = False).rename_axis(None, axis = 0).drop(0, axis = 1).rename(columns = {1: 'value'})
+			tmp = pandas.read_csv(file, delimiter = '\t', header = None)
+			data = tmp.set_index(0, drop = False).rename_axis(None, axis = 0).drop(0, axis = 1).rename(columns = {1: 'value'})
 
 		if args.dev:
 			fitfunc = list(data.index)
@@ -517,7 +514,7 @@ def ranking():
 
 		# and store the error in the population dictionary
 		for name in range(len(fitfunc)):
-			population['{:s}'.format(fitfunc[name]), ind] = data.loc['{:s}'.format(fitfunc[name]), 'value']
+			population[fitfunc[name], ind] = data.loc[fitfunc[name], 'value']
 
 	# now that everything is stored in the population dict, we proceed to rank models by the selected error function(s)
 	jobs = {}
@@ -526,13 +523,12 @@ def ranking():
 
 	for name in range(len(fitfunc)):
 		for ind in range(opts['pop_size']):
-			jobs[population['model', ind]] = population['{:s}'.format(fitfunc[name]), ind]
-		rank['{:s}'.format(fitfunc[name])] = sorted(jobs, key = jobs.get, reverse = False)
+			jobs[population['model', ind]] = population[fitfunc[name], ind]
+		rank[fitfunc[name]] = sorted(jobs, key = jobs.get, reverse = False)
 
 	for name in range(len(fitfunc)):
-		jobs[population['model', ind]] = 0
 		for ind in range(opts['pop_size']):
-			jobs[population['model', ind]] += { key : value for value, key in enumerate(rank['{:s}'.format(fitfunc[name])]) }[population['model', ind]]
+			jobs[population['model', ind]] += { key : value for value, key in enumerate(rank[fitfunc[name]]) }[population['model', ind]]
 
 	# create an 'ordered' list of individuals from the 'population' dictionary by increasing fitness
 	rank = sorted(jobs, key = jobs.get, reverse = False)
@@ -553,7 +549,9 @@ def ranking():
 	if args.dev:
 		fitfunc = sorted(list(data.index))
 
-	with open('{:s}_{:03d}.txt'.format(opts['outfile'], iter), 'w') as file:
+	par_string = '{:.' + opts['par_fmt'] + '}\t'
+	iter_string = '{:s}_{:0' + len(str(opts['num_iter'])) + 'd}.txt'
+	with open(iter_string.format(opts['outfile'], iter), 'w') as file:
 		file.write('# Output of {:s} {:s}\n'.format(opts['python'], subprocess.list2cmdline(sys.argv[0:])))
 		file.write('Elapsed time: {:.0f} seconds\n'.format(time.time() - float(opts['systime'])))
 		file.write('iteration: {:03d}\t'.format(iter))
@@ -572,11 +570,11 @@ def ranking():
 			file.write('{:s}\t'.format(population['model', ind]))
 			for i in range(len(fitfunc)):
 				if fitfunc[i] != 'MWUT':
-					file.write('{:.6e}\t'.format(float(population['{:s}'.format(fitfunc[i]), ind])))
+					file.write(par_string.format(float(population[fitfunc[i], ind])))
 				else:
-					file.write('{:.0f}\t'.format(float(population['{:s}'.format(fitfunc[i]), ind])))
+					file.write('{:.0f}\t'.format(float(population[fitfunc[i], ind])))
 			for key in range(len(par_keys)):
-				file.write('{:.6e}\t'.format(float(population[par_keys[key], ind])))
+				file.write(par_string.format(float(population[par_keys[key], ind])))
 			file.write('\n')
 
 	return population
@@ -728,73 +726,49 @@ def clean():
 	for filename in filelist:
 		if filename not in [ opts['model'], opts['crit_vals'] ]:
 			os.remove(filename)
-	#cmd = 'find . -maxdepth 1 -type f ( -name log*txt -o -name *.bngl -o -name *.xml -o -name *.gdat -o -name *.species -o -name *.rnf -o -name model*.sh -o -name model*.out.txt -o -name model*.txt -o -name {:s}*.txt -o -name {:s} ) ! -name {:s} ! -name {:s} -exec rm {{}} +'.format(opts['outfile'], opts['bin_file'], opts['model'], opts['crit_vals'])
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	return 0
 
 def backup():
+	results = opts['results'] + '_' + opts['systime']
 	folders = {
-		'results' : opts['results'] + '_' + opts['systime'],
-		'ranking' : opts['results'] + '_' + opts['systime'] + '/' + opts['ranking'],
-		'parsets' : opts['results'] + '_' + opts['systime'] + '/' + opts['parsets'],
-		'rawdata' : opts['results'] + '_' + opts['systime'] + '/' + opts['rawdata'],
-		'fitness' : opts['results'] + '_' + opts['systime'] + '/' + opts['fitness'],
+		'ranking' : results + '/' + opts['ranking'],
+		'parsets' : results + '/' + opts['parsets'],
+		'rawdata' : results + '/' + opts['rawdata'],
+		'fitness' : results + '/' + opts['fitness'],
 	}
 
 	# make backup folders
+	os.makedir(results)
 	for folder in folders.values():
 		os.makedir(folder)
-	#cmd = 'mkdir -p {:s} {:s} {:s} {:s}'.format(folder_ranking, folder_parsets, folder_rawdata, folder_fitness)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	# archive ranking files
 	filelist = glob.glob('{:s}*.txt'.format(opts['outfile']))
 	for filename in filelist:
 		shutil.move(filename, folders['ranking'])
-	#cmd = 'find . -maxdepth 1 -type f -name {:s}*.txt -exec mv -t {:s} {{}} +'.format(opts['outfile'], folder_ranking)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	# archive simulation outputs
 	filelist = glob.glob('model_*.out.txt')
 	for filename in filelist:
 		shutil.move(filename, folders['rawdata'])
-	#cmd = 'find . -maxdepth 1 -type f -name model_*.out.txt -exec mv -t {:s} {{}} +'.format(folder_rawdata)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	# archive simulated models
 	filelist = glob.glob('model_*.sh')
 	for filename in filelist:
 		shutil.move(filename, folders['parsets'])
-	#cmd = 'find . -maxdepth 1 -type f -name model_*.sh -exec mv -t {:s} {{}} +'.format(folder_parsets)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	# archive goodness of fit outputs
 	filelist = glob.glob('model_*.txt')
 	for filename in filelist:
 		shutil.move(filename, folders['fitness'])
-	#cmd = 'find . -maxdepth 1 -type f -name model_*.txt -exec mv -t {:s} {{}} +'.format(folder_fitness)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
 	# archive a log file
 	log_file = 'log_{:s}.txt'.format(opts['systime'])
 	with open(log_file, 'w') as file:
 		file.write('# Output of {:s} {:s}\n'.format(opts['python'], subprocess.list2cmdline(sys.argv[0:])))
-		#for arg in vars(args): # under test
-			#key, value = getattr(args, arg)
-			#file.write('{:s}={:s}'.format(key, value))
-
-	shutil.move(log_file, folders['results'])
-	shutil.move(opts['model'], folders['results'])
-	#cmd = 'cp {:s} {:s} {:s}'.format(opts['model'], log_file, folder_results)
-	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+	shutil.move(log_file, results)
+	shutil.copy2(opts['model'], results)
 
 	return 0
 

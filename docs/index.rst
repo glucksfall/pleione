@@ -1,4 +1,4 @@
-Welcome to pleione's documentation!
+Welcome to Pleione's documentation!
 ===================================
 
 Pleione is a python3 package that implement methods that are common to
@@ -12,9 +12,10 @@ PISKaS (`PISKaS`_). Please contact us or write an issue to include your
 favorite stochastic simulator to Pleione (https://github.com/glucksfall/pleione/issues).
 
 Pleione implements a Genetic Algorithm with elitism, on the
-contrary of BioNetFit (`BioNetFit`_) that implements a parents selection within
-an distribution probability that is inverse to the rank. Nonetheless, pleione's
-methods to parameterize Rule-Based Models include both, elitism and inverse methods.
+contrary to BioNetFit (`BioNetFit`_) that implements a parents selection within
+a distribution probability that is inverse to the rank. Nonetheless, Pleione's
+methods to parameterize Rule-Based Models include both, a uniform or inverse to the rank
+probability to select models from within an elite or all models.
 
 The plan to add methods into Pleione includes a sensitivity analysis and a
 parameterization employing a Particle Swarm Optimization protocol. You
