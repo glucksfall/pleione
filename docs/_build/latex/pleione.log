@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  30 JAN 2019 15:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  30 JAN 2019 17:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1184,14 +1184,18 @@ Underfull \hbox (badness 5260) in paragraph at lines 920--925
 pleione.$STOCH_ENGINE-doerror --help \T1/ptm/m/n/10 where
  []
 
-[13] [14] [15] [16
+[13] [14]
+Overfull \vbox (9.11557pt too high) detected at line 1156
+ []
 
-]
+[15] [16]
 Chapter 3.
-[17] [18]
+[17
+
+] [18]
 Chapter 4.
 
-Overfull \vbox (0.72581pt too high) detected at line 1302
+Overfull \vbox (0.72581pt too high) detected at line 1343
  []
 
 [19
@@ -1199,27 +1203,27 @@ Overfull \vbox (0.72581pt too high) detected at line 1302
 ] [20]
 Chapter 5.
 (./pleione.ind)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1327.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1368.
  [21
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1327.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1368.
  (./pleione.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1327.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1327.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1368.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1368.
 
 Package rerunfilecheck Info: File `pleione.out' has not changed.
-(rerunfilecheck)             Checksum: 7FEFFAA24969AF6E65F1BAFC2C878286;3136.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1327.
+(rerunfilecheck)             Checksum: E01FE3CDBF35F660D2F612CEE48C4FC8;3378.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1368.
  ) 
 Here is how much of TeX's memory you used:
- 13707 strings out of 492982
- 189846 string characters out of 6134895
- 314084 words of memory out of 5000000
- 16897 multiletter control sequences out of 15000+600000
+ 13713 strings out of 492982
+ 189977 string characters out of 6134895
+ 314220 words of memory out of 5000000
+ 16900 multiletter control sequences out of 15000+600000
  57711 words of font info for 76 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 37i,17n,45p,374b,578s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,17n,45p,514b,578s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
@@ -1236,10 +1240,10 @@ ts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw
 /helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8
 a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on pleione.pdf (25 pages, 241600 bytes).
+Output written on pleione.pdf (25 pages, 246123 bytes).
 PDF statistics:
- 319 PDF objects out of 1000 (max. 8388607)
- 267 compressed objects within 3 object streams
- 60 named destinations out of 1000 (max. 500000)
- 149 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 327 PDF objects out of 1000 (max. 8388607)
+ 275 compressed objects within 3 object streams
+ 63 named destinations out of 1000 (max. 500000)
+ 157 words of extra memory for PDF output out of 10000 (max. 10000000)
 

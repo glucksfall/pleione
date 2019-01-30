@@ -12,6 +12,7 @@
 \contentsline {subsection}{\numberline {2.6.1}Algebraic Objective Functions}{14}{subsection.2.6.1}
 \contentsline {subsection}{\numberline {2.6.2}Statistical Objective Functions}{14}{subsection.2.6.2}
 \contentsline {subsection}{\numberline {2.6.3}Multiple Objective Functions}{15}{subsection.2.6.3}
+\contentsline {subsection}{\numberline {2.6.4}Add a fitness function to Pleione}{15}{subsection.2.6.4}
 \contentsline {chapter}{\numberline {3}Compiling Python3 from source}{17}{chapter.3}
 \contentsline {chapter}{\numberline {4}Installing SLURM in your machine}{19}{chapter.4}
 \contentsline {chapter}{\numberline {5}Indices and tables}{21}{chapter.5}

@@ -15,6 +15,7 @@ Genetic Algorithm.
 	functions/algebraics
 	functions/statistical
 	functions/multiple
+	functions/addFitness
 
 .. note::
 	**Need a different Objective Function?**
