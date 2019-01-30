@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  30 JAN 2019 17:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  30 JAN 2019 17:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1179,13 +1179,13 @@ Overfull \vbox (1.52579pt too high) detected at line 395
  []
 
 [6] [7] [8] [9] [10] [11] [12]
-Underfull \hbox (badness 5260) in paragraph at lines 920--925
+Underfull \hbox (badness 5260) in paragraph at lines 921--926
 \T1/ptm/b/n/10 Note:  Need Help? \T1/ptm/m/n/10 Type \T1/pcr/m/n/10 python3 -m 
 pleione.$STOCH_ENGINE-doerror --help \T1/ptm/m/n/10 where
  []
 
 [13] [14]
-Overfull \vbox (9.11557pt too high) detected at line 1156
+Overfull \vbox (9.11557pt too high) detected at line 1157
  []
 
 [15] [16]
@@ -1195,7 +1195,7 @@ Chapter 3.
 ] [18]
 Chapter 4.
 
-Overfull \vbox (0.72581pt too high) detected at line 1343
+Overfull \vbox (0.72581pt too high) detected at line 1344
  []
 
 [19
@@ -1203,18 +1203,18 @@ Overfull \vbox (0.72581pt too high) detected at line 1343
 ] [20]
 Chapter 5.
 (./pleione.ind)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1368.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1369.
  [21
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1368.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1369.
  (./pleione.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1368.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1368.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1369.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1369.
 
 Package rerunfilecheck Info: File `pleione.out' has not changed.
 (rerunfilecheck)             Checksum: E01FE3CDBF35F660D2F612CEE48C4FC8;3378.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1368.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1369.
  ) 
 Here is how much of TeX's memory you used:
  13713 strings out of 492982
@@ -1240,7 +1240,7 @@ ts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw
 /helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8
 a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on pleione.pdf (25 pages, 246123 bytes).
+Output written on pleione.pdf (25 pages, 246300 bytes).
 PDF statistics:
  327 PDF objects out of 1000 (max. 8388607)
  275 compressed objects within 3 object streams

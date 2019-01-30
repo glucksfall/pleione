@@ -34,8 +34,9 @@ Parameterization with PISKaS
 
 2. **Prepare the data files**
 
-   PISKaS produce simulations files with the following format. Please prepare
-   data files with the same format, including the initial space in each row.
+   PISKaS produce simulations files with a similar format as follows. Please prepare
+   data files, replacing the "#" with the name of the compartments, including the initial
+   space in each subsequent row.
 
 .. code-block:: bash
 
