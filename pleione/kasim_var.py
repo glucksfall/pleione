@@ -744,7 +744,7 @@ def backup():
 
 	# make backup folders
 	for folder in folders.values():
-		os.makedir(folder)
+		os.mkdir(folder)
 	#cmd = 'mkdir -p {:s} {:s} {:s} {:s}'.format(folder_ranking, folder_parsets, folder_rawdata, folder_fitness)
 	#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 	#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()

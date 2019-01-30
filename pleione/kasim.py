@@ -739,9 +739,9 @@ def backup():
 	}
 
 	# make backup folders
-	os.makedir(results)
+	os.mkdir(results)
 	for folder in folders.values():
-		os.makedir(folder)
+		os.mkdir(folder)
 
 	# archive ranking files
 	filelist = glob.glob('{:s}*.txt'.format(opts['outfile']))
