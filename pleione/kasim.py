@@ -310,7 +310,7 @@ def populate():
 	par_keys = list(parameters.keys())
 
 	population = {}
-	model_string = 'model_000_{:0' + len(str(opts['pop_size'])) + 'd}'
+	model_string = 'model_000_{:0' + str(len(str(opts['pop_size']))) + 'd}'
 	for ind in range(opts['pop_size']):
 		population['model', ind] = model_string.format(ind)
 		population['error', ind] = opts['max_error']
@@ -397,7 +397,7 @@ def simulate():
 
 	# submit simulations to the queue
 	squeue = []
-	model_string = '{:s}.{:0' + len(str(opts['pop_size'])) + 'd}.out.txt'
+	model_string = '{:s}.{:0' + str(len(str(opts['pop_size']))) + 'd}.out.txt'
 	for ind in range(opts['pop_size']):
 		for sim in range(opts['num_sims']):
 			model = population['model', ind]
