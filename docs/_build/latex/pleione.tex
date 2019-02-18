@@ -35,8 +35,14 @@
 % Set up styles of URL: it should be placed after hyperref.
 \urlstyle{same}
 
-\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}
-\addto\captionsenglish{\renewcommand{\tablename}{Table}}
+\addto\captionsenglish{\renewcommand{\figurename}{Fig.\@ }}
+\makeatletter
+\def\fnum@figure{\figurename\thefigure{}}
+\makeatother
+\addto\captionsenglish{\renewcommand{\tablename}{Table }}
+\makeatletter
+\def\fnum@table{\tablename\thetable{}}
+\makeatother
 \addto\captionsenglish{\renewcommand{\literalblockname}{Listing}}
 
 \addto\captionsenglish{\renewcommand{\literalblockcontinuedname}{continued from previous page}}
@@ -52,7 +58,7 @@
 
 
 \title{pleione Documentation}
-\date{Feb 13, 2019}
+\date{Feb 18, 2019}
 \release{}
 \author{Rodrigo Santibáñez}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -61,7 +67,7 @@
 \begin{document}
 
 \pagestyle{empty}
-\maketitle
+\sphinxmaketitle
 \pagestyle{plain}
 \sphinxtableofcontents
 \pagestyle{normal}
@@ -84,7 +90,7 @@ a distribution probability that is inverse to the rank. Nonetheless, Pleione’s
 methods to parameterize Rule-Based Models include both, a uniform or inverse to the rank
 probability to select models from within an elite or all models.
 
-The plan to add methods into Pleione includes a sensitivity analysis and a
+The plan to add methods into Pleiades (\sphinxhref{https://github.com/glucksfall/pleiades}{pleiades}) includes a sensitivity analysis and a
 parameterization employing a Particle Swarm Optimization protocol. You
 could write us if you wish to add methods into pleione or aid in the development
 of them.
@@ -131,14 +137,12 @@ the package from \sphinxhref{https://pypi.org/project/pleione/}{python package i
 With pip, you simple need to execute and pleione will be installed on
 \sphinxcode{\sphinxupquote{\$HOME/.local/lib/python3.6/site-packages}} folder or similar.
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione \PYGZhy{}\PYGZhy{}user
 \end{sphinxVerbatim}
 
 If you have system rights, you could install pleione for all users with
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 sudo \PYGZhy{}H pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione
 \end{sphinxVerbatim}
@@ -149,7 +153,6 @@ sudo \PYGZhy{}H pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione
 Alternatively, you could download the package (useful when pip fails to
 download the package) and then install with pip. For instance:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione \PYGZhy{}\PYGZhy{}user
 \end{sphinxVerbatim}
@@ -193,7 +196,6 @@ The source code is uploaded and maintained through Github at
 repository locally, and then add the folder to the \sphinxcode{\sphinxupquote{PYTHONPATH}}. Beware
 that you should install the \sphinxstyleemphasis{pandas} package (\sphinxhref{https://pandas.pydata.org/}{pandas}) by any means.
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 git clone https://github.com/glucksfall/pleione /opt
 \PYG{n+nb}{echo} \PYG{n+nb}{export} \PYG{n+nv}{PYTHONPATH}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}\PYGZbs{}\PYGZdl{}PYTHONPATH:/opt/pleione\PYGZdq{}} \PYGZgt{}\PYGZgt{} \PYG{n+nv}{\PYGZdl{}HOME}/.profile
@@ -278,7 +280,6 @@ For instace:
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}KD1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 // loguniform\PYG{o}{[}\PYG{l+m}{0}.01 \PYG{l+m}{100}\PYG{o}{]} factor\PYG{o}{[}\PYG{l+m}{0}.2 \PYG{l+m}{0}.1\PYG{o}{]}
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}km1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 // loguniform\PYG{o}{[}\PYG{l+m}{0}.01 \PYG{l+m}{100}\PYG{o}{]} factor\PYG{o}{[}\PYG{l+m}{0}.2 \PYG{l+m}{0}.1\PYG{o}{]}
@@ -290,7 +291,6 @@ For instace:
 
 or the following configuration if the model is written in syntax 3 (KaSim v3):
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}KD1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}km1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
@@ -318,7 +318,6 @@ data files with the same format to avoid incompatibilities.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{l+s+s2}{\PYGZdq{}[T]\PYGZdq{}},\PYG{l+s+s2}{\PYGZdq{}RLbonds\PYGZdq{}},\PYG{l+s+s2}{\PYGZdq{}pR\PYGZdq{}}
 \PYG{l+m}{600}.,0,355.3
@@ -354,7 +353,6 @@ compiled executable if an alias exists for it.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+ch}{\PYGZsh{}!/bin/sh}
 
@@ -445,7 +443,6 @@ For instace:
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}KD1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
 \PYGZpc{}var: \PYG{l+s+s1}{\PYGZsq{}km1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}\PYGZsq{}} \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
@@ -474,7 +471,6 @@ space in each subsequent row.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 example \PYG{n+nb}{time} \PYG{l+s+s1}{\PYGZsq{}RLbonds\PYGZsq{}} \PYG{l+s+s1}{\PYGZsq{}pR\PYGZsq{}}
  \PYG{l+m}{6}.000000E+02 \PYG{l+m}{0} \PYG{l+m}{355}.3
@@ -518,7 +514,6 @@ compiled executable if an alias exists for it.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+ch}{\PYGZsh{}!/bin/sh}
 
@@ -611,7 +606,6 @@ For instace:
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 KD1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}        \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
 km1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}        \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
@@ -639,7 +633,6 @@ data files with the same format, including the initial space in each row.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+c1}{\PYGZsh{}          time         RLbonds              pR}
  \PYG{l+m}{0}.00000000E+00  \PYG{l+m}{0}.00000000E+00  \PYG{l+m}{3}.55300000E+02
@@ -667,7 +660,6 @@ compiled executable if an alias exists for it.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+ch}{\PYGZsh{}!/bin/sh}
 \PYG{n+nb}{export} \PYG{n+nv}{PYTHONPATH}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}}\PYG{n+nv}{\PYGZdl{}PYTHONPATH}\PYG{l+s+s2}{:}\PYG{n+nv}{\PYGZdl{}HOME}\PYG{l+s+s2}{/opt/git\PYGZhy{}glucksfall\PYGZhy{}pleione\PYGZhy{}master}\PYG{l+s+s2}{\PYGZdq{}}
@@ -755,7 +747,6 @@ For instace:
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 KD1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}        \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
 km1\PYGZus{}\PYGZus{}FREE\PYGZus{}\PYGZus{}        \PYG{l+m}{1}.000000e+00 \PYG{c+c1}{\PYGZsh{} loguniform[0.01 100] factor[0.2 0.1]}
@@ -783,7 +774,6 @@ data files with the same format to avoid incompatibilities.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 time, RLbonds, pR
 \PYG{l+m}{0}.00000000E+00, \PYG{l+m}{0}.00000000E+00, \PYG{l+m}{3}.55300000E+02
@@ -811,7 +801,6 @@ compiled executable if an alias exists for it.
 
 \end{enumerate}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+ch}{\PYGZsh{}!/bin/sh}
 
@@ -879,7 +868,6 @@ fitness to experimental data. You could use one of the following script to
 calculate the fitness of your parameterized model against an independent
 experimental data set:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 python3 \PYGZhy{}m pleione.bng2\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYGZhy{}\PYGZhy{}sims bar \PYG{l+s+se}{\PYGZbs{}}
 \PYGZhy{}\PYGZhy{}file output.txt \PYGZhy{}\PYGZhy{}error MWUT \PYGZhy{}\PYGZhy{}crit utable.txt
@@ -887,7 +875,6 @@ python3 \PYGZhy{}m pleione.bng2\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYGZ
 
 \sphinxstyleemphasis{OR}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 python3 \PYGZhy{}m pleione.kasim\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYGZhy{}\PYGZhy{}sims bar \PYG{l+s+se}{\PYGZbs{}}
 \PYGZhy{}\PYGZhy{}file output.txt \PYGZhy{}\PYGZhy{}error MWUT \PYGZhy{}\PYGZhy{}crit utable.txt
@@ -895,7 +882,6 @@ python3 \PYGZhy{}m pleione.kasim\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYG
 
 \sphinxstyleemphasis{OR}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 python3 \PYGZhy{}m pleione.nfsim\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYGZhy{}\PYGZhy{}sims bar \PYG{l+s+se}{\PYGZbs{}}
 \PYGZhy{}\PYGZhy{}file output.txt \PYGZhy{}\PYGZhy{}error MWUT \PYGZhy{}\PYGZhy{}crit utable.txt
@@ -903,7 +889,6 @@ python3 \PYGZhy{}m pleione.nfsim\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYG
 
 \sphinxstyleemphasis{OR}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 python3 \PYGZhy{}m pleione.piskas\PYGZhy{}doerror \PYGZhy{}\PYGZhy{}data foo \PYGZhy{}\PYGZhy{}sims bar \PYG{l+s+se}{\PYGZbs{}}
 \PYGZhy{}\PYGZhy{}file output.txt \PYGZhy{}\PYGZhy{}error MWUT \PYGZhy{}\PYGZhy{}crit utable.txt
@@ -1142,7 +1127,6 @@ located at the same path as the principal scripts. Inside, they have a template
 intended with instructions:
 \begin{quote}
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+c1}{\PYGZsh{} Fitness Calculation Template:}
 \PYG{k}{if} set\PYG{o}{(}args.error\PYG{o}{)}.issuperset\PYG{o}{(}set\PYG{o}{(}\PYG{o}{[}\PYG{l+s+s1}{\PYGZsq{}the\PYGZhy{}acronysm\PYGZsq{}}\PYG{o}{]}\PYG{o}{)}\PYG{o}{)}:
@@ -1201,7 +1185,6 @@ UNIX-based OS. Detailed instructions are provided here:
 If you don’t have admin access to the cluster configuration, you could compile
 and install python3 from source following these instructions:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 wget https://www.python.org/ftp/python/3.6.5/Python\PYGZhy{}3.6.5.tgz \PYG{l+s+se}{\PYGZbs{}}
 \PYGZhy{}O \PYGZti{}/opt/ubuntu\PYGZhy{}software/Python\PYGZhy{}3.6.5.tgz
@@ -1226,7 +1209,6 @@ alias into \sphinxcode{\sphinxupquote{\textasciitilde{}/.bashrc}} or a symbolic 
 To install numpy and pandas use the following instructions, in order since some
 pandas dependencies has also dependencies:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 wget https://files.pythonhosted.org/packages/71/90/ca61e203e0080a8cef7ac21eca199829fa8d997f7c4da3e985b49d0a107d/numpy\PYGZhy{}1.14.3\PYGZhy{}cp36\PYGZhy{}cp36m\PYGZhy{}manylinux1\PYGZus{}x86\PYGZus{}64.whl
 wget https://files.pythonhosted.org/packages/dc/83/15f7833b70d3e067ca91467ca245bae0f6fe56ddc7451aa0dc5606b120f2/pytz\PYGZhy{}2018.4\PYGZhy{}py2.py3\PYGZhy{}none\PYGZhy{}any.whl
@@ -1244,7 +1226,6 @@ pip3 install pandas\PYGZhy{}0.23.0\PYGZhy{}cp36\PYGZhy{}cp36m\PYGZhy{}manylinux1
 If you have admin access (and willing to compile python3 from source) you could
 install the following dependencies:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 apt\PYGZhy{}get install libssl\PYGZhy{}dev zlib1g\PYGZhy{}dev libncurses5\PYGZhy{}dev \PYG{l+s+se}{\PYGZbs{}}
 libncursesw5\PYGZhy{}dev libreadline\PYGZhy{}dev libsqlite3\PYGZhy{}dev libgdbm\PYGZhy{}dev \PYG{l+s+se}{\PYGZbs{}}
@@ -1254,7 +1235,6 @@ libdb5.3\PYGZhy{}dev libbz2\PYGZhy{}dev libexpat1\PYGZhy{}dev liblzma\PYGZhy{}de
 Compiling python3 with all dependencies would make installation of packages
 easier. Just follow the instructions:
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 pip3 install pandas
 \end{sphinxVerbatim}
@@ -1275,7 +1255,6 @@ To install SLURM you need admin access to the machine. Please follow this
 instructions to start up running the workload manager, in the controller as well
 in the controlled machines.
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 sudo apt\PYGZhy{}get \PYGZhy{}y install slurm\PYGZhy{}wlm
 sudo nano /etc/slurm\PYGZhy{}llnl/slurm.conf
@@ -1293,7 +1272,6 @@ Replace \sphinxcode{\sphinxupquote{\$HOST\_NAME}} with your machine name that is
 controller. If you have multiple machines, this configuration file must be
 identical and in all machines in the queue.
 
-\fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYGZsh{}\PYGZsh{}\PYGZsh{} slurm.\PYG{k}{conf} \PYG{p}{\PYGZhy{}} Slurm config \PYG{k}{file}.
 

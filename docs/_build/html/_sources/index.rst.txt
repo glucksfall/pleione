@@ -17,7 +17,7 @@ a distribution probability that is inverse to the rank. Nonetheless, Pleione's
 methods to parameterize Rule-Based Models include both, a uniform or inverse to the rank
 probability to select models from within an elite or all models.
 
-The plan to add methods into Pleione includes a sensitivity analysis and a
+The plan to add methods into Pleiades (`pleiades`_) includes a sensitivity analysis and a
 parameterization employing a Particle Swarm Optimization protocol. You
 could write us if you wish to add methods into pleione or aid in the development
 of them.
@@ -56,3 +56,4 @@ Indices and tables
 .. _29175206: https://www.ncbi.nlm.nih.gov/pubmed/29175206
 .. _26556387: https://www.ncbi.nlm.nih.gov/pubmed/26556387
 
+.. _pleiades: https://github.com/glucksfall/pleiades

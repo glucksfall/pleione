@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  13 FEB 2019 14:14
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.11)  18 FEB 2019 14:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -7,7 +7,7 @@ entering extended mode
 LaTeX2e <2017-04-15>
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (./sphinxmanual.cls
-Document Class: sphinxmanual 2018/09/18 v1.8.1 Document class (Sphinx manual)
+Document Class: sphinxmanual 2018/12/22 v1.8.3 Document class (Sphinx manual)
 (/usr/share/texlive/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
@@ -465,7 +465,7 @@ Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
 \c@AlphaCnt=\count102
 \c@AlphaDecCnt=\count103
 ) (./sphinx.sty
-Package: sphinx 2018/11/06 v1.8.2 LaTeX package (Sphinx markup)
+Package: sphinx 2019/01/12 v1.8.4 LaTeX package (Sphinx markup)
 
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
 Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
@@ -831,6 +831,7 @@ Package etexcmds Info: Could not find \expanded.
 \sphinxshadowrule=\dimen141
 \spx@notice@border=\dimen142
 \spx@image@box=\box39
+\spx@image@maxheight=\dimen143
 \c@literalblock=\count116
 \sphinxcontinuationbox=\box40
 \sphinxvisiblespacebox=\box41
@@ -855,14 +856,14 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 \Gm@cnth=\count117
 \Gm@cntv=\count118
 \c@Gm@tempcnt=\count119
-\Gm@bindingoffset=\dimen143
-\Gm@wd@mp=\dimen144
-\Gm@odd@mp=\dimen145
-\Gm@even@mp=\dimen146
-\Gm@layoutwidth=\dimen147
-\Gm@layoutheight=\dimen148
-\Gm@layouthoffset=\dimen149
-\Gm@layoutvoffset=\dimen150
+\Gm@bindingoffset=\dimen144
+\Gm@wd@mp=\dimen145
+\Gm@odd@mp=\dimen146
+\Gm@even@mp=\dimen147
+\Gm@layoutwidth=\dimen148
+\Gm@layoutheight=\dimen149
+\Gm@layouthoffset=\dimen150
+\Gm@layoutvoffset=\dimen151
 \Gm@dimlist=\toks28
 )
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
@@ -909,7 +910,7 @@ Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
 (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/auxhook.sty
 Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
 )
-\@linkdim=\dimen151
+\@linkdim=\dimen152
 \Hy@linkcounter=\count120
 \Hy@pagecounter=\count121
 
@@ -946,10 +947,10 @@ Package hyperref Info: Bookmarks ON on input line 4762.
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5115.
-\XeTeXLinkMargin=\dimen152
+\XeTeXLinkMargin=\dimen153
 \Fld@menulength=\count124
-\Field@Width=\dimen153
-\Fld@charsize=\dimen154
+\Field@Width=\dimen154
+\Fld@charsize=\dimen155
 Package hyperref Info: Hyper figures OFF on input line 6369.
 Package hyperref Info: Link nesting OFF on input line 6374.
 Package hyperref Info: Hyper index ON on input line 6377.
@@ -988,29 +989,29 @@ Writing index file pleione.idx
 (./pleione.aux)
 \openout1 = `pleione.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 61.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 61.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 67.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 67.
  (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Try loading font information for T1+ptm on input line 61.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Try loading font information for T1+ptm on input line 67.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
@@ -1018,13 +1019,13 @@ File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count130
-\scratchdimen=\dimen155
+\scratchdimen=\dimen156
 \scratchbox=\box43
 \nofMPsegments=\count131
 \nofMParguments=\count132
 \everyMPshowfont=\toks29
 \MPscratchCnt=\count133
-\MPscratchDim=\dimen156
+\MPscratchDim=\dimen157
 \MPnumerator=\count134
 \makeMPintoPDFobject=\count135
 \everyMPtoPDFconversion=\toks30
@@ -1080,7 +1081,7 @@ e
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \AtBeginShipoutBox=\box44
-Package hyperref Info: Link coloring ON on input line 61.
+Package hyperref Info: Link coloring ON on input line 67.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 
@@ -1089,54 +1090,55 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count136
 )
-LaTeX Info: Redefining \ref on input line 61.
-LaTeX Info: Redefining \pageref on input line 61.
-LaTeX Info: Redefining \nameref on input line 61.
+LaTeX Info: Redefining \ref on input line 67.
+LaTeX Info: Redefining \pageref on input line 67.
+LaTeX Info: Redefining \nameref on input line 67.
 
 (./pleione.out) (./pleione.out)
 \@outlinefile=\write5
 \openout5 = `pleione.out'.
 
-Package hyperref Info: Option `pageanchor' set `false' on input line 65.
-LaTeX Font Info:    Try loading font information for T1+phv on input line 65.
+Package hyperref Info: Option `pageanchor' set `false' on input line 70.
+LaTeX Font Info:    Try loading font information for T1+phv on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 )
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <24.88> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 70.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 70.
 <<ot1.cmap>><<oml.cmap>><<oms.cmap>><<omx.cmap>>
-LaTeX Font Info:    Try loading font information for U+msa on input line 65.
+LaTeX Font Info:    Try loading font information for U+msa on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 65.
+LaTeX Font Info:    Try loading font information for U+msb on input line 70.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 65.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 70.
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2
 
+
 ]
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 66.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 72.
  (./pleione.toc
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 2.
@@ -1152,17 +1154,17 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
 
 ]
 Chapter 1.
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 132.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 138.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 ) [3] [4]
 Chapter 2.
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 256.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 258.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-LaTeX Font Info:    Try loading font information for TS1+pcr on input line 283.
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 284.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd
@@ -1173,19 +1175,19 @@ File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
 (Font)              Font shape `T1/pcr/m/sl' tried instead on input line 295.
 LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <9> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 391.
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 389.
 
-Overfull \vbox (1.52579pt too high) detected at line 395
+Overfull \vbox (1.52579pt too high) detected at line 393
  []
 
 [6] [7] [8] [9] [10] [11] [12]
-Underfull \hbox (badness 5260) in paragraph at lines 921--926
+Underfull \hbox (badness 5260) in paragraph at lines 906--911
 \T1/ptm/b/n/10 Note:  Need Help? \T1/ptm/m/n/10 Type \T1/pcr/m/n/10 python3 -m 
 pleione.$STOCH_ENGINE-doerror --help \T1/ptm/m/n/10 where
  []
 
 [13] [14]
-Overfull \vbox (9.11557pt too high) detected at line 1157
+Overfull \vbox (9.11557pt too high) detected at line 1141
  []
 
 [15] [16]
@@ -1195,7 +1197,7 @@ Chapter 3.
 ] [18]
 Chapter 4.
 
-Overfull \vbox (0.72581pt too high) detected at line 1344
+Overfull \vbox (0.72581pt too high) detected at line 1322
  []
 
 [19
@@ -1203,24 +1205,24 @@ Overfull \vbox (0.72581pt too high) detected at line 1344
 ] [20]
 Chapter 5.
 (./pleione.ind)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1369.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1347.
  [21
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1369.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1347.
  (./pleione.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1369.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1369.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1347.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1347.
 
 Package rerunfilecheck Info: File `pleione.out' has not changed.
 (rerunfilecheck)             Checksum: E01FE3CDBF35F660D2F612CEE48C4FC8;3378.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1369.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1347.
  ) 
 Here is how much of TeX's memory you used:
- 13713 strings out of 492982
- 189977 string characters out of 6134895
- 314220 words of memory out of 5000000
- 16900 multiletter control sequences out of 15000+600000
+ 13729 strings out of 492982
+ 190331 string characters out of 6134895
+ 314698 words of memory out of 5000000
+ 16915 multiletter control sequences out of 15000+600000
  57711 words of font info for 76 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
  37i,17n,45p,523b,578s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1240,10 +1242,10 @@ ts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw
 /helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8
 a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/sha
 re/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on pleione.pdf (25 pages, 246705 bytes).
+Output written on pleione.pdf (25 pages, 246759 bytes).
 PDF statistics:
- 332 PDF objects out of 1000 (max. 8388607)
- 280 compressed objects within 3 object streams
+ 333 PDF objects out of 1000 (max. 8388607)
+ 281 compressed objects within 3 object streams
  63 named destinations out of 1000 (max. 500000)
  157 words of extra memory for PDF output out of 10000 (max. 10000000)
 
