@@ -21,7 +21,11 @@ to the rank. Nonetheless, Pleione's methods to parameterize Rule-Based Models
 include both, a uniform or inverse to the rank probability to select models from
 within an elite or all models.
 
-The plan to add methods into Pleione includes a sensitivity analysis and a
-parameterization employing a Particle Swarm Optimization protocol. You could
-write us if you wish to add methods into pleione or aid in the development of
-them.
+Examples to run Pleione are located in https://github.com/glucksfall/pleione/tree/master/example
+and in the python distribution wheel. The table with the U-test critical values is
+located at the same folder and in subfolders.
+
+The plan to add methods into Pleiades (https://github.com/glucksfall/pleiades)
+includes a sensitivity analysis and a parameterization employing a Particle
+Swarm Optimization protocol. You could write us if you wish to add methods into
+pleione or aid in the development of them.
