@@ -58,7 +58,7 @@
 
 
 \title{pleione Documentation}
-\date{Feb 18, 2019}
+\date{Feb 28, 2019}
 \release{}
 \author{Rodrigo Santibáñez}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -126,7 +126,7 @@ If you run into any problems with installation, please visit our chat room:
 \label{\detokenize{Installation:option-1-install-pleione-natively-on-your-computer}}
 The recommended approach is to use system tools, or install them if
 necessary. To install python packages, you could use pip, or download
-the package from \sphinxhref{https://pypi.org/project/pleione/}{python package index}.
+the package from \sphinxhref{https://test.pypi.org/project/pleione/}{python package index}.
 \begin{enumerate}
 \def\theenumi{\arabic{enumi}}
 \def\labelenumi{\theenumi .}
@@ -150,11 +150,12 @@ sudo \PYGZhy{}H pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione
 \item {} 
 \sphinxstylestrong{Download from python package index}
 
-Alternatively, you could download the package (useful when pip fails to
-download the package) and then install with pip. For instance:
+Alternatively, you could download the package (useful when pip fails to download
+the package because of lack of SSL libraries) and then install with pip. For instance:
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-pip3 install \PYGZhy{}i https://test.pypi.org/simple/ pleione \PYGZhy{}\PYGZhy{}user
+wget https://test\PYGZhy{}files.pythonhosted.org/packages/4c/24/63c973c228e50637393518f701866fd51c035f76c1ae82b1d4f3f9e71aaa/pleione\PYGZhy{}1.0.3\PYGZhy{}py3\PYGZhy{}none\PYGZhy{}any.whl
+pip3 install pleione\PYGZhy{}1.0.3\PYGZhy{}py3\PYGZhy{}none\PYGZhy{}any.whl \PYGZhy{}\PYGZhy{}user
 \end{sphinxVerbatim}
 
 \begin{sphinxadmonition}{note}{Note:}

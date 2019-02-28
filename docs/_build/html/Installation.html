@@ -176,7 +176,7 @@ If you run into any problems with installation, please visit our chat room:
 <h2>Option 1: Install pleione natively on your computer<a class="headerlink" href="#option-1-install-pleione-natively-on-your-computer" title="Permalink to this headline">¶</a></h2>
 <p>The recommended approach is to use system tools, or install them if
 necessary. To install python packages, you could use pip, or download
-the package from <a class="reference external" href="https://pypi.org/project/pleione/">python package index</a>.</p>
+the package from <a class="reference external" href="https://test.pypi.org/project/pleione/">python package index</a>.</p>
 <ol class="arabic">
 <li><p class="first"><strong>Install with system tools</strong></p>
 <p>With pip, you simple need to execute and pleione will be installed on
@@ -190,9 +190,10 @@ the package from <a class="reference external" href="https://pypi.org/project/pl
 </div>
 </li>
 <li><p class="first"><strong>Download from python package index</strong></p>
-<p>Alternatively, you could download the package (useful when pip fails to
-download the package) and then install with pip. For instance:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install -i https://test.pypi.org/simple/ pleione --user
+<p>Alternatively, you could download the package (useful when pip fails to download
+the package because of lack of SSL libraries) and then install with pip. For instance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://test-files.pythonhosted.org/packages/4c/24/63c973c228e50637393518f701866fd51c035f76c1ae82b1d4f3f9e71aaa/pleione-1.0.3-py3-none-any.whl
+pip3 install pleione-1.0.3-py3-none-any.whl --user
 </pre></div>
 </div>
 <div class="admonition note">
