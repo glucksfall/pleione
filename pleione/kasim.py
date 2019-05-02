@@ -715,7 +715,7 @@ def clean():
 		'*.kappa',    # kasim original model and piskas simulations files.
 		'model*.sh',  # kasim configuration files
 		'model*.txt', # kasim, piskas simulation outputs. Also calculation error outputs
-		opts['bin_file'],          # kasim compiled model (no longer done)
+		# opts['bin_file'],          # kasim compiled model (no longer done)
 		opts['outfile'] + '*.txt', # summary per iteration
 	]
 
