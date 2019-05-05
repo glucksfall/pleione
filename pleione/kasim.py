@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 '''
@@ -461,6 +460,7 @@ def evaluate():
 		model = population['model', ind]
 
 		data = ' '.join(glob.glob(' '.join(opts['data'])))
+		data = ' '.join(opts['data'])
 		error = ' '.join(opts['error'])
 		sims = ' '.join(glob.glob('{:s}.*.out.txt'.format(model)))
 		output = '{:s}.txt'.format(model)
@@ -550,7 +550,7 @@ def ranking():
 		fitfunc = sorted(list(data.index))
 
 	par_string = '{:.' + opts['par_fmt'] + '}\t'
-	iter_string = '{:s}_{:0' + len(str(opts['num_iter'])) + 'd}.txt'
+	iter_string = '{:s}_{:0' + str(len(str(opts['num_iter']))) + 'd}.txt'
 	with open(iter_string.format(opts['outfile'], iter), 'w') as file:
 		file.write('# Output of {:s} {:s}\n'.format(opts['python'], subprocess.list2cmdline(sys.argv[0:])))
 		file.write('Elapsed time: {:.0f} seconds\n'.format(time.time() - float(opts['systime'])))
