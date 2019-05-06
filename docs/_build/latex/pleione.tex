@@ -58,7 +58,7 @@
 
 
 \title{pleione Documentation}
-\date{Feb 28, 2019}
+\date{May 06, 2019}
 \release{}
 \author{Rodrigo Santibáñez}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -928,7 +928,7 @@ simulations files.
 \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
 \item {} 
 \begin{DUlineblock}{0em}
-\item[] \sphinxstylestrong{Mean Square Error (MSE):}
+\item[] \sphinxstylestrong{Squared Difference of Means (SDM; formerly Mean Square Error, MSE):}
 \item[] 
 \item[]
 \begin{DUlineblock}{\DUlineblockindent}
@@ -938,7 +938,7 @@ simulations files.
 
 \item {} 
 \begin{DUlineblock}{0em}
-\item[] \sphinxstylestrong{Mean Absolute Error (MAE):}
+\item[] \sphinxstylestrong{Absolute Difference of Means (ADM; formerly Mean Absolute Error, MAE):}
 \item[] 
 \item[]
 \begin{DUlineblock}{\DUlineblockindent}
@@ -1124,8 +1124,8 @@ importance of the statistical function is diluited.
 \subsection{Add a fitness function to Pleione}
 \label{\detokenize{functions/addFitness:add-a-fitness-function-to-pleione}}\label{\detokenize{functions/addFitness::doc}}
 Each simulator are provided with two scripts that calculate errors. They are
-located at the same path as the principal scripts. Inside, they have a template
-intended with instructions:
+located at the same path as the main scripts that calibrate. Inside each,
+there is a template intended with instructions:
 \begin{quote}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1135,7 +1135,7 @@ intended with instructions:
         \PYG{n+nv}{func} \PYG{o}{=} an algebraic expression combining the data average \PYG{o}{(}data\PYGZus{}avrg\PYG{o}{)}, data variance \PYG{o}{(}data\PYGZus{}stdv\PYG{o}{)}, simulation average \PYG{o}{(}sims\PYGZus{}stdv\PYG{o}{)},
         single experimental files \PYG{o}{(}data.loc\PYG{o}{[}i\PYG{o}{]}\PYG{o}{)} and/or simulation files \PYG{o}{(}sims.loc\PYG{o}{[}i\PYG{o}{]}\PYG{o}{)}.
         \PYG{c+c1}{\PYGZsh{} Please consider this variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)}
-        \PYG{c+c1}{\PYGZsh{} Please calculate average or standard deviation values from data.loc[i] and sims.loc[i] if they are needed from them (as in MSE)}
+        \PYG{c+c1}{\PYGZsh{} Please calculate average or standard deviation values from data.loc[i] and sims.loc[i] if they are needed from them (as in SDM)}
 
         error\PYG{o}{[}\PYG{l+s+s1}{\PYGZsq{}acronysm\PYGZsq{}}\PYG{o}{]} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZob{}:.6e\PYGZcb{}\PYGZsq{}}.format\PYG{o}{(}func.dropna\PYG{o}{(}\PYG{n+nv}{axis} \PYG{o}{=} \PYG{l+m}{0}, \PYG{n+nv}{how} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}all\PYGZsq{}}\PYG{o}{)}.dropna\PYG{o}{(}\PYG{n+nv}{axis} \PYG{o}{=} \PYG{l+m}{1}, \PYG{n+nv}{how} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}all\PYGZsq{}}\PYG{o}{)}.sum\PYG{o}{(}\PYG{o}{)}.sum\PYG{o}{(}\PYG{o}{)}\PYG{o}{)}
         \PYG{c+c1}{\PYGZsh{} drop NaN values (from experimental data without simulation point or vice\PYGZhy{}versa), sum the two dimensions, and return a 6 float points scientific notation number}
@@ -1151,13 +1151,13 @@ To use:
 Define an acronysm for your fitness function and replace “the-acronysm”
 
 \item {} 
-Define func as an operation of DataFrames: data\_avrg, data\_stdv, sims\_stdv, data.loc{[}i{]}, and sims.loc{[}i{]}
+Define func as an operation of DataFrames: data\_avrg, data\_stdv, sims\_avrg, sims\_stdv, data.loc{[}i{]}, and sims.loc{[}i{]}
 
 \end{enumerate}
 
 \begin{sphinxadmonition}{note}{Note:}
 simulator-doerror.py scripts calculates one single fitness function at the time.
-The Mean Square Error has code to calculate the average from data and simulations.
+The Square Difference of Means has code to calculate the average from data and simulations.
 \end{sphinxadmonition}
 
 \begin{sphinxadmonition}{note}{Note:}

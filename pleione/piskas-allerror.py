@@ -81,7 +81,7 @@ def do(error):
 	# mean square error
 	func = 0
 	func = (data_avrg - sims_avrg)**2
-	error['MSE'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
+	error['SDM'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# mean absolute error
 	func = 0
@@ -180,7 +180,7 @@ if __name__ == '__main__':
 
 	# add here your favorite error function and call the genetic algorithm script with its acronysm
 	error = {
-		'MSE'   : str(numpy.nan),
+		'SDM'   : str(numpy.nan),
 		'MAE'   : str(numpy.nan),
 		'SSQ'   : str(numpy.nan),
 		'MWUT'  : str(numpy.nan),

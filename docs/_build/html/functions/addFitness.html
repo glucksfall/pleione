@@ -171,8 +171,8 @@
   <div class="section" id="add-a-fitness-function-to-pleione">
 <h1>Add a fitness function to Pleione<a class="headerlink" href="#add-a-fitness-function-to-pleione" title="Permalink to this headline">¶</a></h1>
 <p>Each simulator are provided with two scripts that calculate errors. They are
-located at the same path as the principal scripts. Inside, they have a template
-intended with instructions:</p>
+located at the same path as the main scripts that calibrate. Inside each,
+there is a template intended with instructions:</p>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fitness Calculation Template:</span>
 <span class="k">if</span> set<span class="o">(</span>args.error<span class="o">)</span>.issuperset<span class="o">(</span>set<span class="o">([</span><span class="s1">&#39;the-acronysm&#39;</span><span class="o">]))</span>:
@@ -180,7 +180,7 @@ intended with instructions:</p>
         <span class="nv">func</span> <span class="o">=</span> an algebraic expression combining the data average <span class="o">(</span>data_avrg<span class="o">)</span>, data variance <span class="o">(</span>data_stdv<span class="o">)</span>, simulation average <span class="o">(</span>sims_stdv<span class="o">)</span>,
         single experimental files <span class="o">(</span>data.loc<span class="o">[</span>i<span class="o">])</span> and/or simulation files <span class="o">(</span>sims.loc<span class="o">[</span>i<span class="o">])</span>.
         <span class="c1"># Please consider this variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)</span>
-        <span class="c1"># Please calculate average or standard deviation values from data.loc[i] and sims.loc[i] if they are needed from them (as in MSE)</span>
+        <span class="c1"># Please calculate average or standard deviation values from data.loc[i] and sims.loc[i] if they are needed from them (as in SDM)</span>
 
         error<span class="o">[</span><span class="s1">&#39;acronysm&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="s1">&#39;{:.6e}&#39;</span>.format<span class="o">(</span>func.dropna<span class="o">(</span><span class="nv">axis</span> <span class="o">=</span> <span class="m">0</span>, <span class="nv">how</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span><span class="o">)</span>.dropna<span class="o">(</span><span class="nv">axis</span> <span class="o">=</span> <span class="m">1</span>, <span class="nv">how</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span><span class="o">)</span>.sum<span class="o">()</span>.sum<span class="o">())</span>
         <span class="c1"># drop NaN values (from experimental data without simulation point or vice-versa), sum the two dimensions, and return a 6 float points scientific notation number</span>
@@ -190,12 +190,12 @@ intended with instructions:</p>
 <p>To use:</p>
 <ol class="arabic simple">
 <li>Define an acronysm for your fitness function and replace “the-acronysm”</li>
-<li>Define func as an operation of DataFrames: data_avrg, data_stdv, sims_stdv, data.loc[i], and sims.loc[i]</li>
+<li>Define func as an operation of DataFrames: data_avrg, data_stdv, sims_avrg, sims_stdv, data.loc[i], and sims.loc[i]</li>
 </ol>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">simulator-doerror.py scripts calculates one single fitness function at the time.
-The Mean Square Error has code to calculate the average from data and simulations.</p>
+The Square Difference of Means has code to calculate the average from data and simulations.</p>
 </div>
 </div>
 

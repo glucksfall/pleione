@@ -50,13 +50,13 @@ def do(error):
 		func = an algebraic expression combining the data average (data_avrg), data variance (data_stdv), simulation average (sims_stdv),
 		single experimental files (data.loc[i]) and/or simulation files (sims.loc[i]).
 		# Please consider this variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)
-		# Please consider use data.loc[i] and sims.loc[i] if average or standard deviation values are needed from them (as in MSE)
+		# Please consider use data.loc[i] and sims.loc[i] if average or standard deviation values are needed from them (as in SDM)
 		# drop NaN values (from experimental data without simulation point or vice-versa), sum the two dimensions, and return a 6 float points scientific notation number
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
 	# mean square error
-	if set(args.error).issuperset(set(['MSE'])):
+	if set(args.error).issuperset(set(['SDM'])):
 		func = 0
 
 		data_avrg = 0
@@ -70,7 +70,7 @@ def do(error):
 		func = (data_avrg - sims_avrg)**2
 		func = func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum()
 
-		error['MSE'] = '{:.6e}'.format(func)
+		error['SDM'] = '{:.6e}'.format(func)
 
 	# mean absolute error
 	if set(args.error).issuperset(set(['MAE'])):
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
 	# add here your favorite error function and call the genetic algorithm script with its acronysm
 	error = {
-		'MSE'   : str(numpy.nan),
+		'SDM'   : str(numpy.nan),
 		'MAE'   : str(numpy.nan),
 		'SSQ'   : str(numpy.nan),
 		'MWUT'  : str(numpy.nan),

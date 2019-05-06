@@ -7,11 +7,11 @@ simulations files.
 .. hlist::
 	:columns: 2
 
-	* | **Mean Square Error (MSE):**
+	* | **Squared Difference of Means (SDM; formerly Mean Square Error, MSE):**
 	  |
 	  |  :math:`\left( \frac{1}{m} \sum_{i=1}^{m} \mathrm{exp}_i - \frac{1}{n} \sum_{j=1}^{n} \mathrm{sim}_j \right) ^{2}`
 
-	* | **Mean Absolute Error (MAE):**
+	* | **Absolute Difference of Means (ADM; formerly Mean Absolute Error, MAE):**
 	  |
 	  |  :math:`\mathrm{abs} \left( \frac{1}{m} \sum_{i=1}^{m} \mathrm{exp}_i - \frac{1}{n} \sum_{j=1}^{n} \mathrm{sim}_j \right)`
 
