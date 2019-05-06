@@ -109,7 +109,7 @@ def do(error):
 		data_stdv = 0
 		if len_data > 1:
 			for i in range(len_data):
-				data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1)
+				data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
 		else:
 			data_stdv = stdv**2
 
