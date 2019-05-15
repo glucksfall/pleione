@@ -132,6 +132,7 @@ def argsparser():
 
 	# distribute computation with SLURM, otherwise with python multiprocessing API
 	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use, default None')
+	parser.add_argument('--sbatch' , metavar = 'str'  , type = str  , required = False, default = ''              , help = 'explicit configuration for sbatch, e.g. --mem-per-cpu 5G')
 
 	# general options
 	parser.add_argument('--seed'   , metavar = 'int'  , type = int  , required = False, default = None            , help = 'random number generator seed, default None')
@@ -200,6 +201,7 @@ def ga_opts():
 		#'nfsim'     : os.path.expanduser(args.nfsim), # nfsim only
 		'python'    : os.path.expanduser(args.python),
 		'slurm'     : args.slurm,
+		'others'    : args.sbatch,
 		'rng_seed'  : args.seed,
 		'num_iter'  : args.iter,
 		'pop_size'  : args.inds,
@@ -375,6 +377,7 @@ def simulate():
 		'ncpus'     : 1,
 		'null'      : opts['null'],
 		'partition' : opts['slurm'],
+		'others'    : opts['others'],
 		'job_name'  : 'child_{:s}'.format(opts['systime']),
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
@@ -408,7 +411,7 @@ def simulate():
 
 				# use SLURM Workload Manager
 				if opts['slurm'] is not None:
-					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} \
+					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} {others} \
 						--wrap ""{exec_kasim}""'.format(**job_desc))
 					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()

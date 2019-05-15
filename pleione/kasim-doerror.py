@@ -11,8 +11,12 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'kasim-v4.0'
 
-import argparse, sys
+import argparse
 import pandas, numpy
+# Wellek's Equivalence Test estimations require a "n Choose k"
+from scipy.special import comb
+# critical value for Wellek's Equivalence Test
+from scipy.stats.distributions import chi2
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')
@@ -55,8 +59,8 @@ def do(error):
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
-	# mean square error
-	if set(args.error).issuperset(set(['SDM'])):
+	# former mean square error, now square difference of means
+	if set(args.error).issuperset(set(['SDM'])) or set(args.error).issuperset(set(['MSE'])):
 		func = 0
 
 		data_avrg = 0
@@ -72,8 +76,8 @@ def do(error):
 
 		error['SDM'] = '{:.6e}'.format(func)
 
-	# mean absolute error
-	if set(args.error).issuperset(set(['MAE'])):
+	# former mean absolute error, now absolute value of means difference
+	if set(args.error).issuperset(set(['ADM'])) or set(args.error).issuperset(set(['MAE'])):
 		func = 0
 
 		data_avrg = 0
@@ -86,7 +90,7 @@ def do(error):
 
 		func = abs(data_avrg - sims_avrg)
 
-		error['MAE'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
+		error['ADM'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# sum of squares (from BioNetFit paper)
 	if set(args.error).issuperset(set(['SSQ'])):
@@ -184,11 +188,12 @@ def do(error):
 			for i in range(len_data):
 				for j in range(len_sims):
 					diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# if data < sims count -1.0
+					# transform data
+					# if data < sims, count -1.0
 					diff[diff < 0] = -1.0
-					# if data > sims count +1.0
+					# if data > sims, count +1.0
 					diff[diff > 0] = +1.0
-					# if data = sims count +0.5
+					# if data = sims, count +0.5
 					diff[diff == 0] = +0.5
 					# count how many times is data < sims (udata and usims are complementary)
 					udata += diff[diff == -1.0].fillna(0).divide(-1) + diff[diff == +0.5].fillna(0)
@@ -202,6 +207,86 @@ def do(error):
 			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
 	else:
 		error['MWUT'] = str(numpy.nan)
+
+	# Wellek's Mann-Whitney Equivalence Test.
+	# Based on mawi.R script from EQUIVNONINF package
+	if set(args.error).issuperset(set(['MWUT'])):
+		# useful variables
+		m = len_data
+		n = len_sims
+		e1 = .3129 # Wellek's paper
+		e2 = .2661 # Wellek's paper
+		eqctr = .5 + (e2 - e1)/2
+		eqleng = e1 + e2
+
+		# estimators needed for calculations
+		y = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		yFFG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		yFGG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		sigma2 = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+
+		# ŷ estimator
+		for i in range(m):
+			for j in range(n):
+				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+				diff = diff.apply(numpy.sign)
+				diff = diff + 1
+				diff = diff.multiply(.5)
+				# trunc R function
+				diff[diff < 0] = diff.apply(numpy.floor)
+				diff[diff > 0] = diff.apply(numpy.ceil)
+				# add to ŷ (wxy in mawi.R)
+				y += diff
+
+		y = y.divide(m*n)
+		print(y)
+
+		# yFGG estimator
+		for xi in range(m):
+			for xj1 in range(n - 1):
+				for xj2 in range(xj1 + 1, n):
+					diff = data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2])
+					diff = diff.apply(numpy.sign)
+					diff = diff + 1
+					diff = diff.multiply(.5)
+					# trunc R function
+					diff[diff < 0] = diff.apply(numpy.floor)
+					diff[diff > 0] = diff.apply(numpy.ceil)
+					# add to yFGG (pihxyy in mawi.R)
+					yFGG += diff
+
+		yFGG = (yFGG**2).divide(m*(m-1)*n)
+		print(yFGG)
+
+		# yFFG estimator
+		for xi1 in range(m - 1):
+			for xi2 in range(xi1 + 1, m):
+				for xj in range(n):
+					diff = data.loc[xi1].where(data.loc[xi1] < data.loc[xi2], data.loc[xi2]) - sims.loc[xj]
+					diff = diff.apply(numpy.sign)
+					diff = diff + 1
+					diff = diff.multiply(.5)
+					# trunc R function
+					diff[diff < 0] = diff.apply(numpy.floor)
+					diff[diff > 0] = diff.apply(numpy.ceil)
+					# add to yFGG (pihxxy in mawi.R)
+					yFFG += diff
+
+		yFFG = (yFFG**2).divide(n*(n-1)*m)
+		print(yFFG)
+
+		# variance estimator sigmah (same name as mawi.R)
+		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
+		sigmah = sigmah**.5
+
+		# critical value
+		phi = (sigma**-1).multiply((e1 + e2)/2)
+		Cv = chi2.ppf(q = 0.05, df = 1, loc = phi**2)**.5
+		Cv = pandas.DataFrame(data = Cv, index = sims.loc[0].index, columns = sims.loc[0].columns)
+
+		# Comparison with Z
+		Z = (sigma**-1) * abs(y - (0.5 + (e2 - e1)/2)
+		# if Z < Cv, Wellek's test cannot
 
 if __name__ == '__main__':
 	args = argsparser()
@@ -218,7 +303,7 @@ if __name__ == '__main__':
 	# add here your favorite error function and call the genetic algorithm script with its acronysm
 	error = {
 		'SDM'   : str(numpy.nan),
-		'MAE'   : str(numpy.nan),
+		'ADM'   : str(numpy.nan),
 		'SSQ'   : str(numpy.nan),
 		'MWUT'  : str(numpy.nan),
 		'PWSD'  : str(numpy.nan),
@@ -227,6 +312,8 @@ if __name__ == '__main__':
 		'APWSD' : str(numpy.nan),
 		'NPWSD' : str(numpy.nan),
 		'ANPWSD': str(numpy.nan),
+		'WMWET' : str(numpy.nan),
+		'TOST'  : str(numpy.nan),
 		}
 
 	do(error)
