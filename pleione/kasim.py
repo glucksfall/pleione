@@ -2,8 +2,8 @@
 
 '''
 Project "Genetic Algorithm for Rule-Based Models", Rodrigo Santibáñez, 2017 @ Dlab, FCV (rsantibanez@dlab.cl)
-A Python implementation of Alberto Martin's Genetic Algorithm, 2016 @ Dlab, FCV (ajmm@dlab.cl)
-To be used with KaSim. Please refer to other subprojects for other stochastic simulators support
+A Genetic Algorithm inspired by Alberto Martin's Genetic Algorithm, 2016 @ Dlab, FCV (ajmm@dlab.cl)
+To be used with KaSim v4.0. Please refer to other subprojects for other stochastic simulators support
 Citation:
 '''
 
@@ -150,7 +150,7 @@ def argsparser():
 
 	# other options
 	parser.add_argument('--syntax' , metavar = 'str'  , type = str  , required = False, default = '4'             , help = 'KaSim syntax, default 4')
-	parser.add_argument('--binary' , metavar = 'str'  , type = str  , required = False, default = 'model'         , help = 'KaSim binary prefix, default model')
+	#parser.add_argument('--binary' , metavar = 'str'  , type = str  , required = False, default = 'model'         , help = 'KaSim binary prefix, default model')
 	#parser.add_argument('--equil'  , metavar = 'float', type = float, required = False, default = 0               , help = 'equilibrate model before running the simulation, default 0')
 	#parser.add_argument('--sync'   , metavar = 'float', type = str  , required = False, default = '1.0'           , help = 'time period to syncronize compartments, default 1.0')
 	parser.add_argument('--output' , metavar = 'str'  , type = str  , required = False, default = 'outmodels'     , help = 'ranking files prefixes, default outmodels')
@@ -162,7 +162,7 @@ def argsparser():
 
 	# TO BE DEPRECATED, only with publishing purposes.
 	# the random standard library does not have a random.choice with an optional probability list, therefore, Pleione uses numpy.random.choice
-	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'use True: random.random instead of False: numpy.random')
+	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'True to use random.random, default numpy.random')
 	# If the user wants to know the behavior of other functions, the option --dev should be maintained
 	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all fitness functions, default False')
 
@@ -462,8 +462,18 @@ def evaluate():
 	for ind in range(opts['pop_size']):
 		model = population['model', ind]
 
-		data = ' '.join(glob.glob(' '.join(opts['data'])))
-		data = ' '.join(opts['data'])
+		# subscript cannot expand asterisk wildcard (for security reasons)
+		# also, Popen interprets it as an literal asterisk, making necesary the interpretation with glob
+		# this makes a problem when pleione is a subroutine or the main routine.
+		# Attempt to reconcile both situations:
+		data = ''
+		for value in opts['data']:
+			if '*' in value:
+				data += ' '.join(glob.glob(value)) + ' '
+			else:
+				data += value + ' '
+		print(data)
+
 		error = ' '.join(opts['error'])
 		sims = ' '.join(glob.glob('{:s}.*.out.txt'.format(model)))
 		output = '{:s}.txt'.format(model)
@@ -716,7 +726,7 @@ def clean():
 		'*.cdat',     # bng2 simulation outputs (CVODE)
 		'*.species',  # bng2 network generation outputs
 		'*.kappa',    # kasim original model and piskas simulations files.
-		'model*.sh',  # kasim configuration files
+		#'model*.sh',  # kasim configuration files, DEPRECATED
 		'model*.txt', # kasim, piskas simulation outputs. Also calculation error outputs
 		# opts['bin_file'],          # kasim compiled model (no longer done)
 		opts['outfile'] + '*.txt', # summary per iteration
