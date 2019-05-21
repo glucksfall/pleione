@@ -47,8 +47,8 @@ def safe_checks():
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
 
 	if shutil.which(opts['r_path']) is None:
-	error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
-		'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
+		error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
+			'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
 
 	# check for simulators
 	#if shutil.which(opts['bng2']) is None:
