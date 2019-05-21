@@ -11,7 +11,7 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'kasim-v4.0'
 
-import argparse
+import argparse, os
 import pandas, numpy
 # use the qchisq function from R
 # (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
@@ -24,6 +24,9 @@ def argsparser():
 	parser.add_argument('--file' , metavar = 'path', type = str, required = True , nargs = 1  , help = 'output file name')
 	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
 	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
+
+	# path to R
+	parser.add_argument('--rpath', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R path, default ~/bin/R')
 
 	return parser.parse_args()
 
@@ -214,12 +217,15 @@ def do(error):
 	# Wellek's Mann-Whitney Equivalence Test.
 	# Based on mawi.R script from the EQUIVNONINF package
 	if set(args.error).issuperset(set(['WMWET'])):
+		# set R HOME and import stats R package
+		os.environ['R_HOME'] = args.rpath
+		stats = importr('stats')
+
 		# useful variables
 		m = len_data
 		n = len_sims
 		e1 = .3129 # Wellek's paper
 		e2 = .2661 # Wellek's paper
-
 		e1 = .1382 # mawi.R script
 		e2 = .2602 # mawi.R script
 		eqctr = .5 + (e2 - e1)/2
@@ -290,7 +296,6 @@ def do(error):
 
 		# critical value
 		crit = []
-		stats = importr('stats')
 		phi = (eqleng/2/sigmah)**2
 		#print(phi)
 		phi = phi.values
@@ -309,9 +314,12 @@ def do(error):
 		z = Z.copy(deep = True)
 		#print(Z[Z >= crit])
 		#print(Z[Z < crit])
-		# we purposely changed the values to minimize the function
-		# we want to minimize the amount of null hypothesis
-		# the test was null, therefore P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
+
+		"""
+		we purposely changed the values to minimize the function
+		we want to minimize the amount of null hypothesis
+		the test was null, therefore P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
+		"""
 		Z[z >= crit] = +1.0
 		# the test was rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
 		Z[z < crit] = +0.0

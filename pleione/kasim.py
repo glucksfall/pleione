@@ -46,6 +46,10 @@ def safe_checks():
 		error_msg += 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
 
+	if shutil.which(opts['r_path']) is None:
+	error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
+		'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
+
 	# check for simulators
 	#if shutil.which(opts['bng2']) is None:
 		#error_msg += 'BNG2 (at {:s}) can\'t be called to perform simulations.\n' \
@@ -129,6 +133,7 @@ def argsparser():
 	#parser.add_argument('--nfsim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/nfsim'   , help = 'NFsim path, default ~/bin/nfsim')
 	#parser.add_argument('--piskas' , metavar = 'path' , type = str  , required = False, default = '~/bin/piskas'  , help = 'PISKaS path, default ~/bin/piskas')
 	parser.add_argument('--python' , metavar = 'path' , type = str  , required = False, default = '~/bin/python3' , help = 'python path, default ~/bin/python3')
+	parser.add_argument('--r_path' , metavar = 'path' , type = str  , required = False, default = '~/bin/R'       , help = 'R path, default ~/bin/R')
 
 	# distribute computation with SLURM, otherwise with python multiprocessing API
 	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use, default None')
@@ -200,6 +205,7 @@ def ga_opts():
 		#'piskas'    : os.path.expanduser(args.piskas), # piskas only
 		#'nfsim'     : os.path.expanduser(args.nfsim), # nfsim only
 		'python'    : os.path.expanduser(args.python),
+		'r_path'    : os.path.expanduser(args.r_path),
 		'slurm'     : args.slurm,
 		'others'    : args.sbatch,
 		'rng_seed'  : args.seed,
@@ -452,8 +458,8 @@ def evaluate():
 		'job_name'  : 'child_{:s}'.format(opts['systime']),
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
-		'doerror'   : '{:s} -m pleione.kasim-doerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
-		'deverror'  : '{:s} -m pleione.kasim-allerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
+		'doerror'   : '{:s} -m pleione.kasim-doerror --crit {:s} --rpath {:s}'.format(opts['python'], opts['crit_vals'], opts['r_path']),
+		'deverror'  : '{:s} -m pleione.kasim-allerror --crit {:s} --rpath {:s}'.format(opts['python'], opts['crit_vals'], opts['r_path']),
 		}
 
 	# submit error calculations to the queue
@@ -472,7 +478,6 @@ def evaluate():
 				data += ' '.join(glob.glob(value)) + ' '
 			else:
 				data += value + ' '
-		print(data)
 
 		error = ' '.join(opts['error'])
 		sims = ' '.join(glob.glob('{:s}.*.out.txt'.format(model)))
