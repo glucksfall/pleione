@@ -46,7 +46,7 @@ def safe_checks():
 		error_msg += 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
 
-	if shutil.which(opts['r_path']) is None:
+	if set(args.error).issuperset(set(['WMWET'])) and shutil.which(opts['r_path']) is None:
 		error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
 
@@ -91,7 +91,7 @@ def safe_checks():
 			error_msg += 'The path "{:s}" is empty.\n' \
 				'Please, check the path to the data files.\n'.format(opts['data'][0])
 	else:
-		for data in opts['data']: # each file was declared explicitly
+		for data in opts['data']: # the shell expanded the *
 			if not os.path.isfile(data):
 				error_msg += 'The "{:s}" file cannot be opened.\n' \
 					'Please, check the path to the data file.\n'.format(data)
@@ -317,7 +317,7 @@ def populate():
 	par_keys = list(parameters.keys())
 
 	population = {}
-	model_string = 'model_000_{:0' + str(len(str(opts['num_sims']))) + 'd}'
+	model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
 	for ind in range(opts['pop_size']):
 		population['model', ind] = model_string.format(ind)
 		population['error', ind] = opts['max_error']
@@ -389,7 +389,7 @@ def simulate():
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
 		}
 
-	# generate a sh file per model
+	# generate a new kappa file per model
 	par_keys = list(parameters.keys())
 	par_string = '%var: \'{:s}\' {:.' + opts['par_fmt'] + '}\n'
 	for ind in range(opts['pop_size']):
@@ -458,9 +458,16 @@ def evaluate():
 		'job_name'  : 'child_{:s}'.format(opts['systime']),
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
-		'doerror'   : '{:s} -m pleione.kasim-doerror --crit {:s} --rpath {:s}'.format(opts['python'], opts['crit_vals'], opts['r_path']),
-		'deverror'  : '{:s} -m pleione.kasim-allerror --crit {:s} --rpath {:s}'.format(opts['python'], opts['crit_vals'], opts['r_path']),
+		'doerror'   : '{:s} -m pleione.kasim-doerror '.format(opts['python']),
+		'deverror'  : '{:s} -m pleione.kasim-allerror '.format(opts['python']),
 		}
+
+	if set(args.error).issuperset(set(['MWUT'])):
+		job_desc['doerror'] = job_desc['doerror'] + '--crit {:s} '.format(opts['crit_vals'])
+
+	if set(args.error).issuperset(set(['WMWET'])):
+		LD = os.environ.get('LD_LIBRARY_PATH')
+		job_desc['doerror'] = job_desc['doerror'] + '--rpath {:s} --rlibs {:s} '.format(opts['r_path'], LD)
 
 	# submit error calculations to the queue
 	squeue = []

@@ -13,9 +13,6 @@ __software__ = 'kasim-v4.0'
 
 import argparse, os
 import pandas, numpy
-# use the qchisq function from R
-# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
-from rpy2.robjects.packages import importr
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')
@@ -25,8 +22,9 @@ def argsparser():
 	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
 	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
 
-	# path to R
-	parser.add_argument('--rpath', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R path, default ~/bin/R')
+	# path to R executable and libs
+	parser.add_argument('--rpath', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R exe path, default ~/bin/R')
+	parser.add_argument('--rlibs', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R lib path, default $LD_LIBRARY_PATH')
 
 	return parser.parse_args()
 
@@ -217,8 +215,11 @@ def do(error):
 	# Wellek's Mann-Whitney Equivalence Test.
 	# Based on mawi.R script from the EQUIVNONINF package
 	if set(args.error).issuperset(set(['WMWET'])):
-		# set R HOME and import stats R package
-		os.environ['R_HOME'] = args.rpath
+		# set R HOME and import stats R package to use the qchisq function
+		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
+		from rpy2.robjects.packages import importr
+		os.environ['R_HOME'] = args.rpath[0]
+		os.environ['LD_LIBRARY_PATH'] = args.rlibs[0]
 		stats = importr('stats')
 
 		# useful variables
