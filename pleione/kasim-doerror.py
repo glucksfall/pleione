@@ -23,8 +23,10 @@ def argsparser():
 	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
 
 	# path to R executable and libs
-	parser.add_argument('--rpath', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R exe path, default ~/bin/R')
-	parser.add_argument('--rlibs', metavar = 'path', type = str, required = False, nargs = 1  , help = 'R lib path, default $LD_LIBRARY_PATH')
+	parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
+	parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
+	# report MWUT, WMWET
+	parser.add_argument('--report', metavar = 'path', type = str, required = False, default = False    , help = 'report the array of U-tests and/or Wellek\'s tests')
 
 	return parser.parse_args()
 
@@ -60,7 +62,7 @@ def do(error):
 	"""
 
 	# former mean square error, now square difference of means
-	if set(args.error).issuperset(set(['SDM'])) or set(args.error).issuperset(set(['MSE'])):
+	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
 		func = 0
 
 		data_avrg = 0
@@ -74,10 +76,10 @@ def do(error):
 		func = (data_avrg - sims_avrg)**2
 		func = func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum()
 
-		error['SDM'] = '{:.6e}'.format(func)
+		error['SDA'] = '{:.6e}'.format(func)
 
 	# former mean absolute error, now absolute value of the difference of means
-	if set(args.error).issuperset(set(['ADM'])) or set(args.error).issuperset(set(['MAE'])):
+	if set(args.error).issuperset(set(['ADA'])) or set(args.error).issuperset(set(['MAE'])):
 		func = 0
 
 		data_avrg = 0
@@ -90,7 +92,7 @@ def do(error):
 
 		func = abs(data_avrg - sims_avrg)
 
-		error['ADM'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
+		error['ADA'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# sum of squares (from BioNetFit paper)
 	if set(args.error).issuperset(set(['SSQ'])):
@@ -207,6 +209,9 @@ def do(error):
 			U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
 			U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
+			if args.report:
+				print('U-test matrix:', U)
+
 			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
 
 		else:
@@ -218,8 +223,8 @@ def do(error):
 		# set R HOME and import stats R package to use the qchisq function
 		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
 		from rpy2.robjects.packages import importr
-		os.environ['R_HOME'] = args.rpath[0]
-		os.environ['LD_LIBRARY_PATH'] = args.rlibs[0]
+		os.environ['R_HOME'] = args.r_path
+		os.environ['LD_LIBRARY_PATH'] = args.r_libs
 		stats = importr('stats')
 
 		# useful variables
@@ -253,7 +258,8 @@ def do(error):
 				y += diff
 
 		y = y.divide(m*n)
-		#print(y)
+		if args.report:
+			print('wxy estimator:', y)
 
 		# yFGG estimator
 		for xi in range(m):
@@ -271,7 +277,8 @@ def do(error):
 					yFGG += diff
 
 		yFGG = (yFGG*2).divide(n*(n-1)*m)
-		#print(yFGG)
+		if args.report:
+			print('pihxyy estimator:', yFGG)
 
 		# yFFG estimator
 		for xi1 in range(m - 1):
@@ -288,12 +295,14 @@ def do(error):
 					yFFG += diff
 
 		yFFG = (yFFG*2).divide(m*(m-1)*n)
-		#print(yFFG)
+		if args.report:
+			print('pihxxy estimator:', yFFG)
 
 		# variance estimator sigmah (same name as mawi.R)
 		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
 		sigmah = sigmah**.5
-		#print(sigmah)
+		if args.report:
+			print('sigmah estimator:', sigmah)
 
 		# critical value
 		crit = []
@@ -319,15 +328,16 @@ def do(error):
 		"""
 		we purposely changed the values to minimize the function
 		we want to minimize the amount of null hypothesis
-		the test was null, therefore P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		"""
+		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
-		# the test was rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+		# the test is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
 		Z[z < crit] = +0.0
 		#print(numpy.count_nonzero(numpy.isinf(Z)))
 
 		Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
-		#print(Z)
+		if args.report:
+			print('Wellek\' test matrix:', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
@@ -345,8 +355,8 @@ if __name__ == '__main__':
 
 	# add here your favorite error function and call the genetic algorithm script with its acronysm
 	error = {
-		'SDM'   : str(numpy.nan),
-		'ADM'   : str(numpy.nan),
+		'SDA'   : str(numpy.nan),
+		'ADA'   : str(numpy.nan),
 		'SSQ'   : str(numpy.nan),
 		'MWUT'  : str(numpy.nan),
 		'PWSD'  : str(numpy.nan),

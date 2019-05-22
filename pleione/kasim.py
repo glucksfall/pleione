@@ -467,7 +467,7 @@ def evaluate():
 
 	if set(args.error).issuperset(set(['WMWET'])):
 		LD = os.environ.get('LD_LIBRARY_PATH')
-		job_desc['doerror'] = job_desc['doerror'] + '--rpath {:s} --rlibs {:s} '.format(opts['r_path'], LD)
+		job_desc['doerror'] = job_desc['doerror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
 
 	# submit error calculations to the queue
 	squeue = []
