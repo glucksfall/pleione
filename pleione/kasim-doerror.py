@@ -259,7 +259,7 @@ def do(error):
 
 		y = y.divide(m*n)
 		if args.report:
-			print('wxy estimator:\n', y)
+			print('wxy estimator:\n', y, '\n')
 
 		# yFGG estimator
 		for xi in range(m):
@@ -278,7 +278,7 @@ def do(error):
 
 		yFGG = (yFGG*2).divide(n*(n-1)*m)
 		if args.report:
-			print('pihxyy estimator:\n', yFGG)
+			print('pihxyy estimator:\n', yFGG, '\n')
 
 		# yFFG estimator
 		for xi1 in range(m - 1):
@@ -296,13 +296,13 @@ def do(error):
 
 		yFFG = (yFFG*2).divide(m*(m-1)*n)
 		if args.report:
-			print('pihxxy estimator:\n', yFFG)
+			print('pihxxy estimator:\n', yFFG, '\n')
 
 		# variance estimator sigmah (same name as mawi.R)
 		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
 		sigmah = sigmah**.5
 		if args.report:
-			print('sigmah estimator:\n', sigmah)
+			print('sigmah estimator:\n', sigmah, '\n')
 
 		# critical value
 		crit = []
@@ -317,7 +317,9 @@ def do(error):
 				crit.append(numpy.nan)
 		crit = numpy.asarray(crit).reshape((a, b))
 		crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
-		#print(crit)
+
+		if args.report:
+			print('critical values:\n', crit, '\n')
 
 		# compare with Z
 		Z = abs((y - eqctr).divide(sigmah))
