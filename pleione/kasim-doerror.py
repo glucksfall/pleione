@@ -26,7 +26,7 @@ def argsparser():
 	parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
 	parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
 	# report MWUT, WMWET
-	parser.add_argument('--report', metavar = 'path', type = str, required = False, default = False    , help = 'report the array of U-tests and/or Wellek\'s tests')
+	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = False    , help = 'report the array of U-tests and/or Wellek\'s tests')
 
 	return parser.parse_args()
 
@@ -210,7 +210,7 @@ def do(error):
 			U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
 			if args.report:
-				print('U-test matrix:', U)
+				print('U-test matrix:\n', U)
 
 			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
 
@@ -259,7 +259,7 @@ def do(error):
 
 		y = y.divide(m*n)
 		if args.report:
-			print('wxy estimator:', y)
+			print('wxy estimator:\n', y)
 
 		# yFGG estimator
 		for xi in range(m):
@@ -278,7 +278,7 @@ def do(error):
 
 		yFGG = (yFGG*2).divide(n*(n-1)*m)
 		if args.report:
-			print('pihxyy estimator:', yFGG)
+			print('pihxyy estimator:\n', yFGG)
 
 		# yFFG estimator
 		for xi1 in range(m - 1):
@@ -296,13 +296,13 @@ def do(error):
 
 		yFFG = (yFFG*2).divide(m*(m-1)*n)
 		if args.report:
-			print('pihxxy estimator:', yFFG)
+			print('pihxxy estimator:\n', yFFG)
 
 		# variance estimator sigmah (same name as mawi.R)
 		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
 		sigmah = sigmah**.5
 		if args.report:
-			print('sigmah estimator:', sigmah)
+			print('sigmah estimator:\n', sigmah)
 
 		# critical value
 		crit = []
@@ -337,7 +337,7 @@ def do(error):
 
 		Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
 		if args.report:
-			print('Wellek\' test matrix:', Z)
+			print('Wellek\' test matrix:\n', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
