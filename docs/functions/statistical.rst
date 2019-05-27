@@ -4,7 +4,7 @@ Statistical Objective Functions
 We implemented the Mann-Whitney U-test (MWUT) to calculate the error between
 experimental data and simulations. The U-test is a non-parametric statistical
 test that, within a confidence level, determine if a stochastic repeated
-measurements is identical or not to another repeated measurements.
+measurements is different to another repeated measurements.
 
 1. We count how many times experimental data (:math:`exp_i`) are larger than
 simulated values (:math:`sim_j`):
@@ -33,3 +33,11 @@ simulated values (:math:`sim_j`):
 	experimental time points. For instance, the example model we use to compare
 	with BioNetFit has 2 Observables and 7 experimental time points, then a max
 	:math:`U_{model}` equal to 14.
+
+On the contrary, we implemented the Wellek's test (`paper`_, `book`_) to determine
+if two random variables are equivalent. The test is used specifying the WMWET acronym
+when calling Pleione and requires the rpy2 Python package and R be in the path.
+
+.. refs
+.. _paper: https://onlinelibrary.wiley.com/doi/abs/10.1002/bimj.4710380608
+.. _book: https://www.crcpress.com/Testing-Statistical-Hypotheses-of-Equivalence-and-Noninferiority/Wellek/p/book/9781439808184
