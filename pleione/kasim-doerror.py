@@ -210,7 +210,7 @@ def do(error):
 			U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
 			if args.report:
-				print('U-test matrix:\n', U)
+				print('U-test matrix: 1.0 means distributions are differents\n', U, '\n')
 
 			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
 
@@ -302,7 +302,7 @@ def do(error):
 		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
 		sigmah = sigmah**.5
 		if args.report:
-			print('sigmah estimator:\n', sigmah, '\n')
+			print('sigmah estimator: 1.0 means distributions are equivalents\n', sigmah, '\n')
 
 		# critical value
 		crit = []

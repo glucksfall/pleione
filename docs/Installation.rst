@@ -30,13 +30,13 @@ the package from `python package index <https://test.pypi.org/project/pleione/>`
 
    .. code-block:: bash
 
-	pip3 install -i https://test.pypi.org/simple/ pleione --user
+	pip3 install pleione --user
 
    If you have system rights, you could install pleione for all users with
 
    .. code-block:: bash
 
-	sudo -H pip3 install -i https://test.pypi.org/simple/ pleione
+	sudo -H pip3 install pleione
 
 2. **Download from python package index**
 
@@ -45,8 +45,8 @@ the package from `python package index <https://test.pypi.org/project/pleione/>`
 
    .. code-block:: bash
 
-	wget https://test-files.pythonhosted.org/packages/4c/24/63c973c228e50637393518f701866fd51c035f76c1ae82b1d4f3f9e71aaa/pleione-1.0.3-py3-none-any.whl
-	pip3 install pleione-1.0.3-py3-none-any.whl --user
+	wget https://files.pythonhosted.org/packages/05/45/fc5b44d5211f297ed7d66361cc7062935d7afece812b605b3f3d6a38c04d/pleione-1.0.4-py3-none-any.whl
+	pip3 install pleione-1.0.4-py3-none-any.whl --user
 
    .. note::
 	**Why Python3?**:
