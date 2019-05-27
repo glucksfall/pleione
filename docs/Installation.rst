@@ -21,7 +21,7 @@ Option 1: Install pleione natively on your computer
 
 The recommended approach is to use system tools, or install them if
 necessary. To install python packages, you could use pip, or download
-the package from `python package index <https://test.pypi.org/project/pleione/>`_.
+the package from `python package index <https://pypi.org/project/pleione/>`_.
 
 1. **Install with system tools**
 
