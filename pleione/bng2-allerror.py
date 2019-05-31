@@ -153,25 +153,139 @@ def do(error):
 
 		for i in range(len_data):
 			for j in range(len_sims):
-				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-				# if data < sims count -1.0
-				diff[diff < 0] = -1.0
-				# if data > sims count +1.0
-				diff[diff > 0] = +1.0
-				# if data = sims count +0.5
-				diff[diff == 0] = +0.5
+				Diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+				diff = Diff.copy(deep = True)
+				# transform data
+				# if data < sims, count -1.0
+				Diff[diff < 0] = -1.0
+				# if data > sims, count +1.0
+				Diff[diff > 0] = +1.0
+				# if data = sims, count +0.5
+				Diff[diff == 0] = +0.5
 				# count how many times is data < sims (udata and usims are complementary)
-				udata += diff[diff == -1.0].fillna(0).divide(-1) + diff[diff == +0.5].fillna(0)
-				usims += diff[diff == +1.0].fillna(0).divide(+1) + diff[diff == +0.5].fillna(0)
+				diff = Diff.copy(deep = True)
+				udata += Diff[diff == -1.0].fillna(0).divide(-1) + Diff[diff == +0.5].fillna(0)
+				usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
 
 		# U is significant if it is less than or equal to the table value
 		U = len_data * len_sims - udata.where(udata >= usims).fillna(usims.where(usims >= udata))
-		U[U <= ucrit.loc[len_sims, str(len_data)]] = +1.0
-		U[U > ucrit.loc[len_sims, str(len_data)]] = +0.0
+		u = U.copy(deep = True)
+		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
+		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
 		error['MWUT'] = '{:.0f}'.format(U.sum().sum())
+
 	else:
 		error['MWUT'] = str(numpy.nan)
+
+	# Wellek's Mann Whitney Equivalence Test
+	# useful variables
+	m = len_data
+	n = len_sims
+	e1 = .3129 # Wellek's paper
+	e2 = .2661 # Wellek's paper
+
+	e1 = .1382 # mawi.R script
+	e2 = .2602 # mawi.R script
+	eqctr = .5 + (e2 - e1)/2
+	eqleng = e1 + e2
+
+	# estimators needed for calculations
+	y = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+	yFFG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+	yFGG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+	sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+
+	# ŷ estimator
+	for i in range(m):
+		for j in range(n):
+			diff = (data.loc[i] - sims.loc[j])
+			diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+			diff = diff.apply(numpy.sign)
+			diff = diff + 1
+			diff = diff.multiply(.5)
+			# trunc R function
+			diff[diff < 0] = diff.apply(numpy.floor)
+			diff[diff > 0] = diff.apply(numpy.ceil)
+			# add to ŷ (wxy in mawi.R)
+			y += diff
+
+	y = y.divide(m*n)
+	#print(y)
+
+	# yFGG estimator
+	for xi in range(m):
+		for xj1 in range(n - 1):
+			for xj2 in range(xj1 + 1, n):
+				diff = (data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2]))
+				diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+				diff = diff.apply(numpy.sign)
+				diff = diff + 1
+				diff = diff.multiply(.5)
+				# trunc R function
+				diff[diff < 0] = diff.apply(numpy.floor)
+				diff[diff > 0] = diff.apply(numpy.ceil)
+				# add to yFGG (pihxyy in mawi.R)
+				yFGG += diff
+
+	yFGG = (yFGG*2).divide(n*(n-1)*m)
+	#print(yFGG)
+
+	# yFFG estimator
+	for xi1 in range(m - 1):
+		for xi2 in range(xi1 + 1, m):
+			for xj in range(n):
+				diff = data.loc[xi1].where(data.loc[xi1] < data.loc[xi2], data.loc[xi2]) - sims.loc[xj]
+				diff = diff.apply(numpy.sign)
+				diff = diff + 1
+				diff = diff.multiply(.5)
+				# trunc R function
+				diff[diff < 0] = diff.apply(numpy.floor)
+				diff[diff > 0] = diff.apply(numpy.ceil)
+				# add to yFGG (pihxxy in mawi.R)
+				yFFG += diff
+
+	yFFG = (yFFG*2).divide(m*(m-1)*n)
+	#print(yFFG)
+
+	# variance estimator sigmah (same name as mawi.R)
+	sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
+	sigmah = sigmah**.5
+	#print(sigmah)
+
+	# critical value
+	crit = []
+	stats = importr('stats')
+	phi = (eqleng/2/sigmah)**2
+	#print(phi)
+	phi = phi.values
+	a, b = numpy.shape(phi)
+	for value in phi.reshape((a*b, 1)):
+		if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
+			crit.append(stats.qchisq(0.05, 1, float(value[0]))[0])
+		else:
+			crit.append(numpy.nan)
+	crit = numpy.asarray(crit).reshape((a, b))
+	crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+	#print(crit)
+
+	# compare with Z
+	Z = abs((y - eqctr).divide(sigmah))
+	z = Z.copy(deep = True)
+	#print(Z[Z >= crit])
+	#print(Z[Z < crit])
+	# we purposely changed the values to minimize the function
+	# we want to minimize the amount of null hypothesis
+	# the test was null, therefore P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
+	Z[z >= crit] = +1.0
+	# the test was rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+	Z[z < crit] = +0.0
+	#print(numpy.count_nonzero(numpy.isinf(Z)))
+
+	Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
+	#print(Z)
+
+	error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
 if __name__ == '__main__':
 	args = argsparser()
