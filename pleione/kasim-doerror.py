@@ -25,8 +25,13 @@ def argsparser():
 	# path to R executable and libs
 	parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
 	parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
+
 	# report MWUT, WMWET
 	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = False    , help = 'report the array of U-tests and/or Wellek\'s tests')
+
+	# add noise to observables
+	parser.add_argument('--model' , metavar = 'str' , type = str, required = False, default = False    , help = 'model to calibrate with configured noise.')
+	parser.add_argument('--noise' , metavar = 'True', type = str, required = False, default = False    , help = 'add configured noise to observables')
 
 	return parser.parse_args()
 
@@ -47,6 +52,46 @@ def read_data(files):
 			data.append(pandas.read_csv(file, delimiter = ',', header = 0, engine = 'python').set_index('[T]', drop = False).rename_axis(None, axis = 0).drop('[T]', axis = 1))
 
 	return pandas.concat(data, keys = range(len(data))), len(data)
+
+def read_conf():
+	# read the model
+	data = []
+	with open(args.model, 'r') as infile:
+		for line in infile:
+			data.append(line)
+
+	# find observables
+	regex = '%\w+: \'(\w+)\' \s+(?:\/\/|#)\s+' \
+		'(\w+)\[([-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?)\s+)' \
+		'([-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?)\]\]'
+
+	num_obs = 0
+	observables = {}
+
+	for line in range(len(data)):
+		matched = re.match(regex, data[line])
+		if matched:
+			num_obs += 1
+			observables[line] = [
+				'obs',
+				matched.group(1), # observable name
+				matched.group(2), # type of noise: gaussian
+				matched.group(3), # mean of gaussian noise
+				matched.group(4), # variance of gaussian noise
+				]
+
+			# Check validity
+
+		else:
+			observables[line] = data[line]
+
+	return observables
+
+def add_noise(sims)
+	for sim in sims:
+		sim = sim
+
+	return sims
 
 def do(error):
 	"""
@@ -346,6 +391,8 @@ def do(error):
 if __name__ == '__main__':
 	args = argsparser()
 
+	# read model configuration
+	noise = read_conf()
 	# read sims files
 	sims, len_sims = read_sims(args.sims)
 	# read data files
@@ -354,6 +401,8 @@ if __name__ == '__main__':
 	# Filter out unavailable experimental data from simulation files and filter out unsimulated observables
 	sims = sims.filter(items = list(data.columns))
 	data = data.filter(items = list(sims.columns))
+
+	sims = add_noise(sims)
 
 	# add here your favorite error function and call the genetic algorithm script with its acronysm
 	error = {

@@ -490,9 +490,9 @@ def evaluate():
 		sims = ' '.join(glob.glob('{:s}.*.out.txt'.format(model)))
 		output = '{:s}.txt'.format(model)
 
-		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
+		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s} --model {:s}'.format(data, sims, output, error, opts['model'])
 		if args.dev:
-			job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
+			job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s} --model {:s}'.format(data, sims, output, opts['model'])
 
 		# use SLURM Workload Manager
 		if opts['slurm'] is not None:
