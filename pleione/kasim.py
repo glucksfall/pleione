@@ -239,6 +239,7 @@ def ga_opts():
 		}
 
 def configurate():
+	print(error_msg)
 	# read the model
 	data = []
 	with open(opts['model'], 'r') as infile:
@@ -278,28 +279,17 @@ def configurate():
 			if matched.group(3) == 'loguniform':
 				if float(matched.group(4)) == 0.0:
 					error_msg += 'Lower bound for parameter {:s} initial population cannot be zero.'.format(matched.group(1))
-					print(error_msg)
-					raise ValueError(error_msg)
 			if matched.group(6) == 'loguniform':
 				if float(matched.group(4)) == 0.0:
 					error_msg += 'Lower bound for parameter {:s} search space cannot be zero.'.format(matched.group(1))
-					print(error_msg)
-					raise ValueError(error_msg)
-
 			if matched.group(6) == 'factor':
 				if float(matched.group(7)) > 1.0:
 					error_msg += 'Mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
-					print(error_msg)
-					raise ValueError(error_msg)
 				if float(matched.group(8)) > 1.0:
 					error_msg += 'Mutation foldchange for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
-					print(error_msg)
-					raise ValueError(error_msg)
 
 			if matched.group(9) is not None and float(matched.group(9)) > 1.0:
 				error_msg += 'Specific mutation probability for parameter {:s} must be a float between zero and one.'.format(matched.group(1))
-				print(error_msg)
-				raise ValueError(error_msg)
 
 		else:
 			parameters[line] = data[line]
@@ -307,6 +297,9 @@ def configurate():
 	if num_pars == 0:
 		error_msg += 'No variables to parameterize.\n' \
 			'Check if selected variables follow the regex (See Manual).'
+
+	# print error
+	if error_msg != '':
 		print(error_msg)
 		raise ValueError(error_msg)
 
