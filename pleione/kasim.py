@@ -41,7 +41,6 @@ class custom:
 				return numpy.random.lognormal(lower, upper, None)
 
 def safe_checks():
-	error_msg = ''
 	if shutil.which(opts['python']) is None:
 		error_msg += 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
@@ -338,6 +337,7 @@ def populate():
 
 	return population
 
+# NOT USEFUL
 def make_bin():
 	job_desc = {
 		'nodes'     : 1,
@@ -364,7 +364,6 @@ def make_bin():
 			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 		squeue.append(out.decode('utf-8')[20:-1])
 
-	# use multiprocessing.Pool
 	else:
 		cmd = os.path.expanduser(job_desc['make_bin'])
 		cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
@@ -811,6 +810,7 @@ if __name__ == '__main__':
 	seed = custom.random.seed(opts['rng_seed'])
 
 	# perform safe checks prior to any calculation
+	error_msg = ''
 	safe_checks()
 
 	# clean the working directory
