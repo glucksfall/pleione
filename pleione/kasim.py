@@ -239,7 +239,8 @@ def ga_opts():
 		}
 
 def configurate():
-	print(error_msg)
+	error_msg = ''
+
 	# read the model
 	data = []
 	with open(opts['model'], 'r') as infile:
@@ -804,7 +805,7 @@ if __name__ == '__main__':
 	seed = custom.random.seed(opts['rng_seed'])
 
 	# perform safe checks prior to any calculation
-	error_msg = safe_checks()
+	safe_checks()
 
 	# clean the working directory
 	clean()
