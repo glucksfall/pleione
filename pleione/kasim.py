@@ -41,6 +41,7 @@ class custom:
 				return numpy.random.lognormal(lower, upper, None)
 
 def safe_checks():
+	error_msg = ''
 	if shutil.which(opts['python']) is None:
 		error_msg += 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
@@ -810,8 +811,7 @@ if __name__ == '__main__':
 	seed = custom.random.seed(opts['rng_seed'])
 
 	# perform safe checks prior to any calculation
-	error_msg = ''
-	safe_checks()
+	error_msg = safe_checks()
 
 	# clean the working directory
 	clean()
