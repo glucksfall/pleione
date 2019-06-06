@@ -313,7 +313,7 @@ def populate():
 	population = {}
 	model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
 	for ind in range(opts['pop_size']):
-		population['model', ind] = model_string.format(ind)
+		population['model', ind] = model_string.format(0, ind)
 		population['error', ind] = opts['max_error']
 
 		for line in range(len(par_keys)):
@@ -688,8 +688,9 @@ def mutate():
 					population[par_keys[par], ind + 1] = best_population[par_keys[par], n1]
 
 		# include the model id
-		population['model', ind] = 'model_{:03d}_{:03d}'.format(iter + 1, ind)
-		population['model', ind + 1] = 'model_{:03d}_{:03d}'.format(iter + 1, ind + 1)
+		model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
+		population['model', ind] = model_string.format(iter + 1, ind)
+		population['model', ind + 1] = model_string.format(iter + 1, ind + 1)
 
 		# include the error in the population dictionary
 		population['error', ind] = opts['max_error']
