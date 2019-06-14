@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installing SLURM in your machine &mdash; pleione  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Compiling Python3 from source" href="Python3.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pleione
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ParameterEstimation.html">Parameters estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Python3.html">Compiling Python3 from source</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing SLURM in your machine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pleione</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installing SLURM in your machine</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/SLURM.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installing-slurm-in-your-machine">
+<span id="slurm-instructions"></span><h1>Installing SLURM in your machine<a class="headerlink" href="#installing-slurm-in-your-machine" title="Permalink to this headline">¶</a></h1>
+<p>To install SLURM you need admin access to the machine. Please follow this
+instructions to start up running the workload manager, in the controller as well
+in the controlled machines.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get -y install slurm-wlm
+sudo nano /etc/slurm-llnl/slurm.conf
+
+sudo chown -R slurm:slurm /var/run/slurm-llnl/
+sudo chown -R slurm:slurm /var/lib/slurm-llnl/
+sudo chown -R slurm:slurm /var/log/slurm-llnl/
+sudo mkdir /var/spool/slurmd
+sudo chown -R slurm:slurm /var/spool/slurmd
+
+sudo systemctl start slurmd
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">$HOST_NAME</span></code> with your machine name that is going to act as the
+controller. If you have multiple machines, this configuration file must be
+identical and in all machines in the queue.</p>
+<div class="highlight-vim notranslate"><div class="highlight"><pre><span></span>### slurm.<span class="k">conf</span> <span class="p">-</span> Slurm config <span class="k">file</span>.
+
+#ClusterName<span class="p">=</span>$HOST_NAME
+ControlMachine<span class="p">=</span>$HOST_NAME
+SlurmUser<span class="p">=</span>slurm
+AuthType<span class="p">=</span>auth/munge
+
+SlurmctldPidFile<span class="p">=</span><span class="sr">/var/</span>run<span class="sr">/slurm-llnl/</span>slurmctld.pid
+SlurmdPidFile<span class="p">=</span><span class="sr">/var/</span>run<span class="sr">/slurm-llnl/</span>slurmd.pid
+SlurmdSpoolDir<span class="p">=</span><span class="sr">/var/</span>lib<span class="sr">/slurm-llnl/</span>slurmd
+StateSaveLocation<span class="p">=</span><span class="sr">/var/</span>lib<span class="sr">/slurm-llnl/</span>slurmctld
+
+SwitchType<span class="p">=</span>switch/none
+ProctrackType<span class="p">=</span>proctrack/pgid
+TaskPlugin<span class="p">=</span>task/none
+
+MpiDefault<span class="p">=</span>none
+MaxJobCount<span class="p">=</span><span class="m">100000</span>
+MaxArraySize<span class="p">=</span><span class="m">64000</span>
+
+# TIMERS
+SlurmdTimeout<span class="p">=</span><span class="m">300</span>
+InactiveLimit<span class="p">=</span><span class="m">0</span>
+MinJobAge<span class="p">=</span><span class="m">300</span>
+KillWait<span class="p">=</span><span class="m">30</span>
+Waittime<span class="p">=</span><span class="m">0</span>
+
+# SCHEDULING
+SchedulerType<span class="p">=</span>sched/backfill
+SelectType<span class="p">=</span>select/cons_res
+SelectTypeParameters<span class="p">=</span>CR_Core
+FastSchedule<span class="p">=</span><span class="m">1</span>
+
+# LOGGING
+SlurmctldDebug<span class="p">=</span><span class="m">3</span>
+SlurmctldLogFile<span class="p">=</span><span class="sr">/var/</span>log<span class="sr">/slurm-llnl/</span>slurmctld.log
+SlurmdDebug<span class="p">=</span><span class="m">3</span>
+SlurmdLogFile<span class="p">=</span><span class="sr">/var/</span>log<span class="sr">/slurm-llnl/</span>slurmd.log
+
+# COMPUTE NODES
+
+# Here you add the machine hardware configurations
+NodeName<span class="p">=</span>$HOST_NAME Procs<span class="p">=</span><span class="m">8</span> Boards<span class="p">=</span><span class="m">1</span> SocketsPerBoard<span class="p">=</span><span class="m">1</span> CoresPerSocket<span class="p">=</span><span class="m">4</span> ThreadsPerCore<span class="p">=</span><span class="m">2</span> State<span class="p">=</span>idle
+
+# Here you add the machine<span class="p">(</span>s<span class="p">)</span> <span class="k">to</span> <span class="k">a</span> Partition
+PartitionName<span class="p">=</span>MyCluster Nodes<span class="p">=</span>$HOST_NAME Default<span class="p">=</span>yes MaxTime<span class="p">=</span>INFINITE State<span class="p">=</span><span class="k">up</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please refer to <a class="reference external" href="https://slurm.schedmd.com/">SLURM</a> for advance configuration like limiting time, CPUs
+and RAM for users or groups, to balance load in your cluster.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="Python3.html" class="btn btn-neutral float-left" title="Compiling Python3 from source" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Rodrigo Santibáñez
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

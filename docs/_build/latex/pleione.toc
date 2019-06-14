@@ -1,0 +1,18 @@
+\babel@toc {english}{}
+\contentsline {chapter}{\numberline {1}Installation}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Option 1: Install pleione natively on your computer}{3}{section.1.1}
+\contentsline {section}{\numberline {1.2}Option 2: Clone the Github repository}{4}{section.1.2}
+\contentsline {chapter}{\numberline {2}Parameters estimation}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}Parameterization with KaSim}{5}{section.2.1}
+\contentsline {section}{\numberline {2.2}Parameterization with PISKaS}{7}{section.2.2}
+\contentsline {section}{\numberline {2.3}Parameterization with BioNetGen2}{9}{section.2.3}
+\contentsline {section}{\numberline {2.4}Parameterization with NFsim}{11}{section.2.4}
+\contentsline {section}{\numberline {2.5}Model Validation}{13}{section.2.5}
+\contentsline {section}{\numberline {2.6}Objective Functions}{13}{section.2.6}
+\contentsline {subsection}{\numberline {2.6.1}Algebraic Objective Functions}{14}{subsection.2.6.1}
+\contentsline {subsection}{\numberline {2.6.2}Statistical Objective Functions}{14}{subsection.2.6.2}
+\contentsline {subsection}{\numberline {2.6.3}Multiple Objective Functions}{15}{subsection.2.6.3}
+\contentsline {subsection}{\numberline {2.6.4}Add a fitness function to Pleione}{15}{subsection.2.6.4}
+\contentsline {chapter}{\numberline {3}Compiling Python3 from source}{17}{chapter.3}
+\contentsline {chapter}{\numberline {4}Installing SLURM in your machine}{19}{chapter.4}
+\contentsline {chapter}{\numberline {5}Indices and tables}{21}{chapter.5}
