@@ -47,8 +47,11 @@ def safe_checks():
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
 
 	if set(args.error).issuperset(set(['WMWET'])) and shutil.which(opts['r_path']) is None:
-		error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
-			'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
+		if shutil.which('R') == '':
+			error_msg += 'Install or load R to make possible calculate the Wellek\'s non-parametric equivalence test.'
+		else:
+			error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
+				'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
 
 	# check for simulators
 	#if shutil.which(opts['bng2']) is None:
@@ -313,7 +316,7 @@ def populate():
 	population = {}
 	model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
 	for ind in range(opts['pop_size']):
-		population['model', ind] = model_string.format(ind)
+		population['model', ind] = model_string.format(0, ind)
 		population['error', ind] = opts['max_error']
 
 		for line in range(len(par_keys)):
