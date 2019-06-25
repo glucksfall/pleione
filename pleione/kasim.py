@@ -140,7 +140,7 @@ def argsparser():
 
 	# distribute computation with SLURM, otherwise with python multiprocessing API
 	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use, default None')
-	parser.add_argument('--sbatch' , metavar = 'str'  , type = str  , required = False, default = ''              , help = 'explicit configuration for sbatch, e.g. --mem-per-cpu 5G')
+	parser.add_argument('--sbatch' , metavar = 'str'  , type = str  , required = False, default = ''              , help = 'explicit configuration for sbatch, e.g. --mem-per-cpu 5G allowing kasim use 5GB RAM per simulation')
 
 	# general options
 	parser.add_argument('--seed'   , metavar = 'int'  , type = int  , required = False, default = None            , help = 'random number generator seed, default None')
@@ -691,8 +691,9 @@ def mutate():
 					population[par_keys[par], ind + 1] = best_population[par_keys[par], n1]
 
 		# include the model id
-		population['model', ind] = 'model_{:03d}_{:03d}'.format(iter + 1, ind)
-		population['model', ind + 1] = 'model_{:03d}_{:03d}'.format(iter + 1, ind + 1)
+		model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
+		population['model', ind] = model_string.format(iter + 1, ind)
+		population['model', ind + 1] = model_string.format(iter + 1, ind + 1)
 
 		# include the error in the population dictionary
 		population['error', ind] = opts['max_error']
