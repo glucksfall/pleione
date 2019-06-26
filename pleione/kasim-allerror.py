@@ -21,6 +21,12 @@ def argsparser():
 	parser.add_argument('--file' , metavar = 'path', type = str, required = True , nargs = 1  , help = 'output file name')
 	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
 
+	# path to R executable and libs
+	parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
+	parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
+	# report MWUT, WMWET
+	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = False    , help = 'report the array of U-tests and/or Wellek\'s tests')
+
 	return parser.parse_args()
 
 # read simulation files
