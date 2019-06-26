@@ -160,6 +160,13 @@ def do(error):
 		error['MWUT'] = str(numpy.nan)
 
 	# Wellek's Mann Whitney Equivalence Test
+	# set R HOME and import stats R package to use the qchisq function
+	# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
+	from rpy2.robjects.packages import importr
+	os.environ['R_HOME'] = args.r_path
+	os.environ['LD_LIBRARY_PATH'] = args.r_libs
+	stats = importr('stats')
+
 	# useful variables
 	m = len_data
 	n = len_sims
