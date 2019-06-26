@@ -11,7 +11,7 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'kasim-v4.0'
 
-import argparse, sys
+import argparse, os
 import pandas, numpy
 
 def argsparser():
