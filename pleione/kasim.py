@@ -459,8 +459,9 @@ def evaluate():
 		'deverror'  : '{:s} -m pleione.kasim-allerror '.format(opts['python']),
 		}
 
-	if set(args.error).issuperset(set(['MWUT'])):
+	if set(args.error).issuperset(set(['MWUT'])) or args.dev:
 		job_desc['doerror'] = job_desc['doerror'] + '--crit {:s} '.format(opts['crit_vals'])
+		job_desc['deverror'] = job_desc['deverror'] + '--crit {:s} '.format(opts['crit_vals'])
 
 	if set(args.error).issuperset(set(['WMWET'])) or args.dev:
 		LD = os.environ.get('LD_LIBRARY_PATH')
@@ -488,9 +489,9 @@ def evaluate():
 		sims = ' '.join(glob.glob('{:s}.*.out.txt'.format(model)))
 		output = '{:s}.txt'.format(model)
 
-		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
+		job_desc['calc'] = job_desc['doerror'] + '--data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
 		if args.dev:
-			job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
+			job_desc['calc'] = job_desc['deverror'] + '--data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
 
 		# use SLURM Workload Manager
 		if opts['slurm'] is not None:
