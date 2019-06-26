@@ -149,7 +149,7 @@ def argsparser():
 	parser.add_argument('--sims'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'number of simulations per individual, default 100')
 	parser.add_argument('--best'   , metavar = 'int'  , type = int  , required = False, default = 10              , help = 'size of elite individuals, default 10.')
 	parser.add_argument('--swap'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q1: global parameter swap probability, default 0.5')
-	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover: multiple or single point, default multiple')
+	parser.add_argument('--cross'  , metavar = 'str'  , type = str  , required = False, default = 'multiple'      , help = 'Type of crossover: multiple|single point, default multiple')
 	parser.add_argument('--rate'   , metavar = 'float', type = float, required = False, default = 0.50            , help = 'Q2: global parameter mutation probability, default 0.5')
 	parser.add_argument('--dist'   , metavar = 'str'  , type = str  , required = False, default = 'inverse'       , help = 'parent selection inverse|uniform, default inverse')
 	parser.add_argument('--self'   , metavar = 'False', type = str  , required = False, default = False           , help = 'self recombination True|False, default False')
@@ -170,9 +170,9 @@ def argsparser():
 
 	# TO BE DEPRECATED, only with publishing purposes.
 	# the random standard library does not have a random.choice with an optional probability list, therefore, Pleione uses numpy.random.choice
-	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = False           , help = 'True to use random.random, default numpy.random')
+	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = None            , help = 'use random.random instead of the default numpy.random library')
 	# If the user wants to know the behavior of other functions, the option --dev should be maintained
-	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = False           , help = 'calculate all fitness functions, default False')
+	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = None            , help = 'calculate all fitness functions True|False, default False')
 
 	args = parser.parse_args()
 
@@ -422,7 +422,7 @@ def simulate():
 						out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 					squeue.append(out.decode('utf-8')[20:-1])
 
-				# use multiprocessing.Pool
+				# to use with multiprocessing.Pool
 				else:
 					cmd = os.path.expanduser(job_desc['exec_kasim'])
 					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
@@ -462,9 +462,10 @@ def evaluate():
 	if set(args.error).issuperset(set(['MWUT'])):
 		job_desc['doerror'] = job_desc['doerror'] + '--crit {:s} '.format(opts['crit_vals'])
 
-	if set(args.error).issuperset(set(['WMWET'])):
+	if set(args.error).issuperset(set(['WMWET'])) or args.dev:
 		LD = os.environ.get('LD_LIBRARY_PATH')
 		job_desc['doerror'] = job_desc['doerror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
+		job_desc['deverror'] = job_desc['deverror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
 
 	# submit error calculations to the queue
 	squeue = []
