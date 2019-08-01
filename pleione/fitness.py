@@ -10,9 +10,11 @@ Citation:
 __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 
-import scipy
+#import os, numpy, pandas
+import numpy, pandas
+from scipy.stats import ncx2
 
-def do(args, error):
+def do(args, sims, len_sims, data, len_data, error):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
@@ -186,10 +188,10 @@ def do(args, error):
 	if set(args.error).issuperset(set(['WMWET'])):
 		# set R HOME and import stats R package to use the qchisq function
 		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
-		from rpy2.robjects.packages import importr
-		os.environ['R_HOME'] = args.r_path
-		os.environ['LD_LIBRARY_PATH'] = args.r_libs
-		stats = importr('stats')
+		#from rpy2.robjects.packages import importr
+		#os.environ['R_HOME'] = args.r_path
+		#os.environ['LD_LIBRARY_PATH'] = args.r_libs
+		#stats = importr('stats')
 
 		# useful variables
 		m = len_data
@@ -266,7 +268,7 @@ def do(args, error):
 		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
 		sigmah = sigmah**.5
 		if args.report:
-			print('sigmah estimator: 1.0 means distributions are equivalents\n', sigmah, '\n')
+			print('sigmah estimator:\n', sigmah, '\n')
 
 		# critical value
 		crit = []
@@ -276,10 +278,10 @@ def do(args, error):
 		a, b = numpy.shape(phi)
 		for value in phi.reshape((a*b, 1)):
 			if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
-				rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
-				print(rvalue)
-				pvalue = scipy.stats.ncx2.ppf(0.05, 1, float(value[0]))
-				print(pvalue)
+				#rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
+				#print('rvalue', rvalue)
+				pvalue = ncx2.ppf(0.05, 1, float(value[0]))
+				#print('ncx2', pvalue)
 				crit.append(pvalue)
 			else:
 				crit.append(numpy.nan)
@@ -307,6 +309,6 @@ def do(args, error):
 
 		Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
 		if args.report:
-			print('Wellek\' test matrix:\n', Z)
+			print('Wellek\'s test matrix: a zero means distributions are equivalents\n', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
