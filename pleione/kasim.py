@@ -463,10 +463,10 @@ def evaluate():
 		job_desc['doerror'] = job_desc['doerror'] + '--crit {:s} '.format(opts['crit_vals'])
 		job_desc['deverror'] = job_desc['deverror'] + '--crit {:s} '.format(opts['crit_vals'])
 
-	if set(args.error).issuperset(set(['WMWET'])) or args.dev:
-		LD = os.environ.get('LD_LIBRARY_PATH')
-		job_desc['doerror'] = job_desc['doerror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
-		job_desc['deverror'] = job_desc['deverror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
+	#if set(args.error).issuperset(set(['WMWET'])) or args.dev:
+		#LD = os.environ.get('LD_LIBRARY_PATH')
+		#job_desc['doerror'] = job_desc['doerror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
+		#job_desc['deverror'] = job_desc['deverror'] + '--r_path {:s} --r_libs {:s} '.format(opts['r_path'], LD)
 
 	# submit error calculations to the queue
 	squeue = []
@@ -496,6 +496,7 @@ def evaluate():
 		# use SLURM Workload Manager
 		if opts['slurm'] is not None:
 			cmd = 'sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} --wrap ""{calc}""'.format(**job_desc)
+			print(cmd)
 			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 			while err == sbatch_error:
