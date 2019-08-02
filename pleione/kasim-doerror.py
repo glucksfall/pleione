@@ -13,7 +13,7 @@ __software__ = 'kasim-v3.5'
 
 import argparse, os
 import pandas, numpy
-from fitness import do
+from .fitness import do
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')
