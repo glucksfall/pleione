@@ -694,7 +694,7 @@ def mutate():
 					population[par_keys[par], ind + 1] = best_population[par_keys[par], n1]
 
 		# include the model id
-		model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_sims']))) + 'd}'
+		model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['pop_size']))) + 'd}'
 		population['model', ind] = model_string.format(iter + 1, ind)
 		population['model', ind + 1] = model_string.format(iter + 1, ind + 1)
 
