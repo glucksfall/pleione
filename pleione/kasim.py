@@ -314,7 +314,7 @@ def populate():
 	par_keys = list(parameters.keys())
 
 	population = {}
-	model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['num_inds']))) + 'd}'
+	model_string = 'model_{:0' + str(len(str(opts['num_iter']))) + 'd}' + '_{:0' + str(len(str(opts['pop_size']))) + 'd}'
 	for ind in range(opts['pop_size']):
 		population['model', ind] = model_string.format(0, ind)
 		population['error', ind] = opts['max_error']

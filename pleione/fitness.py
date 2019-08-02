@@ -14,7 +14,7 @@ __license__ = 'gpl-3.0'
 import numpy, pandas
 from scipy.stats import ncx2
 
-def do(args, sims, len_sims, data, len_data, error):
+def do(args, sims, len_sims, data, len_data, error, doall):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
@@ -26,6 +26,9 @@ def do(args, sims, len_sims, data, len_data, error):
 		# drop NaN values (from experimental data without simulation point or vice-versa), sum the two dimensions, and return a 6 float points scientific notation number
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
+
+	if doall:
+		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'SDA', 'SDA', 'SDA']
 
 	# former mean square error, now square difference of means
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
