@@ -46,12 +46,12 @@ def safe_checks():
 		error_msg += 'python3 (at {:s}) can\'t be called to perform error calculation.\n' \
 			'You could use --python {:s}\n'.format(opts['python'], shutil.which('python3'))
 
-	if set(args.error).issuperset(set(['WMWET'])) and shutil.which(opts['r_path']) is None:
-		if shutil.which('R') == '':
-			error_msg += 'Install or load R to make possible calculate the Wellek\'s non-parametric equivalence test.'
-		else:
-			error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
-				'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
+	#if set(args.error).issuperset(set(['WMWET'])) and shutil.which(opts['r_path']) is None:
+		#if shutil.which('R') == '':
+			#error_msg += 'Install or load R to make possible calculate the Wellek\'s non-parametric equivalence test.'
+		#else:
+			#error_msg += 'R (at {:s}) can\'t be called to perform error calculation.\n' \
+				#'You could use --r_path {:s}\n'.format(opts['r_path'], shutil.which('R'))
 
 	# check for simulators
 	#if shutil.which(opts['bng2']) is None:
