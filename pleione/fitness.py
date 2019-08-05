@@ -3,7 +3,6 @@
 '''
 Project "Genetic Algorithm for Rule-Based Models", Rodrigo Santibáñez, 2017 @ Dlab, FCV (rsantibanez@dlab.cl)
 A Python implementation of Alberto Martin's Genetic Algorithm, 2016 @ Dlab, FCV (ajmm@dlab.cl)
-To be used with KaSim. Please refer to other subprojects for other stochastic simulators support
 Citation:
 '''
 
@@ -28,7 +27,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	"""
 
 	if doall:
-		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'SDA', 'SDA', 'SDA']
+		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET']
 
 	# former mean square error, now square difference of means
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
@@ -188,6 +187,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 	# Wellek's Mann-Whitney Equivalence Test.
 	# Based on mawi.R script from the EQUIVNONINF package
+	# modifications done to perform the test "vectorized"
 	if set(args.error).issuperset(set(['WMWET'])):
 		# set R HOME and import stats R package to use the qchisq function
 		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
@@ -196,41 +196,37 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		#os.environ['LD_LIBRARY_PATH'] = args.r_libs
 		#stats = importr('stats')
 
-		# useful variables
-		m = len_data
-		n = len_sims
-		e1 = .3129 # Wellek's paper
-		e2 = .2661 # Wellek's paper
-		e1 = .1382 # mawi.R script
-		e2 = .2602 # mawi.R script
-		eqctr = .5 + (e2 - e1)/2
-		eqleng = e1 + e2
+		# useful variables (namespace identical to mawi.R script)
+		m = len_data # x = data
+		n = len_sims # y = sims
+		eps1_ = .3129 # Wellek's paper
+		eps2_ = .2661 # Wellek's paper
+		eps1_ = .1382 # example of mawi.R script
+		eps2_ = .2602 # example of mawi.R script
+		eqctr = 0.5 + (eps2_ - eps1_)/2
+		eqleng = eps1_ + eps2_
 
 		# estimators needed for calculations
-		y = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-		yFFG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-		yFGG = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		wxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		pihxxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		pihxyy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 
-		# ŷ estimator
+		# ŷ estimator (wxy in mawi.R)
+		# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
 		for i in range(m):
 			for j in range(n):
 				diff = (data.loc[i] - sims.loc[j])
 				diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 				diff = diff.apply(numpy.sign)
 				diff = diff + 1
-				diff = diff.multiply(.5)
-				# trunc R function
-				diff[diff < 0] = diff.apply(numpy.floor)
-				diff[diff > 0] = diff.apply(numpy.ceil)
+				diff = diff.multiply(0.5)
+				diff = diff.apply(numpy.trunc)
 				# add to ŷ (wxy in mawi.R)
-				y += diff
+				wxy += diff
 
-		y = y.divide(m*n)
-		if args.report:
-			print('wxy estimator:\n', y, '\n')
-
-		# yFGG estimator
+		# yFGG estimator (pihxyy in mawi.R)
+		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
 		for xi in range(m):
 			for xj1 in range(n - 1):
 				for xj2 in range(xj1 + 1, n):
@@ -238,80 +234,91 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 					diff = diff.apply(numpy.sign)
 					diff = diff + 1
-					diff = diff.multiply(.5)
-					# trunc R function
-					diff[diff < 0] = diff.apply(numpy.floor)
-					diff[diff > 0] = diff.apply(numpy.ceil)
+					diff = diff.multiply(0.5)
+					diff = diff.apply(numpy.trunc)
 					# add to yFGG (pihxyy in mawi.R)
-					yFGG += diff
+					pihxyy += diff
 
-		yFGG = (yFGG*2).divide(n*(n-1)*m)
-		if args.report:
-			print('pihxyy estimator:\n', yFGG, '\n')
-
-		# yFFG estimator
+		# yFFG estimator (pihxxy in mawi.R)
+		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
 		for xi1 in range(m - 1):
 			for xi2 in range(xi1 + 1, m):
 				for xj in range(n):
 					diff = data.loc[xi1].where(data.loc[xi1] < data.loc[xi2], data.loc[xi2]) - sims.loc[xj]
+					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 					diff = diff.apply(numpy.sign)
 					diff = diff + 1
-					diff = diff.multiply(.5)
-					# trunc R function
-					diff[diff < 0] = diff.apply(numpy.floor)
-					diff[diff > 0] = diff.apply(numpy.ceil)
+					diff = diff.multiply(0.5)
+					diff = diff.apply(numpy.trunc)
 					# add to yFGG (pihxxy in mawi.R)
-					yFFG += diff
+					pihxxy += diff
 
-		yFFG = (yFFG*2).divide(m*(m-1)*n)
+		wxy = wxy.divide(m * n)
 		if args.report:
-			print('pihxxy estimator:\n', yFFG, '\n')
+			print('wxy estimator:\n', wxy, '\n')
 
-		# variance estimator sigmah (same name as mawi.R)
-		sigmah = (y - (y**2).multiply(m + n - 1) + yFFG.multiply(m - 1) + yFGG.multiply(n - 1)).divide(m*n)
-		sigmah = sigmah**.5
+		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
+		if args.report:
+			print('pihxxy estimator:\n', pihxxy, '\n')
+
+		pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
+		if args.report:
+			print('pihxyy estimator:\n', pihxyy, '\n')
+
+		# variance estimator sigmah (same name as in mawi.R)
+		# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
+		sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
+		sigmah = sigmah.divide(m * n)
+		sigmah = sigmah**0.5
 		if args.report:
 			print('sigmah estimator:\n', sigmah, '\n')
 
 		# critical value
-		crit = []
+		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
 		phi = (eqleng/2/sigmah)**2
-		#print(phi)
-		phi = phi.values
-		a, b = numpy.shape(phi)
-		for value in phi.reshape((a*b, 1)):
-			if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
-				#rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
-				#print('rvalue', rvalue)
-				pvalue = ncx2.ppf(0.05, 1, float(value[0]))
-				#print('ncx2', pvalue)
-				crit.append(pvalue)
-			else:
-				crit.append(numpy.nan)
-		crit = numpy.asarray(crit).reshape((a, b))
-		crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+		if args.report:
+			print('phi matrix:\n', phi, '\n')
 
+		# code clean up
+		#crit = []
+		#phi = phi.values
+		#a, b = numpy.shape(phi)
+		#for value in phi.reshape((a*b, 1)):
+			#if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
+				##rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
+				##print('rvalue', rvalue)
+				#pvalue = ncx2.ppf(0.05, 1, float(value[0]))
+				##print('ncx2', pvalue)
+				#crit.append(pvalue)
+			#else:
+				#crit.append(numpy.nan)
+		#crit = numpy.asarray(crit).reshape((a, b))
+		#crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+
+		crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
 		if args.report:
 			print('critical values:\n', crit, '\n')
 
 		# compare with Z
-		Z = abs((y - eqctr).divide(sigmah))
+		Z = abs((wxy - eqctr).divide(sigmah))
 		z = Z.copy(deep = True)
-		#print(Z[Z >= crit])
-		#print(Z[Z < crit])
+
+		if args.report:
+			print('Z estimator: \n', Z, '\n')
+		#print(Z[z >= crit])
+		#print(Z[z < crit])
 
 		"""
+		we want to maximize the amount of true alternative hypotheses, so
 		we purposely changed the values to minimize the function
-		we want to minimize the amount of null hypothesis
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
-		# the test is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+		# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
 		Z[z < crit] = +0.0
-		#print(numpy.count_nonzero(numpy.isinf(Z)))
 
-		Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
+		#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
 		if args.report:
-			print('Wellek\'s test matrix: a zero means distributions are equivalents\n', Z)
+			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
