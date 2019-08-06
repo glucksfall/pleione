@@ -13,6 +13,23 @@ __license__ = 'gpl-3.0'
 import numpy, pandas
 from scipy.stats import ncx2
 
+def add_noise(sims, len_sims, conf):
+	#for key, value in conf.items():
+		#if conf[key][0] == 'obs':
+			#print(conf[key])
+
+	rows = sims.loc[0].index
+	cols = sims.loc[0].columns
+
+	sims_ = []
+	for i in range(len_sims):
+		noise = pandas.DataFrame(data = numpy.random.normal(0, 20, (len(rows), len(cols))), index = rows, columns = cols)
+		sims_.append(sims.loc[i] + noise)
+
+	sims = pandas.concat(sims_, keys = range(len(sims_)))
+
+	return sims
+
 def do(args, sims, len_sims, data, len_data, error, doall):
 	"""
 	# Fitness Calculation Template:
@@ -20,7 +37,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		func = 0
 		func = an algebraic expression combining the data average (data_avrg), data variance (data_stdv), simulation average (sims_stdv),
 		single experimental files (data.loc[i]) and/or simulation files (sims.loc[i]).
-		# Please consider this variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)
+		# Please consider these variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)
 		# Please consider use data.loc[i] and sims.loc[i] if average or standard deviation values are needed from them (as in SDM)
 		# drop NaN values (from experimental data without simulation point or vice-versa), sum the two dimensions, and return a 6 float points scientific notation number
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
@@ -203,6 +220,8 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		eps2_ = .2661 # Wellek's paper
 		eps1_ = .1382 # example of mawi.R script
 		eps2_ = .2602 # example of mawi.R script
+		eps1_ = .1250 # example of mawi.R script
+		eps2_ = .1250 # example of mawi.R script
 		eqctr = 0.5 + (eps2_ - eps1_)/2
 		eqleng = eps1_ + eps2_
 
@@ -309,7 +328,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		#print(Z[z < crit])
 
 		"""
-		we want to maximize the amount of true alternative hypotheses, so
+		we want to maximize the amount of true positives (alternative hypotheses), so
 		we purposely changed the values to minimize the function
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
