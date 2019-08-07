@@ -329,13 +329,8 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		#print(Z[z < crit])
 
 		"""
-<<<<<<< HEAD
 		we want to maximize the amount of true alternative hypotheses, so
-		#we purposely interchanged the values to minimize the function
-=======
-		we want to maximize the amount of true positives (alternative hypotheses), so
 		we purposely changed the values to minimize the function
->>>>>>> fe06b62ec7f17aac5b25b685dad3bd2d2caea992
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
@@ -446,7 +441,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		"""
 		we want to maximize the amount of true alternative hypotheses, so
-		#we purposely interchanged the values to minimize the function
+		we purposely interchanged the values to minimize the function
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
