@@ -233,6 +233,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 
 		# ŷ estimator (wxy in mawi.R)
+		# equation 1.2 from Wellek 1996 paper
 		# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
 		for i in range(m):
 			for j in range(n):
@@ -245,21 +246,8 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 				# add to ŷ (wxy in mawi.R)
 				wxy += diff
 
-		# yFGG estimator (pihxyy in mawi.R)
-		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
-		for xi in range(m):
-			for xj1 in range(n - 1):
-				for xj2 in range(xj1 + 1, n):
-					diff = (data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2]))
-					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					diff = diff.apply(numpy.sign)
-					diff = diff + 1
-					diff = diff.multiply(0.5)
-					diff = diff.apply(numpy.trunc)
-					# add to yFGG (pihxyy in mawi.R)
-					pihxyy += diff
-
 		# yFFG estimator (pihxxy in mawi.R)
+		# equation 2.5a from Wellek 1996 paper
 		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
 		for xi1 in range(m - 1):
 			for xi2 in range(xi1 + 1, m):
@@ -273,19 +261,38 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 					# add to yFGG (pihxxy in mawi.R)
 					pihxxy += diff
 
+		# yFGG estimator (pihxyy in mawi.R)
+		# equation 2.5b from Wellek 1996 paper
+		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
+		for xi in range(m):
+			for xj1 in range(n - 1):
+				for xj2 in range(xj1 + 1, n):
+					diff = (data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2]))
+					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					diff = diff.apply(numpy.sign)
+					diff = diff + 1
+					diff = diff.multiply(0.5)
+					diff = diff.apply(numpy.trunc)
+					# add to yFGG (pihxyy in mawi.R)
+					pihxyy += diff
+
+		# in equation 1.2
 		wxy = wxy.divide(m * n)
 		if args.report:
 			print('wxy estimator:\n', wxy, '\n')
 
+		# in equation 2.5a, inverse of (m choose 2 = 0.5 * (m-1) * m), then divided by n
 		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
 		if args.report:
 			print('pihxxy estimator:\n', pihxxy, '\n')
 
+		# in equation 2.5b, inverse of (n choose 2 = 0.5 * (n-1) * n), then divided by m
 		pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
 		if args.report:
 			print('pihxyy estimator:\n', pihxyy, '\n')
 
 		# variance estimator sigmah (same name as in mawi.R)
+		# equation 2.6 from Wellek 1996 paper
 		# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
 		sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
 		sigmah = sigmah.divide(m * n)
@@ -294,32 +301,37 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			print('sigmah estimator:\n', sigmah, '\n')
 
 		# critical value
-		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
-		phi = (eqleng/2/sigmah)**2
+		# right hand of inequality 2.8 from Wellek 1996 paper
+		phi = ((eqleng/2)/sigmah)**2
 		if args.report:
-			print('phi matrix:\n', phi, '\n')
+			print('phi square matrix:\n', phi, '\n')
 
 		# code clean up
-		#crit = []
-		#phi = phi.values
-		#a, b = numpy.shape(phi)
-		#for value in phi.reshape((a*b, 1)):
-			#if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
-				##rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
-				##print('rvalue', rvalue)
-				#pvalue = ncx2.ppf(0.05, 1, float(value[0]))
-				##print('ncx2', pvalue)
-				#crit.append(pvalue)
-			#else:
-				#crit.append(numpy.nan)
-		#crit = numpy.asarray(crit).reshape((a, b))
-		#crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+		"""
+		crit = []
+		phi = phi.values
+		a, b = numpy.shape(phi)
+		for value in phi.reshape((a*b, 1)):
+			if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
+				#rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
+				#print('rvalue', rvalue)
+				pvalue = ncx2.ppf(0.05, 1, float(value[0]))
+				#print('ncx2', pvalue)
+				crit.append(pvalue)
+			else:
+				crit.append(numpy.nan)
+		crit = numpy.asarray(crit).reshape((a, b))
+		crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+		"""
 
+		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
+		# Ca(phi) is the square root of the alpha-th quantile of the chi2-distribution with a single degree of freedom and non-centrality parameter phi square
 		crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
 		if args.report:
 			print('critical values:\n', crit, '\n')
 
 		# compare with Z
+		# left hand of inequality 2.8 from Wellek 1996 paper
 		Z = abs((wxy - eqctr).divide(sigmah))
 		z = Z.copy(deep = True)
 
@@ -335,6 +347,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
 		# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+		# inequality 2.8 from Wellek 1996 paper
 		Z[z < crit] = +0.0
 
 		#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
@@ -368,7 +381,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 				diff = (data.loc[i] - sims.loc[j])
 				diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 				diff = diff.apply(numpy.sign)
-				diff = diff + 1
+				#diff = diff + 1
 				diff = diff.multiply(0.5)
 				diff = diff.apply(numpy.trunc)
 				# add to ŷ (wxy in mawi.R)
