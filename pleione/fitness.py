@@ -188,6 +188,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	# Wellek's Mann-Whitney Equivalence Test.
 	# Based on mawi.R script from the EQUIVNONINF package
 	# modifications done to perform the test "vectorized"
+	# (it compares two matrixes; the first has all exp data, the second all the sims)
 	if set(args.error).issuperset(set(['WMWET'])):
 		# set R HOME and import stats R package to use the qchisq function
 		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
@@ -310,7 +311,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		"""
 		we want to maximize the amount of true alternative hypotheses, so
-		we purposely changed the values to minimize the function
+		#we purposely interchanged the values to minimize the function
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
@@ -322,3 +323,114 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
+
+	# the same as WMWET, but remove +1 in pyhxyy and pyhxxy estimators
+	if set(args.error).issuperset(set(['WMWET_exp'])):
+		# useful variables (namespace identical to mawi.R script)
+		m = len_data # x = data
+		n = len_sims # y = sims
+		eps1_ = .3129 # Wellek's paper
+		eps2_ = .2661 # Wellek's paper
+		eps1_ = .1382 # example of mawi.R script
+		eps2_ = .2602 # example of mawi.R script
+		eqctr = 0.5 + (eps2_ - eps1_)/2
+		eqleng = eps1_ + eps2_
+
+		# estimators needed for calculations
+		wxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		pihxxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		pihxyy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+
+		# ŷ estimator (wxy in mawi.R)
+		# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
+		for i in range(m):
+			for j in range(n):
+				diff = (data.loc[i] - sims.loc[j])
+				diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+				diff = diff.apply(numpy.sign)
+				diff = diff + 1
+				diff = diff.multiply(0.5)
+				diff = diff.apply(numpy.trunc)
+				# add to ŷ (wxy in mawi.R)
+				wxy += diff
+
+		# yFGG estimator (pihxyy in mawi.R)
+		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
+		for xi in range(m):
+			for xj1 in range(n - 1):
+				for xj2 in range(xj1 + 1, n):
+					diff = (data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2]))
+					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					diff = diff.apply(numpy.sign)
+					#diff = diff + 1
+					diff = diff.multiply(0.5)
+					diff = diff.apply(numpy.trunc)
+					# add to yFGG (pihxyy in mawi.R)
+					pihxyy += diff
+
+		# yFFG estimator (pihxxy in mawi.R)
+		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
+		for xi1 in range(m - 1):
+			for xi2 in range(xi1 + 1, m):
+				for xj in range(n):
+					diff = data.loc[xi1].where(data.loc[xi1] < data.loc[xi2], data.loc[xi2]) - sims.loc[xj]
+					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					diff = diff.apply(numpy.sign)
+					#diff = diff + 1
+					diff = diff.multiply(0.5)
+					diff = diff.apply(numpy.trunc)
+					# add to yFGG (pihxxy in mawi.R)
+					pihxxy += diff
+
+		wxy = wxy.divide(m * n)
+		if args.report:
+			print('wxy estimator:\n', wxy, '\n')
+
+		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
+		if args.report:
+			print('pihxxy estimator:\n', pihxxy, '\n')
+
+		pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
+		if args.report:
+			print('pihxyy estimator:\n', pihxyy, '\n')
+
+		# variance estimator sigmah (same name as in mawi.R)
+		# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
+		sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
+		sigmah = sigmah.divide(m * n)
+		sigmah = sigmah**0.5
+		if args.report:
+			print('sigmah estimator:\n', sigmah, '\n')
+
+		# critical value
+		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
+		phi = (eqleng/2/sigmah)**2
+		if args.report:
+			print('phi matrix:\n', phi, '\n')
+
+		crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
+		if args.report:
+			print('critical values:\n', crit, '\n')
+
+		# compare with Z
+		Z = abs((wxy - eqctr).divide(sigmah))
+		z = Z.copy(deep = True)
+
+		if args.report:
+			print('Z estimator: \n', Z, '\n')
+
+		"""
+		we want to maximize the amount of true alternative hypotheses, so
+		#we purposely interchanged the values to minimize the function
+		"""
+		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
+		Z[z >= crit] = +1.0
+		# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+		Z[z < crit] = +0.0
+
+		#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
+		if args.report:
+			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
+
+		error['WMWET_exp'] = '{:.0f}'.format(Z.sum().sum())
