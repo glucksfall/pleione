@@ -13,7 +13,7 @@ __software__ = 'kasim-v4'
 
 import argparse, os, re
 import pandas, numpy
-from pleione.fitness import do, add_noise
+from pleione.fitness import do
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')

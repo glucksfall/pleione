@@ -9,26 +9,8 @@ Citation:
 __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 
-#import os, numpy, pandas
 import numpy, pandas
 from scipy.stats import ncx2
-
-def add_noise(sims, len_sims, conf):
-	#for key, value in conf.items():
-		#if conf[key][0] == 'obs':
-			#print(conf[key])
-
-	rows = sims.loc[0].index
-	cols = sims.loc[0].columns
-
-	sims_ = []
-	for i in range(len_sims):
-		noise = pandas.DataFrame(data = numpy.random.normal(0, 20, (len(rows), len(cols))), index = rows, columns = cols)
-		sims_.append(sims.loc[i] + noise)
-
-	sims = pandas.concat(sims_, keys = range(len(sims_)))
-
-	return sims
 
 def do(args, sims, len_sims, data, len_data, error, doall):
 	"""
@@ -358,103 +340,114 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 	# the same as WMWET, but remove +1 in pyhxyy and pyhxxy estimators
 	if set(args.error).issuperset(set(['WMWET_paper'])):
+		def wellek():
+			eps1_ = .3129 # Wellek's paper
+			eps2_ = .2661 # Wellek's paper
+			eps1_ = .1382 # example of mawi.R script
+			eps2_ = .2602 # example of mawi.R script
+			eqctr = 0.5 + (eps2_ - eps1_)/2
+			eqleng = eps1_ + eps2_
+
+			# estimators needed for calculations
+			wxy = pandas.DataFrame(index = y.loc[0].index, columns = y.loc[0].columns).fillna(0)
+			pihxxy = pandas.DataFrame(index = y.loc[0].index, columns = y.loc[0].columns).fillna(0)
+			pihxyy = pandas.DataFrame(index = y.loc[0].index, columns = y.loc[0].columns).fillna(0)
+			sigmah = pandas.DataFrame(index = y.loc[0].index, columns = y.loc[0].columns).fillna(0)
+
+			# ŷ estimator (wxy in mawi.R)
+			# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
+			for i in range(m):
+				for j in range(n):
+					diff = (x.loc[i] - y.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					# add to ŷ (wxy in mawi.R)
+					wxy += numpy.heaviside(diff, 0)
+
+			# yFFG estimator (pihxxy in mawi.R)
+			#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
+			for xi1 in range(m - 1):
+				for xi2 in range(xi1 + 1, m):
+					for xj in range(n):
+						# 1st difference
+						diff1 = (x.loc[xi1] - y.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+						# 2nd difference
+						diff2 = (x.loc[xi2] - y.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+						# add to yFGG (pihxxy in mawi.R)
+						pihxxy += numpy.heaviside(diff1, 0) * numpy.heaviside(diff2, 0)
+
+			# yFGG estimator (pihxyy in mawi.R)
+			# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
+			for xi in range(m):
+				for xj1 in range(n - 1):
+					for xj2 in range(xj1 + 1, n):
+						# 1st difference
+						diff1 = (x.loc[xi] - y.loc[xj1]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+						# 2nd difference
+						diff2 = (x.loc[xi] - y.loc[xj2]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+						# add to yFGG (pihxyy in mawi.R)
+						pihxyy += numpy.heaviside(diff1, 0) * numpy.heaviside(diff2, 0)
+
+			wxy = wxy.divide(m * n)
+			if args.report:
+				print('wxy estimator:\n', wxy, '\n')
+
+			pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
+			if args.report:
+				print('pihxxy estimator:\n', pihxxy, '\n')
+
+			pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
+			if args.report:
+				print('pihxyy estimator:\n', pihxyy, '\n')
+
+			# variance estimator sigmah (same name as in mawi.R)
+			# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
+			sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
+			sigmah = sigmah.divide(m * n)
+			sigmah = sigmah**0.5
+			if args.report:
+				print('sigmah estimator:\n', sigmah, '\n')
+
+			# critical value
+			# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
+			phi = (eqleng/2/sigmah)**2
+			if args.report:
+				print('phi matrix:\n', phi, '\n')
+
+			crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = y.loc[0].index, columns = y.loc[0].columns)**.5
+			if args.report:
+				print('critical values:\n', crit, '\n')
+
+			# compare with Z
+			Z = abs((wxy - eqctr).divide(sigmah))
+			z = Z.copy(deep = True)
+
+			if args.report:
+				print('Z estimator: \n', Z, '\n')
+
+			"""
+			we want to maximize the amount of true alternative hypotheses, so
+			we purposely interchanged the values to minimize the function
+			"""
+			# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
+			Z[z >= crit] = +1.0
+			# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+			Z[z < crit] = +0.0
+
+			#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
+			if args.report:
+				print('Wellek\'s test matrix: a zero means data and simulations are equivalents within the threshold\n', Z)
+
+			error['WMWET_paper'] = '{:.0f}'.format(Z.sum().sum())
+
 		# useful variables (namespace identical to mawi.R script)
-		m = len_data # x = data
-		n = len_sims # y = sims
-		eps1_ = .3129 # Wellek's paper
-		eps2_ = .2661 # Wellek's paper
-		eps1_ = .1382 # example of mawi.R script
-		eps2_ = .2602 # example of mawi.R script
-		eqctr = 0.5 + (eps2_ - eps1_)/2
-		eqleng = eps1_ + eps2_
+		x = data
+		m = len_data
+		y = sims
+		n = len_sims
+		wellek()
 
-		# estimators needed for calculations
-		wxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-		wyx = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0) # is the test symmetric?
-		pihxxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-		pihxyy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-		sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-
-		# ŷ estimator (wxy in mawi.R)
-		# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
-		for i in range(m):
-			for j in range(n):
-				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-				# add to ŷ (wxy in mawi.R)
-				wxy += diff.where(diff > 0, 0).where(diff < 0, 1)
-
-		# yFFG estimator (pihxxy in mawi.R)
-		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
-		for xi1 in range(m - 1):
-			for xi2 in range(xi1 + 1, m):
-				for xj in range(n):
-					# 1st difference
-					diff1 = (data.loc[xi1] - sims.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# 2nd difference
-					diff2 = (data.loc[xi2] - sims.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# add to yFGG (pihxxy in mawi.R)
-					pihxxy += (diff1.where(diff1 > 0, 0).where(diff < 0, 1)).multiply(diff2.where(diff2 > 0, 0).where(diff < 0, 1))
-
-		# yFGG estimator (pihxyy in mawi.R)
-		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
-		for xi in range(m):
-			for xj1 in range(n - 1):
-				for xj2 in range(xj1 + 1, n):
-					# 1st difference
-					diff1 = (data.loc[xi] - sims.loc[xj1]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# 2nd difference
-					diff2 = (data.loc[xi] - sims.loc[xj2]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# add to yFGG (pihxyy in mawi.R)
-					pihxyy += (diff1.where(diff1 > 0, 0).where(diff < 0, 1)).multiply(diff2.where(diff2 > 0, 0).where(diff < 0, 1))
-
-		wxy = wxy.divide(m * n)
-		if args.report:
-			print('wxy estimator:\n', wxy, '\n')
-
-		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
-		if args.report:
-			print('pihxxy estimator:\n', pihxxy, '\n')
-
-		pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
-		if args.report:
-			print('pihxyy estimator:\n', pihxyy, '\n')
-
-		# variance estimator sigmah (same name as in mawi.R)
-		# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
-		sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
-		sigmah = sigmah.divide(m * n)
-		sigmah = sigmah**0.5
-		if args.report:
-			print('sigmah estimator:\n', sigmah, '\n')
-
-		# critical value
-		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
-		phi = (eqleng/2/sigmah)**2
-		if args.report:
-			print('phi matrix:\n', phi, '\n')
-
-		crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
-		if args.report:
-			print('critical values:\n', crit, '\n')
-
-		# compare with Z
-		Z = abs((wxy - eqctr).divide(sigmah))
-		z = Z.copy(deep = True)
-
-		if args.report:
-			print('Z estimator: \n', Z, '\n')
-
-		"""
-		we want to maximize the amount of true alternative hypotheses, so
-		we purposely interchanged the values to minimize the function
-		"""
-		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
-		Z[z >= crit] = +1.0
-		# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
-		Z[z < crit] = +0.0
-
-		#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
-		if args.report:
-			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
-
-		error['WMWET_paper'] = '{:.0f}'.format(Z.sum().sum())
+		# however, is the Wellek's test symmetric? In other words, can we interchange x and y?
+		y = data
+		n = len_data
+		x = sims
+		m = len_sims
+		wellek()
