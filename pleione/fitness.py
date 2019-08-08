@@ -357,7 +357,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
 	# the same as WMWET, but remove +1 in pyhxyy and pyhxxy estimators
-	if set(args.error).issuperset(set(['WMWET_exp'])):
+	if set(args.error).issuperset(set(['WMWET_paper'])):
 		# useful variables (namespace identical to mawi.R script)
 		m = len_data # x = data
 		n = len_sims # y = sims
@@ -370,6 +370,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		# estimators needed for calculations
 		wxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		wyx = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0) # is the test symmetric?
 		pihxxy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		pihxyy = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		sigmah = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
@@ -378,45 +379,39 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		# for (i in 1:m) for (j in 1:n) wxy <- wxy + trunc(0.5 * (sign(x[i] - y[j]) + 1))
 		for i in range(m):
 			for j in range(n):
-				diff = (data.loc[i] - sims.loc[j])
-				diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-				diff = diff.apply(numpy.sign)
-				#diff = diff + 1
-				diff = diff.multiply(0.5)
-				diff = diff.apply(numpy.trunc)
+				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 				# add to ŷ (wxy in mawi.R)
-				wxy += diff
-
-		# yFGG estimator (pihxyy in mawi.R)
-		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
-		for xi in range(m):
-			for xj1 in range(n - 1):
-				for xj2 in range(xj1 + 1, n):
-					diff = (data.loc[xi] - sims.loc[xj1].where(sims.loc[xj1] > sims.loc[xj2], sims.loc[xj2]))
-					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					diff = diff.apply(numpy.sign)
-					#diff = diff + 1
-					diff = diff.multiply(0.5)
-					diff = diff.apply(numpy.trunc)
-					# add to yFGG (pihxyy in mawi.R)
-					pihxyy += diff
+				wxy += diff.where(diff > 0, 0).divide(+1)
+				wyx += diff.where(diff < 0, 0).divide(-1)
 
 		# yFFG estimator (pihxxy in mawi.R)
 		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
 		for xi1 in range(m - 1):
 			for xi2 in range(xi1 + 1, m):
 				for xj in range(n):
-					diff = data.loc[xi1].where(data.loc[xi1] < data.loc[xi2], data.loc[xi2]) - sims.loc[xj]
-					diff = diff.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					diff = diff.apply(numpy.sign)
-					#diff = diff + 1
-					diff = diff.multiply(0.5)
-					diff = diff.apply(numpy.trunc)
+					# 1st difference
+					diff1 = (data.loc[xi1] - sims.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					# 2nd difference
+					diff2 = (data.loc[xi2] - sims.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 					# add to yFGG (pihxxy in mawi.R)
-					pihxxy += diff
+					pihxxy += diff1.where(diff1 > 0, 0).multiply(diff2.where(diff2 > 0, 0))
+
+		# yFGG estimator (pihxyy in mawi.R)
+		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
+		for xi in range(m):
+			for xj1 in range(n - 1):
+				for xj2 in range(xj1 + 1, n):
+					# 1st difference
+					diff1 = (data.loc[xi] - sims.loc[xj1]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					# 2nd difference
+					diff2 = (data.loc[xi] - sims.loc[xj2]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+					# add to yFGG (pihxyy in mawi.R)
+					pihxyy += diff1.where(diff1 > 0, 0).multiply(diff2.where(diff2 > 0, 0))
 
 		wxy = wxy.divide(m * n)
+		wyx = wyx.divide(m * n)
 		if args.report:
+			print('wxy estimator:\n', wxy, '\n')
 			print('wxy estimator:\n', wxy, '\n')
 
 		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
@@ -465,4 +460,4 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		if args.report:
 			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
 
-		error['WMWET_exp'] = '{:.0f}'.format(Z.sum().sum())
+		error['WMWET_paper'] = '{:.0f}'.format(Z.sum().sum())
