@@ -381,8 +381,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			for j in range(n):
 				diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 				# add to ŷ (wxy in mawi.R)
-				wxy += diff.where(diff > 0, 0).divide(+1)
-				wyx += diff.where(diff < 0, 0).divide(-1)
+				wxy += diff.where(diff > 0, 0).where(diff < 0, 1)
 
 		# yFFG estimator (pihxxy in mawi.R)
 		#for (i1 in 1:(m - 1)) for (i2 in (i1 + 1):m) for (j in 1:n) pihxxy <- pihxxy + trunc(0.5 * (sign(min(x[i1], x[i2]) - y[j]) + 1))
@@ -394,7 +393,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 					# 2nd difference
 					diff2 = (data.loc[xi2] - sims.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 					# add to yFGG (pihxxy in mawi.R)
-					pihxxy += diff1.where(diff1 > 0, 0).multiply(diff2.where(diff2 > 0, 0))
+					pihxxy += (diff1.where(diff1 > 0, 0).where(diff < 0, 1)).multiply(diff2.where(diff2 > 0, 0).where(diff < 0, 1))
 
 		# yFGG estimator (pihxyy in mawi.R)
 		# for (i in 1:m) for (j1 in 1:(n - 1)) for (j2 in (j1 + 1):n) pihxyy <- pihxyy + trunc(0.5 * (sign(x[i] - max(y[j1], y[j2])) + 1))
@@ -406,12 +405,10 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 					# 2nd difference
 					diff2 = (data.loc[xi] - sims.loc[xj2]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
 					# add to yFGG (pihxyy in mawi.R)
-					pihxyy += diff1.where(diff1 > 0, 0).multiply(diff2.where(diff2 > 0, 0))
+					pihxyy += (diff1.where(diff1 > 0, 0).where(diff < 0, 1)).multiply(diff2.where(diff2 > 0, 0).where(diff < 0, 1))
 
 		wxy = wxy.divide(m * n)
-		wyx = wyx.divide(m * n)
 		if args.report:
-			print('wxy estimator:\n', wxy, '\n')
 			print('wxy estimator:\n', wxy, '\n')
 
 		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
