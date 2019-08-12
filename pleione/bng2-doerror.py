@@ -11,7 +11,7 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'bng2-v2.3.2'
 
-import argparse, re, subprocess
+import argparse, io, re, subprocess
 import pandas, numpy
 from pleione.fitness import do
 
@@ -44,11 +44,12 @@ def read_sims(files):
 		#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 		#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
+		#with open(infile, 'r') as file:
+			#tmp = file.read().replace('#', ' ')
+		#with open(infile, 'w') as outfile:
+			#outfile.write(tmp)
 		with open(infile, 'r') as file:
-			tmp = file.read().replace('#', ' ')
-		with open(infile, 'w') as outfile:
-			outfile.write(tmp)
-		with open(infile, 'r') as file:
+			tmp = io.StringIO(file.read()[1:])
 			sims.append(pandas.read_csv(file, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
 	return pandas.concat(sims, keys = range(len(sims))), len(sims)
@@ -62,11 +63,12 @@ def read_data(files):
 		#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 		#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
+		#with open(infile, 'r') as file:
+			#tmp = file.read().replace('#', ' ')
+		#with open(infile, 'w') as outfile:
+			#outfile.write(tmp)
 		with open(infile, 'r') as file:
-			tmp = file.read().replace('#', ' ')
-		with open(infile, 'w') as outfile:
-			outfile.write(tmp)
-		with open(infile, 'r') as file:
+			tmp = io.StringIO(file.read()[1:])
 			data.append(pandas.read_csv(file, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
 	return pandas.concat(data, keys = range(len(data))), len(data)
