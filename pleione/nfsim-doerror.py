@@ -13,6 +13,7 @@ __software__ = 'nfsim-v1.12.1'
 
 import argparse
 import pandas, numpy
+from pleione.fitness import do
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')

@@ -338,7 +338,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
-	# the same as WMWET, but remove +1 in pyhxyy and pyhxxy estimators
+	# the same as WMWET, but as identical the Wellek's paper
 	if set(args.error).issuperset(set(['WMWET_paper'])):
 		def wellek():
 			eps1_ = .3129 # Wellek's paper

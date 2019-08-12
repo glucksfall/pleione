@@ -13,6 +13,7 @@ __software__ = 'bng2-v2.3.2'
 
 import argparse, re, subprocess
 import pandas, numpy
+from pleione.fitness import do
 
 def argsparser():
 	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')
@@ -45,17 +46,16 @@ def read_sims(files):
 # read the data files
 def read_data(files):
 	data = []
-		for infile in files:
+	for infile in files:
 		# remove the '#' char at the beginning of the file
 		#cmd = 'sed -i s|#||g {:s}'.format(infile)
+		#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
+		#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+
 		with open(infile, 'r') as file:
 			tmp = file.read().replace('#', ' ')
 		with open(infile, 'w') as outfile:
 			outfile.write(tmp)
-
-		cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-		out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-
 		with open(infile, 'r') as file:
 			data.append(pandas.read_csv(file, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
