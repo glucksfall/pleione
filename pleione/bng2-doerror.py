@@ -23,6 +23,16 @@ def argsparser():
 	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
 	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
 
+	# DEPRECATED path to R executable and libs
+	#parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
+	#parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
+	# report MWUT, WMWET?
+	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = None     , help = 'report the array of U-tests and/or Wellek\'s tests')
+
+	# add noise to observables
+	parser.add_argument('--model' , metavar = 'str' , type = str, required = False, default = False    , help = 'model to calibrate with configured noise.')
+	parser.add_argument('--noise' , metavar = 'True', type = str, required = False, default = False    , help = 'add configured noise to observables?')
+
 	return parser.parse_args()
 
 # read simulation files
