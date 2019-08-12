@@ -50,7 +50,8 @@ def read_sims(files):
 			#outfile.write(tmp)
 		with open(infile, 'r') as file:
 			tmp = io.StringIO(file.read()[1:])
-			sims.append(pandas.read_csv(file, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			#sims.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			sims.append(pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
 	return pandas.concat(sims, keys = range(len(sims))), len(sims)
 
@@ -69,7 +70,8 @@ def read_data(files):
 			#outfile.write(tmp)
 		with open(infile, 'r') as file:
 			tmp = io.StringIO(file.read()[1:])
-			data.append(pandas.read_csv(file, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			#data.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			data.append(pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
 
 	return pandas.concat(data, keys = range(len(data))), len(data)
 
