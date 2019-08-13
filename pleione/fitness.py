@@ -26,19 +26,33 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	"""
 
 	if doall:
-		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET']
-
-	# former mean square error, now square difference of means
-	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
-		func = 0
+		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST']
 
 		data_avrg = 0
 		for i in range(len_data):
 			data_avrg += data.loc[i].divide(len_data)
 
+		data_stdv = 0
+		if len_data > 1:
+			for i in range(len_data):
+				data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
+
 		sims_avrg = 0
 		for j in range(len_sims):
 			sims_avrg += sims.loc[j].divide(len_sims)
+
+	# former mean square error, now square difference of means
+	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
+		func = 0
+
+		if not doall:
+			data_avrg = 0
+			for i in range(len_data):
+				data_avrg += data.loc[i].divide(len_data)
+
+			sims_avrg = 0
+			for j in range(len_sims):
+				sims_avrg += sims.loc[j].divide(len_sims)
 
 		func = (data_avrg - sims_avrg)**2
 		func = func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum()
@@ -49,13 +63,14 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['ADA'])) or set(args.error).issuperset(set(['MAE'])):
 		func = 0
 
-		data_avrg = 0
-		for i in range(len_data):
-			data_avrg += data.loc[i].divide(len_data)
+		if not doall:
+			data_avrg = 0
+			for i in range(len_data):
+				data_avrg += data.loc[i].divide(len_data)
 
-		sims_avrg = 0
-		for j in range(len_sims):
-			sims_avrg += sims.loc[j].divide(len_sims)
+			sims_avrg = 0
+			for j in range(len_sims):
+				sims_avrg += sims.loc[j].divide(len_sims)
 
 		func = abs(data_avrg - sims_avrg)
 
@@ -75,16 +90,17 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['CHISQ'])):
 		func = 0
 
-		data_avrg = 0
-		for i in range(len_data):
-			data_avrg += data.loc[i].divide(len_data)
-
-		data_stdv = 0
-		if len_data > 1:
+		if not doall:
+			data_avrg = 0
 			for i in range(len_data):
-				data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
-		else:
-			data_stdv = stdv**2
+				data_avrg += data.loc[i].divide(len_data)
+
+			data_stdv = 0
+			if len_data > 1:
+				for i in range(len_data):
+					data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
+			else:
+				data_stdv = pandas.DataFrame(index = data.loc[0].index, columns = data.loc[0].columns).fillna(1.) # a DataFrame which every stdv equal to 1.
 
 		for i in range(len_data):
 			for j in range(len_sims):
@@ -96,9 +112,10 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['MNSE'])):
 		func = 0
 
-		data_avrg = 0
-		for i in range(len_data):
-			data_avrg += data.loc[i].divide(len_data)
+		if not doall:
+			data_avrg = 0
+			for i in range(len_data):
+				data_avrg += data.loc[i].divide(len_data)
 
 		for i in range(len_data):
 			for j in range(len_sims):
@@ -150,7 +167,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['MWUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
 
-			ucrit = pandas.read_table(args.crit[0], sep = None, engine = 'python', header = 0, index_col = 0)
+			ucrit = pandas.read_csv(args.crit[0], sep = None, engine = 'python', header = 0, index_col = 0)
 			udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 			usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 
@@ -177,6 +194,8 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
 			if args.report:
+				print('U-estimator for data\n', udata, '\n')
+				print('U-estimator for sims\n', usims, '\n')
 				print('U-test matrix: 1.0 means distributions are differents\n', U, '\n')
 
 			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
@@ -184,18 +203,13 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		else:
 			error['MWUT'] = str(numpy.nan)
 
-	# Wellek's Mann-Whitney Equivalence Test.
-	# Based on mawi.R script from the EQUIVNONINF package
-	# modifications done to perform the test "vectorized"
-	# (it compares two matrixes; the first has all exp data, the second all the sims)
+	"""
+	Wellek's Mann-Whitney Equivalence Test.
+	Based on mawi.R script from the EQUIVNONINF package
+	modifications done to perform the test "vectorized"
+	(it compares two matrices; the first has all exp data, the second all the sims)
+	"""
 	if set(args.error).issuperset(set(['WMWET'])):
-		# set R HOME and import stats R package to use the qchisq function
-		# (because the loc arg from scipy.stats.distributions.chi2.ppf gives weird results)
-		#from rpy2.robjects.packages import importr
-		#os.environ['R_HOME'] = args.r_path
-		#os.environ['LD_LIBRARY_PATH'] = args.r_libs
-		#stats = importr('stats')
-
 		# useful variables (namespace identical to mawi.R script)
 		m = len_data # x = data
 		n = len_sims # y = sims
@@ -313,7 +327,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			print('critical values:\n', crit, '\n')
 
 		# compare with Z
-		# left hand of inequality 2.8 from Wellek 1996 paper
+		# left hand side of the inequality 2.8 from Wellek 1996 paper
 		Z = abs((wxy - eqctr).divide(sigmah))
 		z = Z.copy(deep = True)
 
@@ -324,7 +338,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		"""
 		we want to maximize the amount of true alternative hypotheses, so
-		we purposely changed the values to minimize the function
+		we purposely changed the values to use the Wellek's test as an objective function to minimize
 		"""
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
@@ -338,7 +352,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
-	# the same as WMWET, but as identical the Wellek's paper
+	# the same as WMWET, but as identical as the Wellek's paper (look for the heaviside function)
 	if set(args.error).issuperset(set(['WMWET_paper'])):
 		def wellek():
 			eps1_ = .3129 # Wellek's paper
@@ -359,7 +373,6 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			for i in range(m):
 				for j in range(n):
 					diff = (x.loc[i] - y.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					# add to ŷ (wxy in mawi.R)
 					wxy += numpy.heaviside(diff, 0)
 
 			# yFFG estimator (pihxxy in mawi.R)
@@ -367,11 +380,8 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			for xi1 in range(m - 1):
 				for xi2 in range(xi1 + 1, m):
 					for xj in range(n):
-						# 1st difference
 						diff1 = (x.loc[xi1] - y.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-						# 2nd difference
 						diff2 = (x.loc[xi2] - y.loc[xj]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-						# add to yFGG (pihxxy in mawi.R)
 						pihxxy += numpy.heaviside(diff1, 0) * numpy.heaviside(diff2, 0)
 
 			# yFGG estimator (pihxyy in mawi.R)
@@ -379,66 +389,45 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			for xi in range(m):
 				for xj1 in range(n - 1):
 					for xj2 in range(xj1 + 1, n):
-						# 1st difference
 						diff1 = (x.loc[xi] - y.loc[xj1]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-						# 2nd difference
 						diff2 = (x.loc[xi] - y.loc[xj2]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-						# add to yFGG (pihxyy in mawi.R)
 						pihxyy += numpy.heaviside(diff1, 0) * numpy.heaviside(diff2, 0)
 
+			#
 			wxy = wxy.divide(m * n)
-			if args.report:
-				print('wxy estimator:\n', wxy, '\n')
-
 			pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
-			if args.report:
-				print('pihxxy estimator:\n', pihxxy, '\n')
-
 			pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
-			if args.report:
-				print('pihxyy estimator:\n', pihxyy, '\n')
 
 			# variance estimator sigmah (same name as in mawi.R)
 			# sigmah <- sqrt((wxy - (m + n - 1) * wxy^2 + (m - 1) * pihxxy + (n - 1) * pihxyy)/(m * n))
 			sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
 			sigmah = sigmah.divide(m * n)
 			sigmah = sigmah**0.5
-			if args.report:
-				print('sigmah estimator:\n', sigmah, '\n')
 
 			# critical value
 			# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
 			phi = (eqleng/2/sigmah)**2
-			if args.report:
-				print('phi matrix:\n', phi, '\n')
-
 			crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = y.loc[0].index, columns = y.loc[0].columns)**.5
-			if args.report:
-				print('critical values:\n', crit, '\n')
 
 			# compare with Z
 			Z = abs((wxy - eqctr).divide(sigmah))
 			z = Z.copy(deep = True)
+			Z[z < crit] = +0.0 # the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
+			Z[z >= crit] = +1.0 # the test cannot reject the null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 
 			if args.report:
+				print('wxy estimator:\n', wxy, '\n')
+				print('pihxxy estimator:\n', pihxxy, '\n')
+				print('pihxyy estimator:\n', pihxyy, '\n')
+				print('sigmah estimator:\n', sigmah, '\n')
+				print('phi matrix:\n', phi, '\n')
+				print('critical values:\n', crit, '\n')
 				print('Z estimator: \n', Z, '\n')
-
-			"""
-			we want to maximize the amount of true alternative hypotheses, so
-			we purposely interchanged the values to minimize the function
-			"""
-			# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
-			Z[z >= crit] = +1.0
-			# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
-			Z[z < crit] = +0.0
-
-			#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
-			if args.report:
 				print('Wellek\'s test matrix: a zero means data and simulations are equivalents within the threshold\n', Z)
 
 			error['WMWET_paper'] = '{:.0f}'.format(Z.sum().sum())
 
-		# useful variables (namespace identical to mawi.R script)
+		# one side comparison
 		x = data
 		m = len_data
 		y = sims
@@ -451,3 +440,47 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		x = sims
 		m = len_sims
 		wellek()
+
+	if set(args.error).issuperset(set(['TOST'])):
+		print("WARNING: data and/or simulations not necessarily are normal distributions.")
+		print("As a test-bed, we consider data and simulations have unequal standard deviations")
+		print("See https://www.statsmodels.org/devel/generated/statsmodels.stats.weightstats.ttost_ind.html for more information")
+		from statsmodels.stats.weightstats import ttost_ind
+
+		if not doall:
+			data_avrg = 0
+			for i in range(len_data):
+				data_avrg += data.loc[i].divide(len_data)
+
+			data_stdv = 0
+			if len_data > 1:
+				for i in range(len_data):
+					data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
+			else:
+				data_stdv = pandas.DataFrame(index = data.loc[0].index, columns = data.loc[0].columns).fillna(1.) # a DataFrame which every stdv equal to 1.
+			data_stdv = data_stdv**.5
+
+		# reshape data and sims to permit calculate the test in a for-loop
+		sims = numpy.dstack([sims.loc[x] for x in range(len_sims)])
+		# since we operate numpy arrays without labels, we must ensure sims and data indexes and columns have the same order
+		index = data.loc[0].index
+		columns = data.loc[0].columns
+		data = numpy.dstack([data.loc[x].reindex(columns = columns, index = index) for x in range(len_data)])
+
+		p = numpy.zeros((len(data_stdv.index), len(data_stdv.columns)))
+		row = 0
+		for x, y, lim in zip(sims, data, data_stdv.values):
+			for col, _ in enumerate(data_stdv.columns):
+				p[row, col] = ttost_ind(x[col], y[col], -lim[col], +lim[col])[0]
+			row += 1
+
+		# transform table of p-values into a rejection dataframe
+		p = pandas.DataFrame(index = index, columns = columns, data = p)
+		P = p.copy(deep = True)
+		P[p >= .05] = +1.0
+		P[p < .05] = +0.0
+
+		if args.report:
+			print('Two one-sided t-tests matrix: a zero means data and simulations are equivalents within one standard deviation threshold\n', P)
+
+		error['TOST'] = '{:.0f}'.format(P.sum().sum())

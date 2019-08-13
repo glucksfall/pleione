@@ -376,7 +376,7 @@ def evaluate():
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
 		'doerror'   : '{:s} -m pleione.kasim35-doerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
-		'deverror'  : '{:s} -m pleione.kasim35-allerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
+		#'deverror'  : '{:s} -m pleione.kasim35-allerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
 		}
 
 	# submit error calculations to the queue
@@ -392,7 +392,7 @@ def evaluate():
 
 		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
 		if args.dev:
-			job_desc['calc'] = job_desc['deverror'] + ' --data {:s} --sims {:s} --file {:s}'.format(data, sims, output)
+			job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --do_all True'.format(data, sims, output)
 
 		# use SLURM Workload Manager
 		if opts['slurm'] is not None:

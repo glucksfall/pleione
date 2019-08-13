@@ -23,15 +23,10 @@ def argsparser():
 	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
 	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
 
-	# DEPRECATED path to R executable and libs
-	#parser.add_argument('--r_path', metavar = 'path', type = str, required = False, default = '~/bin/R', help = 'R exe path, default ~/bin/R')
-	#parser.add_argument('--r_libs', metavar = 'path', type = str, required = False, default = ''       , help = 'R lib path, default empty')
-	# report MWUT, WMWET?
-	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = None     , help = 'report the array of U-tests and/or Wellek\'s tests')
-
-	# add noise to observables
-	parser.add_argument('--model' , metavar = 'str' , type = str, required = False, default = False    , help = 'model to calibrate with configured noise.')
-	parser.add_argument('--noise' , metavar = 'True', type = str, required = False, default = False    , help = 'add configured noise to observables?')
+	# report MWUT, WMWET matrices
+	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = None     , help = 'report the arrays of U-, Wellek\'s, and/or TOST tests')
+	# calculate all fitness functions regardless of the used for ranking
+	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None     , help = 'calculate all fitness functions regardless of the used for ranking')
 
 	return parser.parse_args()
 
@@ -48,6 +43,7 @@ def read_sims(files):
 			#tmp = file.read().replace('#', ' ')
 		#with open(infile, 'w') as outfile:
 			#outfile.write(tmp)
+
 		with open(infile, 'r') as file:
 			tmp = io.StringIO(file.read()[1:])
 			#sims.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
@@ -68,6 +64,7 @@ def read_data(files):
 			#tmp = file.read().replace('#', ' ')
 		#with open(infile, 'w') as outfile:
 			#outfile.write(tmp)
+
 		with open(infile, 'r') as file:
 			tmp = io.StringIO(file.read()[1:])
 			#data.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
@@ -83,13 +80,13 @@ if __name__ == '__main__':
 	# read data files
 	data, len_data = read_data(args.data)
 
-	# Filter out unavailable experimental data from simulation files and filter out unsimulated observables
+	# Filter out unavailable experimental data from simulation files and filter out non simulated observables
 	sims = sims.filter(items = list(data.columns))
 	data = data.filter(items = list(sims.columns))
 
 	# Calculate fitness
 	error = {}
-	do(args, sims, len_sims, data, len_data, error, False)
+	do(args, sims, len_sims, data, len_data, error, args.do_all)
 
 	# write report file
 	with open(args.file[0], 'w') as outfile:
