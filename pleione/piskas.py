@@ -524,11 +524,11 @@ def ranking():
 			file.write('{:s}\t'.format(population['model', ind]))
 			for name in range(len(fitfunc)):
 				for cpu in compartments:
-					if fitfunc[name] != 'MWUT':
+					if fitfunc[i] not in ['MWUT', 'WMWET', 'TOST']:
 						file.write('{:.6e}\t'.format(float(population[fitfunc[name], ind, cpu])))
 					else:
 						file.write('{:.0f}\t'.format(float(population[fitfunc[name], ind, cpu])))
-				if fitfunc[name] != 'MWUT':
+				if fitfunc[i] not in ['MWUT', 'WMWET', 'TOST']:
 					file.write('{:.6e}\t'.format(float(population[fitfunc[name], ind])))
 				else:
 					file.write('{:.0f}\t'.format(float(population[fitfunc[name], ind])))

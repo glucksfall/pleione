@@ -593,7 +593,7 @@ def ranking():
 		for ind in ranked_population:
 			file.write('{:s}\t'.format(population['model', ind]))
 			for i in range(len(fitfunc)):
-				if fitfunc[i] != 'MWUT':
+				if fitfunc[i] not in ['MWUT', 'WMWET', 'TOST']:
 					file.write(par_string.format(float(population[fitfunc[i], ind])))
 				else:
 					file.write('{:.0f}\t'.format(float(population[fitfunc[i], ind])))
