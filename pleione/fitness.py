@@ -166,7 +166,7 @@ def do(args, sims, len_sims, data, len_data, error):
 	if set(args.error).issuperset(set(['MWUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
 
-			ucrit = pandas.read_csv(args.crit[0], sep = None, engine = 'python', header = 0, index_col = 0)
+			ucrit = pandas.read_csv(args.crit, sep = None, engine = 'python', header = 0, index_col = 0)
 			udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 			usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 
