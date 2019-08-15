@@ -10,9 +10,8 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 
 import numpy, pandas
-from scipy.stats import ncx2
 
-def do(args, sims, len_sims, data, len_data, error, doall):
+def do(args, sims, len_sims, data, len_data, error):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
@@ -25,7 +24,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
-	if doall:
+	if args.do_all:
 		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST']
 
 		data_avrg = 0
@@ -45,7 +44,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
 		func = 0
 
-		if not doall:
+		if not args.do_all:
 			data_avrg = 0
 			for i in range(len_data):
 				data_avrg += data.loc[i].divide(len_data)
@@ -63,7 +62,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['ADA'])) or set(args.error).issuperset(set(['MAE'])):
 		func = 0
 
-		if not doall:
+		if not args.do_all:
 			data_avrg = 0
 			for i in range(len_data):
 				data_avrg += data.loc[i].divide(len_data)
@@ -90,7 +89,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['CHISQ'])):
 		func = 0
 
-		if not doall:
+		if not args.do_all:
 			data_avrg = 0
 			for i in range(len_data):
 				data_avrg += data.loc[i].divide(len_data)
@@ -112,7 +111,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	if set(args.error).issuperset(set(['MNSE'])):
 		func = 0
 
-		if not doall:
+		if not args.do_all:
 			data_avrg = 0
 			for i in range(len_data):
 				data_avrg += data.loc[i].divide(len_data)
@@ -207,18 +206,15 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 	Wellek's Mann-Whitney Equivalence Test.
 	Based on mawi.R script from the EQUIVNONINF package
 	modifications done to perform the test "vectorized"
-	(it compares two matrices; the first has all exp data, the second all the sims)
+	(it compares two matrices; the first has all exp data, the second all the simulations)
 	"""
 	if set(args.error).issuperset(set(['WMWET'])):
+		from scipy.stats import ncx2
 		# useful variables (namespace identical to mawi.R script)
 		m = len_data # x = data
 		n = len_sims # y = sims
 		eps1_ = .3129 # Wellek's paper
 		eps2_ = .2661 # Wellek's paper
-		eps1_ = .1382 # example of mawi.R script
-		eps2_ = .2602 # example of mawi.R script
-		eps1_ = .1250 # example of mawi.R script
-		eps2_ = .1250 # example of mawi.R script
 		eqctr = 0.5 + (eps2_ - eps1_)/2
 		eqleng = eps1_ + eps2_
 
@@ -274,18 +270,10 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 
 		# in equation 1.2
 		wxy = wxy.divide(m * n)
-		if args.report:
-			print('wxy estimator:\n', wxy, '\n')
-
 		# in equation 2.5a, inverse of (m choose 2 = 0.5 * (m-1) * m), then divided by n
 		pihxxy = pihxxy.multiply(2).divide(m * (m - 1) * n)
-		if args.report:
-			print('pihxxy estimator:\n', pihxxy, '\n')
-
 		# in equation 2.5b, inverse of (n choose 2 = 0.5 * (n-1) * n), then divided by m
 		pihxyy = pihxyy.multiply(2).divide(n * (n - 1) * m)
-		if args.report:
-			print('pihxyy estimator:\n', pihxyy, '\n')
 
 		# variance estimator sigmah (same name as in mawi.R)
 		# equation 2.6 from Wellek 1996 paper
@@ -293,72 +281,48 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		sigmah = wxy - (wxy**2).multiply(m + n - 1) + pihxxy.multiply(m - 1) + pihxyy.multiply(n - 1)
 		sigmah = sigmah.divide(m * n)
 		sigmah = sigmah**0.5
-		if args.report:
-			print('sigmah estimator:\n', sigmah, '\n')
 
 		# critical value
 		# right hand of inequality 2.8 from Wellek 1996 paper
 		phi = ((eqleng/2)/sigmah)**2
-		if args.report:
-			print('phi square matrix:\n', phi, '\n')
-
-		# code clean up
-		"""
-		crit = []
-		phi = phi.values
-		a, b = numpy.shape(phi)
-		for value in phi.reshape((a*b, 1)):
-			if not numpy.isnan(value[0]) or not numpy.isinf(value[0]):
-				#rvalue = stats.qchisq(0.05, 1, float(value[0]))[0]
-				#print('rvalue', rvalue)
-				pvalue = ncx2.ppf(0.05, 1, float(value[0]))
-				#print('ncx2', pvalue)
-				crit.append(pvalue)
-			else:
-				crit.append(numpy.nan)
-		crit = numpy.asarray(crit).reshape((a, b))
-		crit = pandas.DataFrame(data = crit, index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
-		"""
-
 		# crit <- sqrt(qchisq(alpha, 1, (eqleng/2/sigmah)^2))
 		# Ca(phi) is the square root of the alpha-th quantile of the chi2-distribution with a single degree of freedom and non-centrality parameter phi square
 		crit = pandas.DataFrame(data = ncx2.ppf(0.05, 1, phi), index = sims.loc[0].index, columns = sims.loc[0].columns)**.5
-		if args.report:
-			print('critical values:\n', crit, '\n')
 
 		# compare with Z
 		# left hand side of the inequality 2.8 from Wellek 1996 paper
 		Z = abs((wxy - eqctr).divide(sigmah))
 		z = Z.copy(deep = True)
 
-		if args.report:
-			print('Z estimator: \n', Z, '\n')
-		#print(Z[z >= crit])
-		#print(Z[z < crit])
-
 		"""
 		we want to maximize the amount of true alternative hypotheses, so
 		we purposely changed the values to use the Wellek's test as an objective function to minimize
 		"""
+		# test the inequality 2.8 from Wellek 1996 paper
 		# the test cannot reject null hypothesis: P[X-Y] < .5 - e1 or P[X-Y] > .5 + e2
 		Z[z >= crit] = +1.0
 		# the null hypothesis is rejected, therefore .5 - e1 < P[X-Y] < .5 + e2
-		# inequality 2.8 from Wellek 1996 paper
 		Z[z < crit] = +0.0
 
-		#Z = Z.replace([numpy.inf, -numpy.inf], numpy.nan)
 		if args.report:
-			print('Wellek\'s test matrix: a zero means distributions are equivalents within the threshold\n', Z)
+			print('wxy estimator:\n', wxy, '\n')
+			print('pihxxy estimator:\n', pihxxy, '\n')
+			print('pihxyy estimator:\n', pihxyy, '\n')
+			print('sigmah estimator:\n', sigmah, '\n')
+			print('phi matrix:\n', phi, '\n')
+			print('critical values:\n', crit, '\n')
+			print('Z estimator: \n', Z, '\n')
+			print('Wellek\'s test matrix: a zero means data and simulations are equivalents within the threshold\n', Z)
 
 		error['WMWET'] = '{:.0f}'.format(Z.sum().sum())
 
 	# the same as WMWET, but as identical as the Wellek's paper (look for the heaviside function)
 	if set(args.error).issuperset(set(['WMWET_paper'])):
+		from scipy.stats import ncx2
+
 		def wellek():
 			eps1_ = .3129 # Wellek's paper
 			eps2_ = .2661 # Wellek's paper
-			eps1_ = .1382 # example of mawi.R script
-			eps2_ = .2602 # example of mawi.R script
 			eqctr = 0.5 + (eps2_ - eps1_)/2
 			eqleng = eps1_ + eps2_
 
@@ -447,7 +411,7 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 		print("See https://www.statsmodels.org/devel/generated/statsmodels.stats.weightstats.ttost_ind.html for more information")
 		from statsmodels.stats.weightstats import ttost_ind
 
-		if not doall:
+		if not args.do_all:
 			data_avrg = 0
 			for i in range(len_data):
 				data_avrg += data.loc[i].divide(len_data)
@@ -461,15 +425,15 @@ def do(args, sims, len_sims, data, len_data, error, doall):
 			data_stdv = data_stdv**.5
 
 		# reshape data and sims to permit calculate the test in a for-loop
-		sims = numpy.dstack([sims.loc[x] for x in range(len_sims)])
+		tost_sims = numpy.dstack([sims.loc[x] for x in range(len_sims)])
 		# since we operate numpy arrays without labels, we must ensure sims and data indexes and columns have the same order
 		index = data.loc[0].index
 		columns = data.loc[0].columns
-		data = numpy.dstack([data.loc[x].reindex(columns = columns, index = index) for x in range(len_data)])
+		tost_data = numpy.dstack([data.loc[x].reindex(columns = columns, index = index) for x in range(len_data)])
 
 		p = numpy.zeros((len(data_stdv.index), len(data_stdv.columns)))
 		row = 0
-		for x, y, lim in zip(sims, data, data_stdv.values):
+		for x, y, lim in zip(tost_sims, tost_data, data_stdv.values):
 			for col, _ in enumerate(data_stdv.columns):
 				p[row, col] = ttost_ind(x[col], y[col], -lim[col], +lim[col])[0]
 			row += 1

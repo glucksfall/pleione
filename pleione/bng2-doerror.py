@@ -11,22 +11,31 @@ __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 __software__ = 'bng2-v2.3.2'
 
-import argparse, io, re, subprocess
-import pandas, numpy
+import argparse, io
 from pleione.fitness import do
 
 def argsparser():
-	parser = argparse.ArgumentParser(description = 'Calculate goodness of fit between data and simulations.')
-	parser.add_argument('--data' , metavar = 'path', type = str, required = True , nargs = '+', help = 'data files')
-	parser.add_argument('--sims' , metavar = 'path', type = str, required = True , nargs = '+', help = 'BNG2 output without further processing')
-	parser.add_argument('--file' , metavar = 'path', type = str, required = True , nargs = 1  , help = 'output file name')
-	parser.add_argument('--error', metavar = 'str' , type = str, required = True , nargs = '+', help = 'Goodness of Fit Function(s) to calculate')
-	parser.add_argument('--crit' , metavar = 'path', type = str, required = False, nargs = 1  , help = 'Mann-Whitney U-test critical values')
+	parser = argparse.ArgumentParser(description = 'Calculate fitness between data and simulations. Only for BNG2 simulations.', \
+		epilog = 'error acronysms are ADA, ANPWSD, APWSD, CHISQ, MNSE, MWUT, NPWSD, PWSD, SDA, SSQ, TOST, WMWET\n' \
+			'see https://pleione.readthedocs.io/en/latest/ObjectiveFunctions.html for more information',
+		formatter_class = argparse.RawTextHelpFormatter)
 
-	# report MWUT, WMWET matrices
-	parser.add_argument('--report', metavar = 'str' , type = str, required = False, default = None     , help = 'report the arrays of U-, Wellek\'s, and/or TOST tests')
-	# calculate all fitness functions regardless of the used for ranking
-	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None     , help = 'calculate all fitness functions regardless of the used for ranking')
+	# required args
+	parser.add_argument('--data' , metavar = 'path' , type = str, required = True , nargs = '+', help = 'data (BNG2 format)')
+	parser.add_argument('--sims' , metavar = 'path' , type = str, required = True , nargs = '+', help = 'BNG2 simulations')
+	parser.add_argument('--file' , metavar = 'path' , type = str, required = True , nargs = 1  , help = 'output filename')
+	parser.add_argument('--error', metavar = 'str'  , type = str, required = True , nargs = '+', help = 'fitness function(s) to calculate')
+
+	# optional args
+	# table of critical values for the Mann-Whitney U-test
+	parser.add_argument('--crit' , metavar = 'path' , type = str, required = False, default = None, \
+		help = 'Mann-Whitney U-test critical values')
+	# report the matrices of the statistic tests
+	parser.add_argument('--report', metavar = 'True', type = str, required = False, default = None, \
+		help = 'report the arrays of the statistical tests')
+	# calculate all fitness functions regardless of the used for model ranking
+	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None, \
+		help = 'calculate all fitness functions regardless of the used for ranking')
 
 	return parser.parse_args()
 
@@ -34,20 +43,11 @@ def argsparser():
 def read_sims(files):
 	sims = []
 	for infile in files:
-		# remove the '#' char at the beginning of the file
-		#cmd = 'sed -i s|#||g {:s}'.format(infile)
-		#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-		#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-
-		#with open(infile, 'r') as file:
-			#tmp = file.read().replace('#', ' ')
-		#with open(infile, 'w') as outfile:
-			#outfile.write(tmp)
-
 		with open(infile, 'r') as file:
-			tmp = io.StringIO(file.read()[1:])
-			#sims.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
-			sims.append(pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			tmp = io.StringIO(file.read()[1:]) # remove the # at the beginning of data files
+			tmp = pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python')
+			tmp = tmp.set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1)
+			sims.append(tmp)
 
 	return pandas.concat(sims, keys = range(len(sims))), len(sims)
 
@@ -55,20 +55,11 @@ def read_sims(files):
 def read_data(files):
 	data = []
 	for infile in files:
-		# remove the '#' char at the beginning of the file
-		#cmd = 'sed -i s|#||g {:s}'.format(infile)
-		#cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-		#out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-
-		#with open(infile, 'r') as file:
-			#tmp = file.read().replace('#', ' ')
-		#with open(infile, 'w') as outfile:
-			#outfile.write(tmp)
-
 		with open(infile, 'r') as file:
-			tmp = io.StringIO(file.read()[1:])
-			#data.append(pandas.read_csv(tmp, delimiter = '\s+', header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
-			data.append(pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python').set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1))
+			tmp = io.StringIO(file.read()[1:]) # remove the # at the beginning of simulations files
+			tmp = pandas.read_csv(tmp, delim_whitespace = True, header = 0, engine = 'python')
+			tmp = tmp.set_index('time', drop = False).rename_axis(None, axis = 0).drop('time', axis = 1)
+			data.append(tmp)
 
 	return pandas.concat(data, keys = range(len(data))), len(data)
 
@@ -86,7 +77,7 @@ if __name__ == '__main__':
 
 	# Calculate fitness
 	error = {}
-	do(args, sims, len_sims, data, len_data, error, args.do_all)
+	do(args, sims, len_sims, data, len_data, error)
 
 	# write report file
 	with open(args.file[0], 'w') as outfile:
