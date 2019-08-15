@@ -387,7 +387,7 @@ def evaluate():
 
 		job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --error {:s}'.format(data, sims, output, error)
 		if args.dev:
-			job_desc['calc'] = job_desc['doerror'] + ' --data {:s} --sims {:s} --file {:s} --do_all True'.format(data, sims, output)
+			job_desc['calc'] = job_desc['calc'] + ' --do_all True'
 
 		# use SLURM Workload Manager
 		if opts['slurm'] is not None:
