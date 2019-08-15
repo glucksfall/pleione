@@ -12,6 +12,7 @@ __license__ = 'gpl-3.0'
 __software__ = 'bng2-v2.3.2'
 
 import argparse, io
+import numpy, pandas
 from pleione.fitness import do
 
 def argsparser():

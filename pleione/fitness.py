@@ -9,8 +9,6 @@ Citation:
 __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 
-import numpy, pandas
-
 def do(args, sims, len_sims, data, len_data, error):
 	"""
 	# Fitness Calculation Template:
