@@ -9,9 +9,71 @@ Citation:
 __author__  = 'Rodrigo Santibáñez'
 __license__ = 'gpl-3.0'
 
+import argparse
 import numpy, pandas
 
-def do(args, sims, len_sims, data, len_data, error):
+# argparser
+def argsparser(**kwargs):
+	parser = argparse.ArgumentParser(description = 'Calculate fitness between data and simulations. Only for {:s} simulations'.format(kwargs['simulator']), \
+		epilog = 'error acronysms are ADA, ANPWSD, APWSD, CHISQ, MNSE, MWUT, NPWSD, PWSD, SDA, SSQ, TOST, WMWET\n' \
+			'see https://pleione.readthedocs.io/en/latest/ObjectiveFunctions.html for more information',
+		formatter_class = argparse.RawTextHelpFormatter)
+
+	# required args
+	parser.add_argument('--data'  , metavar = 'path', type = str, required = True , nargs = '+', help = 'data ({:s} format)'.format(kwargs['simulator']))
+	parser.add_argument('--sims'  , metavar = 'path', type = str, required = True , nargs = '+', help = '{:s} simulations'.format(kwargs['simulator']))
+	parser.add_argument('--file'  , metavar = 'path', type = str, required = True , nargs = 1  , help = 'output filename')
+	parser.add_argument('--error' , metavar = 'str' , type = str, required = True , nargs = '+', help = 'fitness function(s) to calculate')
+
+	# optional args
+	# table of critical values for the Mann-Whitney U-test
+	parser.add_argument('--crit'  , metavar = 'path', type = str, required = False, default = None, \
+		help = 'Mann-Whitney U-test critical values')
+	# report the matrices of the statistic tests
+	parser.add_argument('--report', metavar = 'True', type = str, required = False, default = None, \
+		help = 'report the arrays of the statistical tests')
+	# calculate all fitness functions regardless of the used for model ranking
+	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None, \
+		help = 'calculate all fitness functions regardless of the used for ranking')
+
+	return parser.parse_args()
+
+# main
+def doerror(args, data, len_data, sims, len_sims):
+	# Filter out unavailable experimental data from simulation files and filter out non simulated observables
+	sims = sims.filter(items = list(data.columns))
+	data = data.filter(items = list(sims.columns))
+
+	# Calculate fitness
+	error = {}
+	docalc(args, sims, len_sims, data, len_data, error)
+
+	# write report file
+	with open(args.file[0], 'w') as outfile:
+		for fitfunc, value in sorted(error.items()):
+			outfile.write('{:s}\t{:s}\n'.format(fitfunc, value))
+
+	return 0
+
+# helpers
+def doavrg(data, len_data):
+	avrg = 0
+	for i in range(len_data):
+		avrg += data.loc[i].divide(len_data)
+	return avrg
+
+def dostdv(data, len_data):
+	avrg = doavrg(data, len_data)
+	stdv = 0
+	if len_data > 1:
+		for i in range(len_data):
+			stdv += ((data.loc[i] - avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic, because stdv is used to divide a number
+	else:
+		stdv = pandas.DataFrame(index = data.loc[0].index, columns = data.loc[0].columns).fillna(1.) # a DataFrame which every stdv is equal to 1.
+	return stdv**.5
+
+# calc error
+def docalc(args, sims, len_sims, data, len_data, error):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
@@ -19,57 +81,39 @@ def do(args, sims, len_sims, data, len_data, error):
 		func = an algebraic expression combining the data average (data_avrg), data variance (data_stdv), simulation average (sims_stdv),
 		single experimental files (data.loc[i]) and/or simulation files (sims.loc[i]).
 		# Please consider these variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)
-		# Please consider use data.loc[i] and sims.loc[i] if average or standard deviation values are needed from them (as in SDM)
-		# drop NaN values (from experimental data without simulation point or vice-versa), sum the two dimensions, and return a 6 float points scientific notation number
+		# drop NaN values (from times without simulated values, or simulated values without experimental data)
+		with dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+		# Also transform Inf values with replace([numpy.inf, -numpy.inf], numpy.nan) if there are divisions by zero (see MNSE, NPWSD, ANPWSD)
+		sum the two dimensions, and return a 6 float points scientific notation number (0 float points for statistic tests):
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
 	if args.do_all:
 		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST']
 
-		data_avrg = 0
-		for i in range(len_data):
-			data_avrg += data.loc[i].divide(len_data)
-
-		data_stdv = 0
-		if len_data > 1:
-			for i in range(len_data):
-				data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
-
-		sims_avrg = 0
-		for j in range(len_sims):
-			sims_avrg += sims.loc[j].divide(len_sims)
+		data_avrg = doavrg(data, len_data)
+		data_stdv = dostdv(data, len_data)
+		sims_avrg = doavrg(sims, len_sims)
 
 	# former mean square error, now square difference of means
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
 		func = 0
 
 		if not args.do_all:
-			data_avrg = 0
-			for i in range(len_data):
-				data_avrg += data.loc[i].divide(len_data)
-
-			sims_avrg = 0
-			for j in range(len_sims):
-				sims_avrg += sims.loc[j].divide(len_sims)
+			data_avrg = doavrg(data, len_data)
+			sims_avrg = doavrg(sims, len_sims)
 
 		func = (data_avrg - sims_avrg)**2
-		func = func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum()
 
-		error['SDA'] = '{:.6e}'.format(func)
+		error['SDA'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
 	# former mean absolute error, now absolute value of the difference of means
 	if set(args.error).issuperset(set(['ADA'])) or set(args.error).issuperset(set(['MAE'])):
 		func = 0
 
 		if not args.do_all:
-			data_avrg = 0
-			for i in range(len_data):
-				data_avrg += data.loc[i].divide(len_data)
-
-			sims_avrg = 0
-			for j in range(len_sims):
-				sims_avrg += sims.loc[j].divide(len_sims)
+			data_avrg = doavrg(data, len_data)
+			sims_avrg = doavrg(sims, len_sims)
 
 		func = abs(data_avrg - sims_avrg)
 
@@ -90,20 +134,11 @@ def do(args, sims, len_sims, data, len_data, error):
 		func = 0
 
 		if not args.do_all:
-			data_avrg = 0
-			for i in range(len_data):
-				data_avrg += data.loc[i].divide(len_data)
-
-			data_stdv = 0
-			if len_data > 1:
-				for i in range(len_data):
-					data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
-			else:
-				data_stdv = pandas.DataFrame(index = data.loc[0].index, columns = data.loc[0].columns).fillna(1.) # a DataFrame which every stdv equal to 1.
+			data_stdv = dostdv(data, len_data)
 
 		for i in range(len_data):
 			for j in range(len_sims):
-				func += ((data.loc[i] - sims.loc[j]).divide(data_stdv**0.5))**2
+				func += ((data.loc[i] - sims.loc[j]).divide(data_stdv))**2
 
 		error['CHISQ'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 
@@ -112,9 +147,7 @@ def do(args, sims, len_sims, data, len_data, error):
 		func = 0
 
 		if not args.do_all:
-			data_avrg = 0
-			for i in range(len_data):
-				data_avrg += data.loc[i].divide(len_data)
+			data_avrg = doavrg(data, len_data)
 
 		for i in range(len_data):
 			for j in range(len_sims):
@@ -412,19 +445,9 @@ def do(args, sims, len_sims, data, len_data, error):
 		from statsmodels.stats.weightstats import ttost_ind
 
 		if not args.do_all:
-			data_avrg = 0
-			for i in range(len_data):
-				data_avrg += data.loc[i].divide(len_data)
+			data_stdv = dostdv(data, len_data)
 
-			data_stdv = 0
-			if len_data > 1:
-				for i in range(len_data):
-					data_stdv += ((data.loc[i] - data_avrg)**2).divide(len_data - 1).replace(0., 1.) # replications with stdv = 0 are problematic
-			else:
-				data_stdv = pandas.DataFrame(index = data.loc[0].index, columns = data.loc[0].columns).fillna(1.) # a DataFrame which every stdv equal to 1.
-			data_stdv = data_stdv**.5
-
-		# reshape data and sims to permit calculate the test in a for-loop
+		# reshape data and sims to allow calculate the test in a for-loop
 		tost_sims = numpy.dstack([sims.loc[x] for x in range(len_sims)])
 		# since we operate numpy arrays without labels, we must ensure sims and data indexes and columns have the same order
 		index = data.loc[0].index
@@ -438,7 +461,7 @@ def do(args, sims, len_sims, data, len_data, error):
 				p[row, col] = ttost_ind(x[col], y[col], -lim[col], +lim[col])[0]
 			row += 1
 
-		# transform table of p-values into a rejection dataframe
+		# transform table of p-values into a dataframe with rejection values
 		p = pandas.DataFrame(index = index, columns = columns, data = p)
 		P = p.copy(deep = True)
 		P[p >= .05] = +1.0
