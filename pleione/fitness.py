@@ -89,7 +89,22 @@ def docalc(args, sims, len_sims, data, len_data, error):
 	"""
 
 	if args.do_all:
-		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST']
+		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST', 'DUT']
+		"""
+		SDA    :
+		ADA    :
+		SSQ    :
+		CHISQ  :
+		MNSE   :
+		PWSD   :
+		APWSD  :
+		NPWSD  :
+		ANPWSD :
+		MWUT   : Mann-Whitney U-test (DOI )
+		WMWET  : Wellek's Mann-Whitney Equivalence Test (DOI 10.1002/bimj.4710380608)
+		TOST   : Two one-sided t-tests ()
+		DUT    : Double Mann-Whitney U-tests ()
+		"""
 
 		data_avrg = doavrg(data, len_data)
 		data_stdv = dostdv(data, len_data)
@@ -194,46 +209,6 @@ def docalc(args, sims, len_sims, data, len_data, error):
 				func += (abs((data.loc[i] - sims.loc[j]).divide(data.loc[i]))).divide(len_data * len_sims)
 
 		error['ANPWSD'] = '{:.6e}'.format(func.replace([numpy.inf, -numpy.inf], numpy.nan).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
-
-	# Mann-Whitney U-test
-	if set(args.error).issuperset(set(['MWUT'])):
-		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
-
-			ucrit = pandas.read_csv(args.crit, sep = None, engine = 'python', header = 0, index_col = 0)
-			udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-			usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
-
-			for i in range(len_data):
-				for j in range(len_sims):
-					Diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-					diff = Diff.copy(deep = True)
-					# transform data
-					# if data < sims, count -1.0
-					Diff[diff < 0] = -1.0
-					# if data > sims, count +1.0
-					Diff[diff > 0] = +1.0
-					# if data = sims, count +0.5
-					Diff[diff == 0] = +0.5
-					# count how many times is data < sims (udata and usims are complementary)
-					diff = Diff.copy(deep = True)
-					udata += Diff[diff == -1.0].fillna(0).divide(-1) + Diff[diff == +0.5].fillna(0)
-					usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
-
-			# U is significant if it is less than or equal to the table value
-			U = len_data * len_sims - udata.where(udata >= usims).fillna(usims.where(usims >= udata))
-			u = U.copy(deep = True)
-			U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
-			U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
-
-			if args.report:
-				print('U-estimator for data\n', udata, '\n')
-				print('U-estimator for sims\n', usims, '\n')
-				print('U-test matrix: 1.0 means distributions are differents\n', U, '\n')
-
-			error['MWUT'] = '{:.0f}'.format(U.sum().sum())
-
-		else:
-			error['MWUT'] = str(numpy.nan)
 
 	"""
 	Wellek's Mann-Whitney Equivalence Test.
@@ -471,3 +446,77 @@ def docalc(args, sims, len_sims, data, len_data, error):
 			print('Two one-sided t-tests matrix: a zero means data and simulations are equivalents within one standard deviation threshold\n', P)
 
 		error['TOST'] = '{:.0f}'.format(P.sum().sum())
+
+	# Mann-Whitney U-test
+	def mwut():
+		ucrit = pandas.read_csv(args.crit, sep = None, engine = 'python', header = 0, index_col = 0)
+		udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+		usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
+
+		for i in range(len_data):
+			for j in range(len_sims):
+				Diff = (data.loc[i] - sims.loc[j]).dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
+				diff = Diff.copy(deep = True)
+				# transform data
+				# if data < sims, count -1.0
+				Diff[diff < 0] = -1.0
+				# if data > sims, count +1.0
+				Diff[diff > 0] = +1.0
+				# if data = sims, count +0.5
+				Diff[diff == 0] = +0.5
+				# count how many times is data < sims (udata and usims are complementary)
+				diff = Diff.copy(deep = True)
+				udata += Diff[diff == -1.0].fillna(0).divide(-1) + Diff[diff == +0.5].fillna(0)
+				usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
+
+		# U is significant if it is less than or equal to the table value
+		U = len_data * len_sims - udata.where(udata >= usims).fillna(usims.where(usims >= udata))
+		u = U.copy(deep = True)
+		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
+		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
+
+		if args.report:
+			print('U-estimator for data\n', udata, '\n')
+			print('U-estimator for sims\n', usims, '\n')
+			print('U-test matrix: 1.0 means distributions are differents\n', U, '\n')
+
+		return '{:.0f}'.format(U.sum().sum()), U
+
+	if set(args.error).issuperset(set(['MWUT'])):
+		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
+			error['MWUT'] = mwut()[0]
+		else:
+			error['MWUT'] = str(numpy.nan)
+
+	if set(args.error).issuperset(set(['DUT'])):
+		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
+			if not args.do_all:
+				sims_stdv = dostdv(sims, len_sims)
+
+			# copy simulations to a temporary variable
+			tmp = sims
+
+			# sims - one half standard deviation
+			new_sims = []
+			for i in range(len_sims):
+				new_sims.append(tmp.iloc[i] - (sims_stdv))
+
+			sims = pandas.concat(new_sims, keys = range(len_sims)/2)
+			LB = mwut()[1]
+
+			# sims + one half standard deviation
+			new_sims = []
+			for i in range(len_sims):
+				new_sims.append(tmp.iloc[i] + (sims_stdv))
+
+			sims = pandas.concat(new_sims, keys = range(len_sims)/2)
+			UB = mwut()[1]
+
+			U = LB*UB
+			if args.report:
+				print('U-test matrix: 1.0 means distributions are differents if sims are shifted one half standard deviation\n', U, '\n')
+
+			error['DUT'] = '{:.0f}'.format(U.sum().sum())
+
+		else:
+			error['DUT'] = str(numpy.nan)
