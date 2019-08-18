@@ -77,33 +77,38 @@ def docalc(args, sims, len_sims, data, len_data, error):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
-		func = 0
-		func = an algebraic expression combining the data average (data_avrg), data variance (data_stdv), simulation average (sims_stdv),
-		single experimental files (data.loc[i]) and/or simulation files (sims.loc[i]).
-		# Please consider these variables are DataFrames, meaning that division is a method (pandas.DataFrame.division)
-		# drop NaN values (from times without simulated values, or simulated values without experimental data)
-		with dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all')
-		# Also transform Inf values with replace([numpy.inf, -numpy.inf], numpy.nan) if there are divisions by zero (see MNSE, NPWSD, ANPWSD)
-		sum the two dimensions, and return a 6 float points scientific notation number (0 float points for statistic tests):
+		1. func = 0
+
+		2. func = an algebraic expression combining the data average (data_avrg), data standard deviation (data_stdv), simulation average (sims_stdv),
+		simulation standard deviation (sims_stdv), single experimental files (data.loc[i]), and/or simulation files (sims.loc[i])
+		Note1: Perform a in for-loops if using data.loc[i] and sims.loc[i].
+		Note2: Please consider these variables are DataFrames, meaning that multiplication and division are methods (e.g. df1.division(df2))
+
+		3. Drop NaN values (from experimental time points without simulated values, or simulated values without experimental data)
+		with dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all'). Also transform Inf values with replace([numpy.inf, -numpy.inf], numpy.nan)
+
+		4. Sum the two dimensions, and return a 6 float points scientific notation number (0 float points for statistic tests):
 		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
 	if args.do_all:
 		args.error = ['SDA', 'ADA', 'SSQ', 'CHISQ', 'MNSE', 'PWSD', 'APWSD', 'NPWSD', 'ANPWSD', 'MWUT', 'WMWET', 'TOST', 'DUT']
 		"""
-		SDA    :
-		ADA    :
-		SSQ    :
-		CHISQ  :
-		MNSE   :
-		PWSD   :
-		APWSD  :
-		NPWSD  :
-		ANPWSD :
-		MWUT   : Mann-Whitney U-test (DOI )
-		WMWET  : Wellek's Mann-Whitney Equivalence Test (DOI 10.1002/bimj.4710380608)
-		TOST   : Two one-sided t-tests ()
-		DUT    : Double Mann-Whitney U-tests ()
+		SDA    : Squared Difference of Averages
+		ADA    : Absolute Difference of Averages
+		SSQ    : Sum of SQuares
+		CHISQ  : Chi-Square (Differences divided by data standard deviation)
+		MNSE   : Mean Normalized Square Error (Differences divided by data average)
+		PWSD   : Pair-Wise Square Deviation
+		APWSD  : Absolute Pair-Wise Deviation
+		NPWSD  : Normalized Pair-Wise Square Deviation
+		ANPWSD : Absolute Normalized Pair-Wise Deviation
+		MWUT   : Mann-Whitney U-test (Mann and Whitney, 1947, DOI 10.1214/aoms/1177730491)
+		WMWET  : Wellek's Mann-Whitney Equivalence Test (Wellek 1996, DOI 10.1002/bimj.4710380608)
+		TOST   : Two one-sided t-tests (Dunnet and Gent, 1977, DOI 10.2307/2529457, as well other authors)
+		DUT    : Double Mann-Whitney U-tests (Reviewed in Cornell, 1990, DOI 10.1080/03610929008830433)
+
+		More information in https://pleione.readthedocs.io/en/latest/ObjectiveFunctions.html
 		"""
 
 		data_avrg = doavrg(data, len_data)
