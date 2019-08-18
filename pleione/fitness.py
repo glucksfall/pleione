@@ -500,17 +500,17 @@ def docalc(args, sims, len_sims, data, len_data, error):
 			# sims - one half standard deviation
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] - (sims_stdv))
+				new_sims.append(tmp.iloc[i] - (sims_stdv)/2)
 
-			sims = pandas.concat(new_sims, keys = range(len_sims)/2)
+			sims = pandas.concat(new_sims, keys = range(len_sims))
 			LB = mwut()[1]
 
 			# sims + one half standard deviation
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] + (sims_stdv))
+				new_sims.append(tmp.iloc[i] + (sims_stdv)/2)
 
-			sims = pandas.concat(new_sims, keys = range(len_sims)/2)
+			sims = pandas.concat(new_sims, keys = range(len_sims))
 			UB = mwut()[1]
 
 			U = LB*UB
