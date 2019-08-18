@@ -371,7 +371,6 @@ def evaluate():
 		'stdout'    : 'stdout_{:s}.txt'.format(opts['systime']),
 		'stderr'    : 'stderr_{:s}.txt'.format(opts['systime']),
 		'doerror'   : '{:s} -m pleione.bng2-doerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
-		#'deverror'  : '{:s} -m pleione.bng2-allerror --crit {:s}'.format(opts['python'], opts['crit_vals']),
 		}
 
 	# submit error calculations to the queue

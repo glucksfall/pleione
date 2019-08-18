@@ -109,6 +109,7 @@ def docalc(args, sims, len_sims, data, len_data, error):
 		data_avrg = doavrg(data, len_data)
 		data_stdv = dostdv(data, len_data)
 		sims_avrg = doavrg(sims, len_sims)
+		sims_stdv = dostdv(data, len_data)
 
 	# former mean square error, now square difference of means
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
