@@ -45,8 +45,7 @@ def doerror(args, data, len_data, sims, len_sims):
 	data = data.filter(items = list(sims.columns))
 
 	# Calculate fitness
-	error = {}
-	docalc(args, sims, len_sims, data, len_data, error)
+	error = docalc(args, sims, len_sims, data, len_data, error = {})
 
 	# write report file
 	with open(args.file[0], 'w') as outfile:
@@ -526,3 +525,5 @@ def docalc(args, sims, len_sims, data, len_data, error):
 
 		else:
 			error['DUT'] = str(numpy.nan)
+
+	return error
