@@ -455,7 +455,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		error['TOST'] = '{:.0f}'.format(P.sum().sum())
 
 	# Mann-Whitney U-test
-	def mwut():
+	def mwut(data, sims):
 		ucrit = pandas.read_csv(args.crit, sep = None, engine = 'python', header = 0, index_col = 0)
 		udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
@@ -485,7 +485,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		if args.report:
 			print('U-estimator for data\n', udata, '\n')
 			print('U-estimator for sims\n', usims, '\n')
-			print('U-test matrix: 1.0 means distributions are differents\n', U, '\n')
+			print('U-test matrix: 1.0 means data and sims are differents\n', U, '\n')
 
 		return '{:.0f}'.format(U.sum().sum()), U
 
@@ -510,7 +510,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				new_sims.append(tmp.iloc[i] - (sims_stdv)/2)
 
 			sims = pandas.concat(new_sims, keys = range(len_sims))
-			LB = mwut()[1]
+			LB = mwut(data, sims)[1]
 
 			# sims + one half standard deviation
 			new_sims = []
@@ -518,11 +518,15 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				new_sims.append(tmp.iloc[i] + (sims_stdv)/2)
 
 			sims = pandas.concat(new_sims, keys = range(len_sims))
-			UB = mwut()[1]
+			UB = mwut(data, sims)[1]
 
 			U = LB*UB
+
+			U = numpy.logical_xor(U.values, 1).astype(int)
+
 			if args.report:
-				print('U-test matrix: 1.0 means distributions are differents if sims are shifted one half standard deviation\n', U, '\n')
+				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
+					'                      0.0 means data and sims are equivalents:', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
 
