@@ -521,12 +521,12 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			UB = mwut(data, sims)[1]
 
 			U = LB*UB
-
-			U = numpy.logical_xor(U.values, 1).astype(int)
+			#report equivalences
+			#U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
-					'                      0.0 means data and sims are equivalents:', U, '\n')
+					'                      0.0 means data and sims are equivalents in the threshold:', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
 
