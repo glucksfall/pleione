@@ -40,7 +40,8 @@ def argsparser(**kwargs):
 	parser.add_argument('--lower' , metavar = 'path', type = str, required = False, default = None, \
 		help = 'file with the lower limit for the equivalence tests. Same format as data')
 	parser.add_argument('--upper' , metavar = 'path', type = str, required = False, default = None, \
-		help = 'file with the upper limit for the equivalence tests. Same format as data')
+		help = 'file with the upper limit for the equivalence tests. Same format as data\n' \
+			'Setting either lower or upper will make the threshold symmetric.')
 
 	return parser.parse_args()
 
@@ -461,7 +462,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		error['TOST'] = '{:.0f}'.format(P.sum().sum())
 
 	# Mann-Whitney U-test
-	def mwut(data, sims):
+	def mwut(data, sims, alternative):
 		ucrit = pandas.read_csv(args.crit, sep = None, engine = 'python', header = 0, index_col = 0)
 		udata = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
 		usims = pandas.DataFrame(index = sims.loc[0].index, columns = sims.loc[0].columns).fillna(0)
@@ -483,7 +484,14 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
 
 		# U is significant if it is less than or equal to the table value
-		U = len_data * len_sims - udata.where(udata >= usims).fillna(usims.where(usims >= udata))
+		if alternative = 'two-sided':
+			bigU = udata.where(udata >= usims).fillna(usims.where(usims >= udata))
+		if alternative = 'smaller':
+			bigU = udata
+		if alternative = 'larger':
+			bigU = usims
+
+		U = len_data * len_sims - bigU
 		u = U.copy(deep = True)
 		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
 		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
@@ -491,40 +499,49 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		if args.report:
 			print('U-estimator for data\n', udata, '\n')
 			print('U-estimator for sims\n', usims, '\n')
-			print('U-test matrix: 1.0 means data and sims are differents\n', U, '\n')
+			print('U-test matrix: A zero means data and sims are differents\n', U, '\n')
 
 		return '{:.0f}'.format(U.sum().sum()), U
 
 	if set(args.error).issuperset(set(['MWUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
-			error['MWUT'] = mwut()[0]
+			error['MWUT'] = mwut(data, sims, 'two-sided')[0]
 		else:
 			error['MWUT'] = str(numpy.nan)
 
 	if set(args.error).issuperset(set(['DUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
-			if not args.do_all:
+			if (args.lower is None or args.upper is None) and not args.do_all:
 				data_stdv = dostdv(data, len_data)
 				sims_stdv = dostdv(sims, len_sims)
+
+			if args.lower is not None and args.upper is None:
+				lower = args.lower
+				upper = args.lower
+			if args.lower is None and args.upper is not None:
+				lower = args.upper
+				upper = args.upper
 
 			# copy simulations to a temporary variable
 			tmp = sims
 
-			# sims - one half standard deviation
+			# lower limit
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] - (data_stdv)/2)
-
+				new_sims.append(tmp.iloc[i] - lower)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
-			LB = mwut(data, sims)[1]
 
-			# sims + one half standard deviation
+			# test sims - lower < data; if true, sims and data are not equivalent
+			LB = mwut(data, sims, 'smaller')[1]
+
+			# upper limit
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] + (data_stdv)/2)
-
+				new_sims.append(tmp.iloc[i] + upper)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
-			UB = mwut(data, sims)[1]
+
+			# test sims + upper > data; if true, sims and data are not equivalent
+			UB = mwut(data, sims, 'larger')[1]
 
 			U = LB*UB
 			#report equivalences as ones
@@ -532,7 +549,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
-					'                      0.0 means data and sims are equivalents in the threshold:', U, '\n')
+					'                      A zero means data and sims are equivalents in the specified threshold:', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
 

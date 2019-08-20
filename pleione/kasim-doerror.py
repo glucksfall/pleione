@@ -38,7 +38,12 @@ def read_data(files):
 
 if __name__ == '__main__':
 	args = argsparser(**{ 'simulator' : 'KaSim v4'})
-	data, len_data = read_data(args.data) # read data files
-	sims, len_sims = read_sims(args.sims) # read sims files
-	# calculate fitness
-	doerror(args, data, len_data, sims, len_sims)
+
+	if args.lower is not None:
+		args.lower, _ = read_data(args.lower)		# read lower limit if set
+	if args.upper is not None:
+		args.upper, _ = read_data(args.upper)		# read upper limit if set
+
+	data, len_data = read_data(args.data) 			# read data files
+	sims, len_sims = read_sims(args.sims) 			# read sims files
+	doerror(args, data, len_data, sims, len_sims)	# calculate fitness
