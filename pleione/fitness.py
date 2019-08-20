@@ -521,7 +521,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			UB = mwut(data, sims)[1]
 
 			U = LB*UB
-			#report equivalences
+			#report equivalences as ones
 			#U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
