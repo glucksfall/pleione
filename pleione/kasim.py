@@ -459,9 +459,9 @@ def evaluate():
 		#'deverror'  : '{:s} -m pleione.kasim-allerror '.format(opts['python']),
 		}
 
-	if set(args.error).issuperset(set(['MWUT'])) or args.dev:
+	if set(args.error).issuperset(set(['MWUT'])) or set(args.error).issuperset(set(['DUT'])) or args.dev:
 		job_desc['doerror'] = job_desc['doerror'] + '--crit {:s} '.format(opts['crit_vals'])
-		job_desc['deverror'] = job_desc['deverror'] + '--crit {:s} '.format(opts['crit_vals'])
+		#job_desc['deverror'] = job_desc['deverror'] + '--crit {:s} '.format(opts['crit_vals'])
 
 	#if set(args.error).issuperset(set(['WMWET'])) or args.dev:
 		#LD = os.environ.get('LD_LIBRARY_PATH')

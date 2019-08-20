@@ -46,7 +46,7 @@ def doerror(args, data, len_data, sims, len_sims):
 
 	# Calculate fitness
 	error = {}
-	docalc(args, sims, len_sims, data, len_data, error)
+	docalc(args, data, len_data, sims, len_sims, error)
 
 	# write report file
 	with open(args.file[0], 'w') as outfile:
@@ -73,7 +73,7 @@ def dostdv(data, len_data):
 	return stdv**.5
 
 # calc error
-def docalc(args, sims, len_sims, data, len_data, error):
+def docalc(args, data, len_data, sims, len_sims, error):
 	"""
 	# Fitness Calculation Template:
 	if set(args.error).issuperset(set(['the-acronysm'])):
@@ -113,8 +113,9 @@ def docalc(args, sims, len_sims, data, len_data, error):
 
 		data_avrg = doavrg(data, len_data)
 		data_stdv = dostdv(data, len_data)
+
 		sims_avrg = doavrg(sims, len_sims)
-		sims_stdv = dostdv(data, len_data)
+		sims_stdv = dostdv(sims, len_sims)
 
 	# former mean square error, now square difference of means
 	if set(args.error).issuperset(set(['SDA'])) or set(args.error).issuperset(set(['MSE'])):
@@ -497,6 +498,7 @@ def docalc(args, sims, len_sims, data, len_data, error):
 	if set(args.error).issuperset(set(['DUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
 			if not args.do_all:
+				data_stdv = dostdv(data, len_data)
 				sims_stdv = dostdv(sims, len_sims)
 
 			# copy simulations to a temporary variable
