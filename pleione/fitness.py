@@ -36,6 +36,12 @@ def argsparser(**kwargs):
 	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None, \
 		help = 'calculate all fitness functions regardless of the used for ranking')
 
+	# more optional args (for equivalence tests)
+	parser.add_argument('--lower' , metavar = 'path', type = str, required = False, default = None, \
+		help = 'file with the lower limit for the equivalence tests. Same format as data')
+	parser.add_argument('--upper' , metavar = 'path', type = str, required = False, default = None, \
+		help = 'file with the upper limit for the equivalence tests. Same format as data')
+
 	return parser.parse_args()
 
 # main
@@ -507,7 +513,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# sims - one half standard deviation
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] - (sims_stdv)/2)
+				new_sims.append(tmp.iloc[i] - (data_stdv)/2)
 
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 			LB = mwut(data, sims)[1]
@@ -515,14 +521,14 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# sims + one half standard deviation
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] + (sims_stdv)/2)
+				new_sims.append(tmp.iloc[i] + (data_stdv)/2)
 
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 			UB = mwut(data, sims)[1]
 
 			U = LB*UB
 			#report equivalences as ones
-			#U = numpy.logical_xor(U.values, 1).astype(int)
+			#Eq = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
