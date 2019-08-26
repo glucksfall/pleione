@@ -173,6 +173,8 @@ def argsparser():
 	parser.add_argument('--legacy' , metavar = 'True' , type = str  , required = False, default = None            , help = 'use random.random instead of the default numpy.random library')
 	# If the user wants to know the behavior of other functions, the option --dev should be maintained
 	parser.add_argument('--dev'    , metavar = 'True' , type = str  , required = False, default = None            , help = 'calculate all fitness functions True|False, default False')
+	# If add new fitness function, allow recalculate errors without simulate again
+	parser.add_argument('--recalc' , metavar = 'True' , type = str  , required = False, default = None            , help = 'recalculate fitness without simulate again')
 
 	args = parser.parse_args()
 
@@ -401,47 +403,48 @@ def simulate():
 						file.write(parameters[line])
 
 	# submit simulations to the queue
-	squeue = []
-	model_string = '{:s}.{:0' + str(len(str(opts['num_sims']))) + 'd}.out.txt'
-	for ind in range(opts['pop_size']):
-		for sim in range(opts['num_sims']):
-			model = population['model', ind]
-			output = model_string.format(model, sim)
+	if not args.recalc:
+		squeue = []
+		model_string = '{:s}.{:0' + str(len(str(opts['num_sims']))) + 'd}.out.txt'
+		for ind in range(opts['pop_size']):
+			for sim in range(opts['num_sims']):
+				model = population['model', ind]
+				output = model_string.format(model, sim)
 
-			if not os.path.exists(output):
-				job_desc['exec_kasim'] = '{:s} -i {:s}.kappa -l {:s} -p {:s} -o {:s} -syntax {:s} --no-log'.format( \
-					opts['kasim'], model, opts['final'], opts['steps'], output, opts['syntax'])
+				if not os.path.exists(output):
+					job_desc['exec_kasim'] = '{:s} -i {:s}.kappa -l {:s} -p {:s} -o {:s} -syntax {:s} --no-log'.format( \
+						opts['kasim'], model, opts['final'], opts['steps'], output, opts['syntax'])
 
-				# use SLURM Workload Manager
-				if opts['slurm'] is not None:
-					cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} {others} \
-						--wrap ""{exec_kasim}""'.format(**job_desc))
-					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-					while err == sbatch_error:
+					# use SLURM Workload Manager
+					if opts['slurm'] is not None:
+						cmd = os.path.expanduser('sbatch --no-requeue -p {partition} -N {nodes} -c {ncpus} -n {ntasks} -o {null} -e {null} -J {job_name} {others} \
+							--wrap ""{exec_kasim}""'.format(**job_desc))
+						cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 						out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-					squeue.append(out.decode('utf-8')[20:-1])
+						while err == sbatch_error:
+							out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+						squeue.append(out.decode('utf-8')[20:-1])
 
-				# to use with multiprocessing.Pool
-				else:
-					cmd = os.path.expanduser(job_desc['exec_kasim'])
-					cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-					squeue.append(cmd)
+					# to use with multiprocessing.Pool
+					else:
+						cmd = os.path.expanduser(job_desc['exec_kasim'])
+						cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
+						squeue.append(cmd)
 
-	# check if squeued jobs have finished
-	if opts['slurm'] is not None:
-		for job_id in range(len(squeue)):
-			cmd = 'squeue --noheader -j{:s}'.format(squeue[job_id])
-			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
-			out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
-			while out.count(b'child') > 0 or err == squeue_error:
-				time.sleep(1)
+		# check if squeued jobs have finished
+		if opts['slurm'] is not None:
+			for job_id in range(len(squeue)):
+				cmd = 'squeue --noheader -j{:s}'.format(squeue[job_id])
+				cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 				out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
+				while out.count(b'child') > 0 or err == squeue_error:
+					time.sleep(1)
+					out, err = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.PIPE).communicate()
 
-	# simulate with multiprocessing.Pool
-	else:
-		with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
-			pool.map(parallelize, sorted(squeue), chunksize = 1)
+		# simulate with multiprocessing.Pool
+		else:
+			with multiprocessing.Pool(multiprocessing.cpu_count() - 1) as pool:
+				pool.map(parallelize, sorted(squeue), chunksize = 1)
 
 	return population
 
@@ -505,6 +508,7 @@ def evaluate():
 		# use multiprocessing.Pool
 		else:
 			cmd = os.path.expanduser(job_desc['calc'])
+			print(cmd)
 			cmd = re.findall(r'(?:[^\s,"]|"+(?:=|\\.|[^"])*"+)+', cmd)
 			squeue.append(cmd)
 
@@ -814,7 +818,8 @@ if __name__ == '__main__':
 	safe_checks()
 
 	# clean the working directory
-	clean()
+	if not args.recalc:
+		clean()
 
 	# read model configuration
 	parameters = configurate()
@@ -831,4 +836,4 @@ if __name__ == '__main__':
 		population = mutate()
 
 	# move and organize results
-	backup()
+	#backup()

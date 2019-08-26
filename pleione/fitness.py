@@ -20,28 +20,32 @@ def argsparser(**kwargs):
 		formatter_class = argparse.RawTextHelpFormatter)
 
 	# required args
-	parser.add_argument('--data'  , metavar = 'path', type = str, required = True , nargs = '+', help = 'data ({:s} format)'.format(kwargs['simulator']))
-	parser.add_argument('--sims'  , metavar = 'path', type = str, required = True , nargs = '+', help = '{:s} simulations'.format(kwargs['simulator']))
-	parser.add_argument('--file'  , metavar = 'path', type = str, required = True , nargs = 1  , help = 'output filename')
-	parser.add_argument('--error' , metavar = 'str' , type = str, required = True , nargs = '+', help = 'fitness function(s) to calculate')
+	parser.add_argument('--data'  , metavar = 'path' , type = str, required = True , nargs = '+', help = 'data ({:s} format)'.format(kwargs['simulator']))
+	parser.add_argument('--sims'  , metavar = 'path' , type = str, required = True , nargs = '+', help = '{:s} simulations'.format(kwargs['simulator']))
+	parser.add_argument('--file'  , metavar = 'path' , type = str, required = True , nargs = 1  , help = 'output filename')
+	parser.add_argument('--error' , metavar = 'str'  , type = str, required = False, nargs = '+', help = 'fitness function(s) to calculate')
 
 	# optional args
 	# table of critical values for the Mann-Whitney U-test
-	parser.add_argument('--crit'  , metavar = 'path', type = str, required = False, default = None, \
+	parser.add_argument('--crit'  , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'Mann-Whitney U-test critical values')
 	# report the matrices of the statistic tests
-	parser.add_argument('--report', metavar = 'True', type = str, required = False, default = None, \
+	parser.add_argument('--report', metavar = 'True' , type = str, required = False, default = None, \
 		help = 'report the arrays of the statistical tests')
 	# calculate all fitness functions regardless of the used for model ranking
-	parser.add_argument('--do_all', metavar = 'True', type = str, required = False, default = None, \
+	parser.add_argument('--do_all', metavar = 'True' , type = str, required = False, default = None, \
 		help = 'calculate all fitness functions regardless of the used for ranking')
 
 	# more optional args (for equivalence tests)
-	parser.add_argument('--lower' , metavar = 'path', type = str, required = False, default = None, \
+	parser.add_argument('--lower' , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'file with the lower limit for the equivalence tests. Same format as data')
-	parser.add_argument('--upper' , metavar = 'path', type = str, required = False, default = None, \
+	parser.add_argument('--upper' , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'file with the upper limit for the equivalence tests. Same format as data\n' \
 			'Setting either lower or upper will make the threshold symmetric.')
+	parser.add_argument('--stdv'  , metavar = 'sims' , type = str, required = False, default = 'data', \
+		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper')
+	parser.add_argument('--factor', metavar = 'float', type = str, required = False, default = '1' , \
+		help = 'factor to divide lower and upper in case of using data stdv or sims stdv.')
 
 	return parser.parse_args()
 
@@ -484,14 +488,15 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
 
 		# U is significant if it is less than or equal to the table value
-		if alternative = 'two-sided':
+		if alternative == 'two-sided':
 			bigU = udata.where(udata >= usims).fillna(usims.where(usims >= udata))
-		if alternative = 'smaller':
-			bigU = udata
-		if alternative = 'larger':
+		if alternative == 'greater':
 			bigU = usims
+		if alternative == 'less':
+			bigU = udata
 
 		U = len_data * len_sims - bigU
+		print(U)
 		u = U.copy(deep = True)
 		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
 		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
@@ -511,16 +516,21 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 	if set(args.error).issuperset(set(['DUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
-			if (args.lower is None or args.upper is None) and not args.do_all:
-				data_stdv = dostdv(data, len_data)
-				sims_stdv = dostdv(sims, len_sims)
-
 			if args.lower is not None and args.upper is None:
-				lower = args.lower
-				upper = args.lower
+				args.upper = args.lower
 			if args.lower is None and args.upper is not None:
-				lower = args.upper
-				upper = args.upper
+				args.lower = args.upper
+
+			if not args.do_all:
+				if (args.lower is None or args.upper is None):
+					lower = upper = dostdv(data, len_data)
+
+				if args.stdv == 'sims' and not args.do_all:
+					lower = upper = dostdv(sims, len_sims)
+
+			# divide by factor
+			lower = lower / float(args.factor)
+			upper = upper / float(args.factor)
 
 			# copy simulations to a temporary variable
 			tmp = sims
@@ -528,20 +538,20 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# lower limit
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] - lower)
+				new_sims.append(tmp.loc[i] - lower)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 
-			# test sims - lower < data; if true, sims and data are not equivalent
-			LB = mwut(data, sims, 'smaller')[1]
+			# test data > sims - lower; if true, sims and data are not equivalent
+			LB = mwut(data, sims, 'greater')[1]
 
 			# upper limit
 			new_sims = []
 			for i in range(len_sims):
-				new_sims.append(tmp.iloc[i] + upper)
+				new_sims.append(tmp.loc[i] + upper)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 
-			# test sims + upper > data; if true, sims and data are not equivalent
-			UB = mwut(data, sims, 'larger')[1]
+			# test data < sims + upper; if true, sims and data are not equivalent
+			UB = mwut(data, sims, 'less')[1]
 
 			U = LB*UB
 			#report equivalences as ones
@@ -549,7 +559,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
-					'                      A zero means data and sims are equivalents in the specified threshold:', U, '\n')
+					'                      A zero means data and sims are equivalents in the specified threshold:\n', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
 
