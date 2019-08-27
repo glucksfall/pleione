@@ -25,28 +25,28 @@ def argsparser(**kwargs):
 	parser.add_argument('--file'  , metavar = 'path' , type = str, required = True , nargs = 1  , help = 'output filename')
 	parser.add_argument('--error' , metavar = 'str'  , type = str, required = False, nargs = '+', help = 'fitness function(s) to calculate')
 
-	subparsers = parser.add_subparsers()
+	#subparsers = parser.add_subparsers()
 	# optional args
-	opts = subparsers.add_parser(name = 'a', help = 'report all calculations')
+	#opts = subparsers.add_parser(name = 'a', help = 'report all calculations')
 	# report the matrices of the statistic tests
-	opts.add_argument('--report', metavar = 'True' , type = str, required = False, default = None, \
+	parser.add_argument('--report', metavar = 'True' , type = str, required = False, default = None, \
 		help = 'report the arrays of the statistical tests')
 	# calculate all fitness functions regardless of the used for model ranking
-	opts.add_argument('--do_all', metavar = 'True' , type = str, required = False, default = None, \
+	parser.add_argument('--do_all', metavar = 'True' , type = str, required = False, default = None, \
 		help = 'calculate all fitness functions regardless of the used for ranking')
 
 	# more optional args (for equivalence tests)
-	equiv = subparsers.add_parser(name = 'b', help = 'optional for equivalence tests')
-	equiv.add_argument('--crit'  , metavar = 'path' , type = str, required = False, default = None, \
+	#equiv = subparsers.add_parser(name = 'b', help = 'optional for equivalence tests')
+	parser.add_argument('--crit'  , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'Mann-Whitney U-test critical values')
-	equiv.add_argument('--lower' , metavar = 'path' , type = str, required = False, default = None, \
+	parser.add_argument('--lower' , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'file with the lower limit for the equivalence test. Same format as data')
-	equiv.add_argument('--upper' , metavar = 'path' , type = str, required = False, default = None, \
+	parser.add_argument('--upper' , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'file with the upper limit for the equivalence test. Same format as data\n' \
 			'Setting either lower or upper will make the threshold symmetric.')
-	equiv.add_argument('--stdv'  , metavar = 'sims' , type = str, required = False, default = 'data', \
+	parser.add_argument('--stdv'  , metavar = 'sims' , type = str, required = False, default = 'data', \
 		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper limits')
-	equiv.add_argument('--factor', metavar = 'float', type = str, required = False, default = '1' , \
+	parser.add_argument('--factor', metavar = 'float', type = str, required = False, default = '1' , \
 		help = 'factor to divide lower and upper in case of using data stdv or sims stdv.')
 
 	return parser.parse_args()
