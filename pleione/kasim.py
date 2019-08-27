@@ -836,4 +836,4 @@ if __name__ == '__main__':
 		population = mutate()
 
 	# move and organize results
-	#backup()
+	backup()
