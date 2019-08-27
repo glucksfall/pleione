@@ -27,7 +27,7 @@ def argsparser(**kwargs):
 
 	subparsers = parser.add_subparsers()
 	# optional args
-	opts = subparsers.add_parser(help = 'report all calculations')
+	opts = subparsers.add_parser(name = 'a', help = 'report all calculations')
 	# report the matrices of the statistic tests
 	opts.add_argument('--report', metavar = 'True' , type = str, required = False, default = None, \
 		help = 'report the arrays of the statistical tests')
@@ -36,7 +36,7 @@ def argsparser(**kwargs):
 		help = 'calculate all fitness functions regardless of the used for ranking')
 
 	# more optional args (for equivalence tests)
-	equiv = subparsers.add_parser(help = 'optional for equivalence tests')
+	equiv = subparsers.add_parser(name = 'b', help = 'optional for equivalence tests')
 	equiv.add_argument('--crit'  , metavar = 'path' , type = str, required = False, default = None, \
 		help = 'Mann-Whitney U-test critical values')
 	equiv.add_argument('--lower' , metavar = 'path' , type = str, required = False, default = None, \
