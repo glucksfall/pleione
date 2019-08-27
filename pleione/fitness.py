@@ -45,7 +45,7 @@ def argsparser(**kwargs):
 		help = 'file with the upper limit for the equivalence test. Same format as data\n' \
 			'Setting either lower or upper will make the threshold symmetric.')
 	parser.add_argument('--stdv'  , metavar = 'sims' , type = str, required = False, default = 'data', \
-		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper limits')
+		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper as limits')
 	parser.add_argument('--factor', metavar = 'float', type = str, required = False, default = '1' , \
 		help = 'factor to divide lower and upper in case of using data stdv or sims stdv.')
 
