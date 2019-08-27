@@ -526,12 +526,12 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				if not args.do_all:
 					if args.stdv == 'sims':
 						lower = upper = dostdv(sims, len_sims)
-					elif:
+					else:
 						lower = upper = dostdv(data, len_data)
-				elif:
+				else:
 					if args.stdv == 'sims':
 						lower = upper = sims_stdv
-					elif:
+					else:
 						lower = upper = data_stdv
 
 			# divide by factor
