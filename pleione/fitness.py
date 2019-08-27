@@ -560,8 +560,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			U = pandas.DataFrame(index = LB.index, columns = LB.columns, data = U)
 
 			if args.report:
-				print('Double U-test matrix: 1.0 means data and sims are not different if sims are shifted:\n' \
-					'                      A zero means data and sims are equivalents in the specified threshold:\n', U, '\n')
+				print('Double U-test matrix: 1.0 means data and sims are not equivalents if sims are shifted:\n', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
 
