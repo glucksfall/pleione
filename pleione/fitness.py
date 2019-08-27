@@ -43,7 +43,7 @@ def argsparser(**kwargs):
 		help = 'file with the upper limit for the equivalence tests. Same format as data\n' \
 			'Setting either lower or upper will make the threshold symmetric.')
 	parser.add_argument('--stdv'  , metavar = 'sims' , type = str, required = False, default = 'data', \
-		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper')
+		help = 'use the simulation standard deviation (sims stdv) instead of data stdv as lower and upper limits')
 	parser.add_argument('--factor', metavar = 'float', type = str, required = False, default = '1' , \
 		help = 'factor to divide lower and upper in case of using data stdv or sims stdv.')
 
@@ -489,14 +489,14 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 		# U is significant if it is less than or equal to the table value
 		if alternative == 'two-sided':
+			# bigU is max(udata, usims), where udata and usims are DataFrames
 			bigU = udata.where(udata >= usims).fillna(usims.where(usims >= udata))
-		if alternative == 'greater':
-			bigU = usims
 		if alternative == 'less':
 			bigU = udata
+		if alternative == 'greater':
+			bigU = usims
 
 		U = len_data * len_sims - bigU
-		print(U)
 		u = U.copy(deep = True)
 		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
 		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
@@ -516,17 +516,23 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 	if set(args.error).issuperset(set(['DUT'])):
 		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
+			# set what the user wants
 			if args.lower is not None and args.upper is None:
-				args.upper = args.lower
+				args.upper = args.lower # symmetric equivalence interval
 			if args.lower is None and args.upper is not None:
-				args.lower = args.upper
+				args.lower = args.upper # symmetric equivalence interval
 
-			if not args.do_all:
-				if (args.lower is None or args.upper is None):
-					lower = upper = dostdv(data, len_data)
-
-				if args.stdv == 'sims' and not args.do_all:
-					lower = upper = dostdv(sims, len_sims)
+			if args.lower is None and args.upper is None:
+				if not args.do_all:
+					if args.stdv == 'sims':
+						lower = upper = dostdv(sims, len_sims)
+					elif:
+						lower = upper = dostdv(data, len_data)
+				elif:
+					if args.stdv == 'sims':
+						lower = upper = sims_stdv
+					elif:
+						lower = upper = data_stdv
 
 			# divide by factor
 			lower = lower / float(args.factor)
@@ -535,27 +541,27 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# copy simulations to a temporary variable
 			tmp = sims
 
-			# lower limit
+			# test lower limit
 			new_sims = []
 			for i in range(len_sims):
 				new_sims.append(tmp.loc[i] - lower)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 
-			# test data > sims - lower; if true, sims and data are not equivalent
+			# test data > sims - lower with one-tail U-test
 			LB = mwut(data, sims, 'greater')[1]
 
-			# upper limit
+			# test upper limit
 			new_sims = []
 			for i in range(len_sims):
 				new_sims.append(tmp.loc[i] + upper)
 			sims = pandas.concat(new_sims, keys = range(len_sims))
 
-			# test data < sims + upper; if true, sims and data are not equivalent
+			# test data < sims + upper with one
 			UB = mwut(data, sims, 'less')[1]
 
-			U = LB*UB
-			#report equivalences as ones
-			#Eq = numpy.logical_xor(U.values, 1).astype(int)
+			# transform the two rejection matrices.
+			U = LB * UB
+			U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
