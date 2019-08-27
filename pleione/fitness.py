@@ -474,7 +474,6 @@ def docalc(args, data, len_data, sims, len_sims, error):
 				udata += Diff[diff == -1.0].fillna(0).divide(-1) + Diff[diff == +0.5].fillna(0)
 				usims += Diff[diff == +1.0].fillna(0).divide(+1) + Diff[diff == +0.5].fillna(0)
 
-		# U is significant if it is less than or equal to a critical value
 		if alternative == 'two-sided':
 			# bigU is max(udata, usims), where udata and usims are DataFrames
 			bigU = udata.where(udata >= usims).fillna(usims.where(usims >= udata))
@@ -485,6 +484,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 
 		U = len_data * len_sims - bigU
 		u = U.copy(deep = True)
+		# U is significant if it is less than or equal to a critical value
 		U[u <= ucrit.loc[len_sims, str(len_data)]] = +1.0
 		U[u > ucrit.loc[len_sims, str(len_data)]] = +0.0
 
@@ -549,7 +549,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# non-rejection DataFrame
 			U = LB * UB
 			# transform U into a rejection DataFrame.
-			#U = numpy.logical_xor(U.values, 1).astype(int)
+			U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
