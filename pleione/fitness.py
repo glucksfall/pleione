@@ -546,9 +546,10 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# test data < sims + upper with one
 			UB = mwut(data, sims, 'less')[1]
 
-			# transform the two rejection matrices.
+			# non-rejection DataFrame
 			U = LB * UB
-			U = numpy.logical_xor(U.values, 1).astype(int)
+			# transform U into a rejection DataFrame.
+			#U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
