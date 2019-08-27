@@ -546,13 +546,15 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# test data < sims + upper with one
 			UB = mwut(data, sims, 'less')[1]
 
-			# non-rejection DataFrame
+			# rejection DataFrame (U-test report with ones true alternative hypotheses)
+			# both one-sided tests should reject the null hypotheses
 			U = LB * UB
-			# transform U into a rejection DataFrame.
+			# However, we minimize the number of non-rejected null hypotheses
+			# transform U into a non-rejection DataFrame.
 			U = numpy.logical_xor(U.values, 1).astype(int)
 
 			if args.report:
-				print('Double U-test matrix: 1.0 means data and sims are differents if sims are shifted:\n' \
+				print('Double U-test matrix: 1.0 means data and sims are not different if sims are shifted:\n' \
 					'                      A zero means data and sims are equivalents in the specified threshold:\n', U, '\n')
 
 			error['DUT'] = '{:.0f}'.format(U.sum().sum())
