@@ -25,6 +25,7 @@ def argsparser(**kwargs):
 	parser.add_argument('--file'  , metavar = 'path' , type = str, required = True , nargs = 1  , help = 'output filename')
 	parser.add_argument('--error' , metavar = 'str'  , type = str, required = False, nargs = '+', help = 'fitness function(s) to calculate')
 
+	subparsers = parser.add_subparsers()
 	# optional args
 	opts = subparsers.add_parser(help = 'report all calculations')
 	# report the matrices of the statistic tests
