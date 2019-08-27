@@ -492,11 +492,11 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			print('U-estimator for data\n', udata, '\n')
 			print('U-estimator for sims\n', usims, '\n')
 			if alternative == 'two-sided':
-				print('U-test matrix: A zero means data and sims are differents\n', U, '\n')
+				print('U-test matrix: A one means data and sims are differents\n', U, '\n')
 			if alternative == 'less':
-				print('U-test matrix: A zero means data is smaller than (shifted) sims\n', U, '\n')
+				print('U-test matrix: A one means data is smaller than sims (shifted to the right)\n', U, '\n')
 			if alternative == 'greater':
-				print('U-test matrix: A zero means data is greater than (shifted) sims\n', U, '\n')
+				print('U-test matrix: A one means data is greater than sims (shifted to the left)\n', U, '\n')
 
 		return '{:.0f}'.format(U.sum().sum()), U
 
