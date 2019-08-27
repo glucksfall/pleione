@@ -557,6 +557,7 @@ def docalc(args, data, len_data, sims, len_sims, error):
 			# However, we minimize the number of non-rejected null hypotheses
 			# transform U into a non-rejection DataFrame.
 			U = numpy.logical_xor(U.values, 1).astype(int)
+			U = pandas.DataFrame(index = LB.index, columns = LB.columns, data = U)
 
 			if args.report:
 				print('Double U-test matrix: 1.0 means data and sims are not different if sims are shifted:\n' \
