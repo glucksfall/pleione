@@ -136,7 +136,7 @@ def argsparser():
 	#parser.add_argument('--nfsim'  , metavar = 'path' , type = str  , required = False, default = '~/bin/nfsim'   , help = 'NFsim path, default ~/bin/nfsim')
 	#parser.add_argument('--piskas' , metavar = 'path' , type = str  , required = False, default = '~/bin/piskas'  , help = 'PISKaS path, default ~/bin/piskas')
 	parser.add_argument('--python' , metavar = 'path' , type = str  , required = False, default = '~/bin/python3' , help = 'python path, default ~/bin/python3')
-	parser.add_argument('--r_path' , metavar = 'path' , type = str  , required = False, default = '~/bin/R'       , help = 'R path, default ~/bin/R')
+	#parser.add_argument('--r_path' , metavar = 'path' , type = str  , required = False, default = '~/bin/R'       , help = 'R path, default ~/bin/R')
 
 	# distribute computation with SLURM, otherwise with python multiprocessing API
 	parser.add_argument('--slurm'  , metavar = 'str'  , type = str  , required = False, default = None            , help = 'SLURM partition to use, default None')
@@ -210,7 +210,7 @@ def ga_opts():
 		#'piskas'    : os.path.expanduser(args.piskas), # piskas only
 		#'nfsim'     : os.path.expanduser(args.nfsim), # nfsim only
 		'python'    : os.path.expanduser(args.python),
-		'r_path'    : os.path.expanduser(args.r_path),
+		#'r_path'    : os.path.expanduser(args.r_path),
 		'slurm'     : args.slurm,
 		'others'    : args.sbatch,
 		'rng_seed'  : args.seed,

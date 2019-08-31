@@ -501,13 +501,13 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		return '{:.0f}'.format(U.sum().sum()), U
 
 	if set(args.error).issuperset(set(['MWUT'])):
-		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
+		if ((len_data >= 3 and len_sims >= 3):
 			error['MWUT'] = mwut(data, sims, 'two-sided')[0]
 		else:
 			error['MWUT'] = str(numpy.nan)
 
 	if set(args.error).issuperset(set(['DUT'])):
-		if ((len_data >= 3 and len_sims >= 3) or (len_data >= 2 and len_sims >= 5)):
+		if ((len_data >= 3 and len_sims >= 3):
 			# set what the user wants
 			if args.lower is not None and args.upper is None:
 				args.upper = args.lower # symmetric equivalence interval
