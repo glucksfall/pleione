@@ -45,10 +45,16 @@ simulated values (:math:`sim_j`):
 	| **for** :math:`i \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(exp) )`:
 	|   **for** :math:`j \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(sim))`:
 	|      test :math:`H_0: exp > sim − lower`
-
-	|   **if** :math:` - \mathrm{min}(U_{exp}, U_{sim}) \leq U_{\mathrm{critic}}`:
-	|      :math:`\mathrm{\textit{null}\ hypothesis,\ }H_{0}\mathrm{,\ is\ rejected}`
-	|      :math:`U_{\mathrm{model}} \gets U_{\mathrm{model}} + 1.0`
+	|      **if** :math:`U_{max} - U_{exp} <= U_{critic}` then null hypothesis, :math:`H_0`, is rejected
+	|          :math:`U_{lower} = 1.0`
+	|      **else**
+	|          :math:`U_{lower} = 0.0`
+	|      test :math:`H_0: exp < sim + upper`
+	|      **if** :math:`U_{max} - U_{sim} <= U_{critic}` then null hypothesis, :math:`H_0`, is rejected
+	|          :math:`U_{upper} = 1.0`
+	|      **else**
+	|          :math:`U_{upper} = 0.0`
+	|      :math:`U_{model} = U_{model} - U_{lower} \times U_{upper}
 
 .. note::
 	The iterative statistical tests are fitness functions having known limits: For a
