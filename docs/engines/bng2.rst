@@ -60,7 +60,7 @@ Parameterization with BioNetGen2
 .. code-block:: bash
 
 	#!/bin/sh
-	export PYTHONPATH="$PYTHONPATH:$HOME/opt/git-glucksfall-pleione-master"
+	export PYTHONPATH="$PYTHONPATH:$HOME/opt/pleione"
 
 	#SBATCH --no-requeue
 	#SBATCH --partition=cpu
@@ -85,12 +85,11 @@ Parameterization with BioNetGen2
 
 	SWAP=0.5
 	RATE=0.5
-	ERROR="MWUT"
-	UTABLE=./ucrit.txt
+	ERROR="SDA"
 
 	python3 -m pleione.bng2 --model=$MODEL \
 	--iter=$NUM_ITER --pops=$POP_SIZE --sims=$NUM_SIMS --best=$POP_BEST \
-	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR --crit=$UTABLE \
+	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR \
 	--slurm=$PARTITION
 
 .. note::
@@ -98,8 +97,8 @@ Parameterization with BioNetGen2
 	queue, simple execute the shell script with ``sh``, ``bash`` or any shell
 	interpreter without the ``slurm`` option. Be aware that, if SLURM is
 	running in the same machine, Pleione subprocess would impact negatively in
-	other user's threads, and viceversa, since a cpu core could execute
-	concurrently two threads.
+	other user's threads, and vice versa, since SLURM could allow oversubscribe
+	(see https://slurm.schedmd.com/sbatch.htm for more information)
 
 .. note::
 	**Need help?** type ``python3 -m pleione.bng2 --help`` to find out the

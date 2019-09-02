@@ -90,7 +90,7 @@ or the following configuration if the model is written in syntax 3 (KaSim v3):
 	#SBATCH --output=stdout.txt
 	#SBATCH --error=stderr.txt
 
-	export PYTHONPATH="$PYTHONPATH:$HOME/opt/git-glucksfall-pleione-master"
+	export PYTHONPATH="$PYTHONPATH:$HOME/opt/pleione"
 
 	MODEL=pysbmodel-example6-kasim.kappa
 	FINAL=660
@@ -106,12 +106,11 @@ or the following configuration if the model is written in syntax 3 (KaSim v3):
 
 	SWAP=0.5
 	RATE=0.5
-	ERROR="MWUT"
-	UTABLE=./ucrit.txt
+	ERROR="SDA"
 
 	python3 -m pleione.kasim --model=$MODEL --final=$FINAL --steps=$STEPS \
 	--iter=$NUM_ITER --pops=$POP_SIZE --sims=$NUM_SIMS --best=$POP_BEST \
-	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR --crit=$UTABLE \
+	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR \
 	--slurm=$PARTITION --syntax=4
 
 .. note::
@@ -119,8 +118,8 @@ or the following configuration if the model is written in syntax 3 (KaSim v3):
 	queue, simple execute the shell script with ``sh``, ``bash`` or any shell
 	interpreter without the ``slurm`` option. Be aware that, if SLURM is
 	running in the same machine, Pleione subprocess would impact negatively in
-	other user's threads, and viceversa, since a cpu core could execute
-	concurrently two threads.
+	other user's threads, and vice versa, since SLURM could allow oversubscribe
+	(see https://slurm.schedmd.com/sbatch.htm for more information)
 
 .. note::
 	**Need help?** type ``python3 -m pleione.kasim --help`` to find out the

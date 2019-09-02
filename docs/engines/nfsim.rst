@@ -72,7 +72,7 @@ Parameterization with NFsim
 	#SBATCH --output=stdout.txt
 	#SBATCH --error=stderr.txt
 
-	export PYTHONPATH="$PYTHONPATH:$HOME/opt/git-glucksfall-pleione-master"
+	export PYTHONPATH="$PYTHONPATH:$HOME/opt/pleione"
 
 	MODEL=pysbmodel-example6-nfsim.bngl # the model should have the .bngl extension
 	FINAL=60
@@ -88,12 +88,11 @@ Parameterization with NFsim
 
 	SWAP=0.5
 	RATE=0.5
-	ERROR="MWUT"
-	UTABLE=./ucrit.txt
+	ERROR="SDA"
 
 	python3 -m pleione.nfsim --model=$MODEL --final=$FINAL --steps=$STEPS \
 	--iter=$NUM_ITER --pops=$POP_SIZE --sims=$NUM_SIMS --best=$POP_BEST \
-	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR --crit=$UTABLE \
+	--data=$DATA --rate=$RATE --swap=$SWAP --error=$ERROR --equil 600 \
 	--slurm=$PARTITION
 
 .. note::
@@ -101,8 +100,8 @@ Parameterization with NFsim
 	queue, simple execute the shell script with ``sh``, ``bash`` or any shell
 	interpreter without the ``slurm`` option. Be aware that, if SLURM is
 	running in the same machine, Pleione subprocess would impact negatively in
-	other user's threads, and viceversa, since a cpu core could execute
-	concurrently two threads.
+	other user's threads, and vice versa, since SLURM could allow oversubscribe
+	(see https://slurm.schedmd.com/sbatch.htm for more information)
 
 .. note::
 	**Need help?** type ``python3 -m pleione.nfsim --help`` to find out the
