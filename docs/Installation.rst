@@ -50,7 +50,7 @@ the package from `python package index <https://pypi.org/project/pleione/>`_.
 
    .. note::
 	**Why Python3?**:
-	Pleione is intended to be used with python3.6 because python2.7 won't receive
+	Pleione is intended to be used with >=python3.4 because python2.7 won't receive
 	further development past 2020, including security updates.
 
    .. note::
