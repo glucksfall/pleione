@@ -54,7 +54,7 @@ simulated values (:math:`sim_j`):
 	|          :math:`U_{upper} = 1.0`
 	|      **else**
 	|          :math:`U_{upper} = 0.0`
-	|      :math:`U_{model} = U_{model} - U_{lower} \times U_{upper}
+	|      :math:`U_{model} = U_{model} - U_{lower} \times U_{upper}`
 
 .. note::
 	The iterative statistical tests are fitness functions having known limits: For a
