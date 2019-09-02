@@ -37,15 +37,18 @@ experimental data set:
 	Pleione currently support 9 algebraics and 3 statistical tests as fit functions.
 	To calculate more than one function, include a list such as ``SDA SSQ CHISQ``.
 	In doing so, this will calculate the contribution of both o more metrics to
-	the overall error and aid to validate of discard a model calibration.
+	the overall error and aid to validate of discard a model calibration. More information
+	in :ref:`Fitneess_Functions`
 
+.. note::
+	**All fitness functions**
 	Use the ``--do_all True`` argument to calculate all fitness functions included in Pleione.
 	You should provide a table with critical values (see example folder for the one-tail table)
 
+.. note::
+	**(non-)Rejection matrices**
 	The ``--report True`` argument will print to the console relevant calculations for the
 	statistical tests.
-
-	More information in :ref:`Fitneess_Functions`
 
 .. note::
 	**Need Help?**
