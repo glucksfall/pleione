@@ -9,35 +9,42 @@ experimental data set:
 .. code-block:: bash
 
 	python3 -m pleione.bng2-doerror --data foo --sims bar \
-	--file output.txt --error MWUT --crit utable.txt
+	--file output.txt --error SDA
 
 *OR*
 
 .. code-block:: bash
 
 	python3 -m pleione.kasim-doerror --data foo --sims bar \
-	--file output.txt --error MWUT --crit utable.txt
+	--file output.txt --error SDA
 
 *OR*
 
 .. code-block:: bash
 
 	python3 -m pleione.nfsim-doerror --data foo --sims bar \
-	--file output.txt --error MWUT --crit utable.txt
+	--file output.txt --error SDA
 
 *OR*
 
 .. code-block:: bash
 
 	python3 -m pleione.piskas-doerror --data foo --sims bar \
-	--file output.txt --error MWUT --crit utable.txt
+	--file output.txt --error SDA
 
 .. note::
 	**Fitness Function**
-	Pleione currently support ten goodness of fit functions. To calculate more
-	than one function, include a comma-only separated list such as ``MWUT,SSQ``.
+	Pleione currently support 9 algebraics and 3 statistical tests as fit functions.
+	To calculate more than one function, include a list such as ``SDA SSQ CHISQ``.
 	In doing so, this will calculate the contribution of both o more metrics to
-	the overall error and aid to validate of dischard a model calibration.
+	the overall error and aid to validate of discard a model calibration.
+
+	Use the ``--do_all True`` argument to calculate all fitness functions included in Pleione.
+	You should provide a table with critical values (see example folder for the one-tail table)
+
+	The ``--report True`` argument will print to the console relevant calculations for the
+	statistical tests.
+
 	More information in :ref:`Fitneess_Functions`
 
 .. note::
