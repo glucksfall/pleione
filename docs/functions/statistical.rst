@@ -1,6 +1,12 @@
 Statistical Objective Functions
 ===============================
 
+We implemented three equivalence tests to determine if two distribution are similar
+in a interval. The interval is defined by default as one standard deviation of experimental
+data for the two one-sided t-tests (TOST) and the Double Mann-Whitney U-test (DUT). In
+the case of the Wellek's test (WMWET), the equivalence interval is :math:`\epsilon_1 = 0.3129`
+and :math:`\epsilon_2 = 0.2661`.
+
 We implemented the Mann-Whitney U-test (MWUT) to calculate the error between
 experimental data and simulations. The U-test is a non-parametric statistical
 test that, within a confidence level, determine if a stochastic repeated
@@ -27,7 +33,7 @@ simulated values (:math:`sim_j`):
 	|      :math:`U_{\mathrm{model}} \gets U_{\mathrm{model}} + 1.0`
 
 .. note::
-	The U-test is the only fitness function that has known limits: For a
+	The iterative statistical tests are fitness functions having known limits: For a
 	*perfect* model, the U-test is zero. A complete wrong model will have a
 	:math:`U_{model}` equal to the number of Observables times the number of
 	experimental time points. For instance, the example model we use to compare
