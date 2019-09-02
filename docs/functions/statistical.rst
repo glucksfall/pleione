@@ -13,7 +13,7 @@ custom limits with ``--lower`` and, or ``--upper`` arguments, which point to one
 same structure as the experimental data. In the case the user omits ``--lower`` or ``--upper``,
 the equivalence interval will be symmetrical.
 
-To calculate TOST, we use the ``ttost_ind`` function from the python _statsmodels_ package.
+To calculate TOST, we use the ``ttost_ind`` function from the python *statsmodels* package.
 
 
 We implemented the Mann-Whitney U-test (MWUT) to calculate the error between
