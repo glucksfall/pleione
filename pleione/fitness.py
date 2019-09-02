@@ -93,15 +93,15 @@ def docalc(args, data, len_data, sims, len_sims, error):
 		1. func = 0
 
 		2. func = an algebraic expression combining the data average (data_avrg), data standard deviation (data_stdv), simulation average (sims_stdv),
-		simulation standard deviation (sims_stdv), single experimental files (data.loc[i]), and/or simulation files (sims.loc[i])
-		Note1: Perform a in for-loops if using data.loc[i] and sims.loc[i].
+		simulation standard deviation (sims_stdv), single experimental files (data.loc[i]), and/or simulation files (sims.loc[j])
+		Note1: Perform two for-loops if using data.loc[i] and sims.loc[j].
 		Note2: Please consider these variables are DataFrames, meaning that multiplication and division are methods (e.g. df1.division(df2))
 
 		3. Drop NaN values (from experimental time points without simulated values, or simulated values without experimental data)
 		with dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all'). Also transform Inf values with replace([numpy.inf, -numpy.inf], numpy.nan)
 
-		4. Sum the two dimensions, and return a 6 float points scientific notation number (0 float points for statistic tests):
-		error['acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
+		4. Sum the two dimensions, and return a 6 float points scientific notation number (0 float points for statistical tests):
+		error['the-acronysm'] = '{:.6e}'.format(func.dropna(axis = 0, how = 'all').dropna(axis = 1, how = 'all').sum().sum())
 	"""
 
 	if args.do_all:

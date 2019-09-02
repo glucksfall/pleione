@@ -7,11 +7,11 @@ simulations files.
 .. hlist::
 	:columns: 2
 
-	* | **Squared Difference of Means (SDM; formerly Mean Square Error, MSE):**
+	* | **Squared Difference of two Averages (SDA; formerly Mean Square Error, MSE):**
 	  |
 	  |  :math:`\left( \frac{1}{m} \sum_{i=1}^{m} \mathrm{exp}_i - \frac{1}{n} \sum_{j=1}^{n} \mathrm{sim}_j \right) ^{2}`
 
-	* | **Absolute Difference of Means (ADM; formerly Mean Absolute Error, MAE):**
+	* | **Absolute Difference of two Averages (ADA; formerly Mean Absolute Error, MAE):**
 	  |
 	  |  :math:`\mathrm{abs} \left( \frac{1}{m} \sum_{i=1}^{m} \mathrm{exp}_i - \frac{1}{n} \sum_{j=1}^{n} \mathrm{sim}_j \right)`
 
@@ -48,4 +48,7 @@ simulations files.
 	is separated from the main Genetic Algorithm. This make useful to encode
 	other Objective Functions if the already implemented does not apply to your
 	necessities. You could contact us to add your function to the pleione
-	package.
+	package. See the ``fitness.py`` file and add yours favourite function.
+
+	Reach us on GitHub to add yours fitness function to the code, as it might help
+	other users.
