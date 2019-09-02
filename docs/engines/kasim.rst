@@ -8,7 +8,7 @@ Parameterization with KaSim
 
 	* An initial distribution type: ``uniform``, ``loguniform``, ``lognormal``
 	* An initial search space: ``[min max]`` or ``[mean standard_deviation]``
-	  in the case ``lognormal`` was selected.
+	  in the case if ``lognormal`` was selected.
 	* A type of mutation: ``uniform`` or ``loguniform`` to use a new search
 	  space; or ``factor`` to perform a local mutation search
 	* A search space for mutated parameters: ``[min max]`` or
