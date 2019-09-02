@@ -12,7 +12,7 @@ Parameterization with NFsim
 	* A type of parameter mutation: ``uniform`` or ``loguniform`` to use a new search
 	  space; or ``factor`` to perform a local mutation search
 	* A search space for mutated parameters: ``[min max]`` or
-	  ``[probability fold_change]``
+	  ``[probability fold_change]`` in the case if ``factor`` was selected.
 	* An optional mutation rate per parameter. Without it, a global mutation
 	  rate is used.
 
