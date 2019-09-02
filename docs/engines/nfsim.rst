@@ -3,7 +3,7 @@ Parameterization with NFsim
 
 1. **Prepare the model**
 
-   Pleione parmeterization methods find which variables will be calibrated using
+   Pleione finds which variables will be calibrated using
    the symbol ``#`` (number sign, hash or pound sign) followed by:
 
 	* An initial distribution type: ``uniform``, ``loguniform``, ``lognormal``
