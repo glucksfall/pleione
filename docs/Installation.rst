@@ -45,16 +45,13 @@ the package from `python package index <https://pypi.org/project/pleione/>`_.
 
    .. code-block:: bash
 
-	wget https://files.pythonhosted.org/packages/05/45/fc5b44d5211f297ed7d66361cc7062935d7afece812b605b3f3d6a38c04d/pleione-1.0.4-py3-none-any.whl
-	pip3 install pleione-1.0.4-py3-none-any.whl --user
+	wget https://files.pythonhosted.org/packages/a9/6b/99ae42d1bf3811ff909c8c0fde6a174fbef4d76fe25f0aa0edd13420d4d6/pleione-1.5.1-py3-none-any.whl
+	pip3 install pleione-1.5.1-py3-none-any.whl --user
 
    .. note::
 	**Why Python3?**:
-	Pleione is intended to be used with python3, despite the lack of
-	incompatible functions with python2, because the latter won't receive
-	further development past 2020. Although, the code could be optimize with
-	specific python3 functions over dictionaries, therefore making incompatible
-	with python2.
+	Pleione is intended to be used with python3.6 because python2.7 won't receive
+	further development past 2020, including security updates.
 
    .. note::
 	**pip, Python and Anaconda**:
@@ -62,12 +59,12 @@ the package from `python package index <https://pypi.org/project/pleione/>`_.
 	``sudo apt-get install python3-pip`` if you have system rights, or
 	install python3 from source, and adding ``<python3 path>/bin/pip3`` to the
 	path, or linking it in a directory like ``$HOME/bin`` which is commonly
-	added to the path at system login. Please be aware that, if you installed
+	added to the path at login. Also be aware that, if you installed
 	Anaconda, pip could be linked to the Anaconda specific version of pip, which
 	will install pleione into Anaconda's installation folder.
 	Type ``which pip`` or ``which pip3`` to find out the source of pip, and type
 	``python -m site`` or ``python3 -m site`` to find out where is more likely
-	pleione would be installed.
+	pleione will be installed.
 
 Option 2: Clone the Github repository
 -------------------------------------
@@ -75,20 +72,22 @@ Option 2: Clone the Github repository
 1. **Clone with git**
 
    The source code is uploaded and maintained through Github at
-   `<https://github.com/glucksfall/pleione>`_. Therefore, you could clone the
+   `<https://github.com/networkbiolab/pleione>`_. Therefore, you could clone the
    repository locally, and then add the folder to the ``PYTHONPATH``. Beware
    that you should install the *pandas* package (`pandas`_) by any means.
 
    .. code-block:: bash
 
-    git clone https://github.com/glucksfall/pleione /opt
+    git clone https://github.com/networkbiolab/pleione /opt
     echo export PYTHONPATH="\$PYTHONPATH:/opt/pleione" >> $HOME/.profile
 
    .. note::
 	Adding the path to ``$HOME/.profile`` allows python to find the package
 	installation folder after each user login. Similarly, adding the path to
 	``$HOME/.bashrc`` allows python to find the package after each terminal
-	invocation.
+	invocation. Other options include setting the ``PYTHONPATH`` environmental
+	variable in a sh file (see the example folder) or invoke ``python3 setup.py clean build install``
+	to install Pleione as it was downloaded from the PyPI server.
 
 .. refs
 .. _KaSim: https://github.com/Kappa-Dev/KaSim
