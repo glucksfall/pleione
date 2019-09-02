@@ -7,6 +7,15 @@ data for the two one-sided t-tests (TOST) and the Double Mann-Whitney U-test (DU
 the case of the Wellek's test (WMWET), the equivalence interval is :math:`\epsilon_1 = 0.3129`
 and :math:`\epsilon_2 = 0.2661`.
 
+The user can set the ``--factor`` argument to divide the standard deviation by it, or can set
+the ``--stdv sims`` argument to use rather the standard deviation of simulations, or provide
+custom limits with ``--lower`` and, or ``--upper`` arguments, which point to one file with the
+same structure as the experimental data. In the case the user omits ``--lower`` or ``--upper``,
+the equivalence interval will be symmetrical.
+
+To calculate TOST, we use the ``ttost_ind`` function from the python _statsmodels_ package.
+
+
 We implemented the Mann-Whitney U-test (MWUT) to calculate the error between
 experimental data and simulations. The U-test is a non-parametric statistical
 test that, within a confidence level, determine if a stochastic repeated
