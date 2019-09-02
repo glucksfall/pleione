@@ -13,7 +13,7 @@ Parameterization with KaSim
 	  space; or ``factor`` to perform a local mutation search
 	* A search space for mutated parameters: ``[min max]`` or
 	  ``[probability fold_change]`` in the case if ``factor`` was selected.
-	* An optional mutation rate per parameter. Without it, a global mutation
+	* An optional mutation rate per parameter. Without it, the global mutation
 	  rate is used.
 
    For instace:
