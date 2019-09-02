@@ -45,12 +45,12 @@ simulated values (:math:`sim_j`):
 	| **for** :math:`i \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(exp) )`:
 	|   **for** :math:`j \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(sim))`:
 	|      test :math:`H_0: exp > sim − lower`
-	|      **if** :math:`U_{max} - U_{exp} <= U_{critic}` then null hypothesis, :math:`H_0`, is rejected
+	|      **if** :math:`U_{max} - U_{exp} \leq U_{critic}` then null hypothesis, :math:`H_0`, is rejected
 	|          :math:`U_{lower} = 1.0`
 	|      **else**
 	|          :math:`U_{lower} = 0.0`
 	|      test :math:`H_0: exp < sim + upper`
-	|      **if** :math:`U_{max} - U_{sim} <= U_{critic}` then null hypothesis, :math:`H_0`, is rejected
+	|      **if** :math:`U_{max} - U_{sim} \leq U_{critic}` then null hypothesis, :math:`H_0`, is rejected
 	|          :math:`U_{upper} = 1.0`
 	|      **else**
 	|          :math:`U_{upper} = 0.0`
