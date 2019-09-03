@@ -1,5 +1,5 @@
-Welcome to Pleione's documentation!
-===================================
+Welcome to Pleione v1.5 documentation!
+======================================
 
 Pleione is a python3 package that implement methods that are common to
 traditional modeling frameworks, and apply them to analyze Rule-Based Models.
