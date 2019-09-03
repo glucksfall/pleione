@@ -42,8 +42,7 @@ simulated values (:math:`sim_j`):
 2. We determine if :math:`U_{exp}` is statistically significant:
 
 	| :math:`U_{\mathrm{model}} = U_{max} = \mathrm{len}(exp) \times \mathrm{len}(sim)`
-	| **for** :math:`i \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(exp) )`:
-	|   **for** :math:`j \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(sim))`:
+	| **for** :math:`i \mathrm{\ in\ } \mathrm{range} ( \mathrm{len}(exp) \times \mathrm{len}(sim) )`:
 	|      test :math:`H_0: exp > sim − lower`
 	|      **if** :math:`U_{max} - U_{exp} \leq U_{critic}` then null hypothesis, :math:`H_0`, is rejected
 	|          :math:`U_{lower} = 1.0`
