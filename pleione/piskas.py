@@ -4,7 +4,8 @@
 Project "Genetic Algorithm for Rule-Based Models", Rodrigo Santibáñez, 2017 @ Dlab, FCV (rsantibanez@dlab.cl)
 A Python implementation of Alberto Martin's Genetic Algorithm, 2016 @ Dlab, FCV (ajmm@dlab.cl)
 To be used with PISKaS. Please refer to other subprojects for other stochastic simulators support
-Citation:
+Citation: Pleione: A tool for statistical and multi-objective calibration of Rule-based models. Scientific Reports (2019)
+DOI:
 '''
 
 __author__  = 'Rodrigo Santibáñez'
@@ -117,7 +118,9 @@ def parallelize(cmd):
 	return 0
 
 def argsparser():
-	parser = argparse.ArgumentParser(description = 'Perform a calibration of a RBM employing a Genetic Algorithm.')
+	parser = argparse.ArgumentParser(description = 'Perform a calibration of a RBM employing a Genetic Algorithm.', \
+		epilog = 'cite "Pleione: A tool for statistical and multi-objective calibration of Rule-based models. Scientific Reports (2019)"',
+		formatter_class = argparse.RawTextHelpFormatter)
 
 	# required arguments
 	parser.add_argument('--model'  , metavar = 'str'  , type = str  , required = True , nargs = 1  , help = 'RBM with tagged variables to parameterize')
