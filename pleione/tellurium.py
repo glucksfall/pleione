@@ -750,7 +750,7 @@ def backup():
 		shutil.move(filename, folders['rawdata'])
 
 	# archive simulated models
-	filelist = glob.glob('model_*.kappa')
+	filelist = glob.glob('model_*.ant')
 	for filename in filelist:
 		shutil.move(filename, folders['parsets'])
 
