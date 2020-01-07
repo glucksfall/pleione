@@ -9,31 +9,31 @@ from codecs import open
 from os import path
 import versioneer
 # include example folder
-import glob
+import glob, os
 
 def main():
 
 	#add examples folders
 	data_files = []
-	directories = glob.glob('example/*/*/*')
+	directories = sorted([x[0] for x in os.walk('example')])
+	print(directories)
 	for directory in directories:
-		files = glob.glob(directory+'*')
+		files = glob.glob(directory+'/*')
 		data_files.append((directory, files))
 	#print(data_files)
 
 	#cmdclass = versioneer.get_cmdclass()
 
-	here = path.abspath(path.dirname(__file__))
-
 	# Get the long description from the README file
+	here = path.abspath(path.dirname(__file__))
 	with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 		long_description = f.read()
 
 	setup(
 		name='pleione',
 		license='GPLv3+',
+		version='1.5.8',
 		#version=versioneer.get_version(),
-		version='1.5.2',
 		description='Pleione: statistical and multi-objective strategies to calibrate rule-based models',
 		long_description=long_description,
 		#long_description_content_type='text/markdown',
@@ -69,20 +69,25 @@ def main():
 			# other classifiers added by author
 			'Environment :: Console',
 			'Operating System :: Unix',
-#			'Operating System :: Microsoft :: Windows',
-#			'Operating System :: MacOS',
+			#'Operating System :: Microsoft :: Windows',
+			#'Operating System :: MacOS',
 
 		],
-#		cmdclass=cmdclass,
-		keywords=['systems biology', 'stochastic modeling', 'parameter estimation'],
+
 		python_requires='~=3.0',
-		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+		keywords=['systems biology', 'stochastic modeling', 'parameter estimation'],
 		install_requires=['numpy', 'pandas', 'statsmodels'],
+
+		# include files
+		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 		package_data={
-			'example': ['example'],
-			'ucrits': ['example/ucrit.csv'],
+			'': ['example/*'],
 		},
+		#include_package_data=True,
 		data_files=data_files,
+
+		# others
+		#cmdclass=cmdclass,
 		project_urls={
 			'Manual': 'https://pleione.readthedocs.io',
 			'Bug Reports': 'https://github.com/glucksfall/pleione/issues',
