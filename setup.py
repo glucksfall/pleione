@@ -6,23 +6,20 @@
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
+from os import path, walk
 import versioneer
 # include example folder
-import glob, os
+import glob
 
 def main():
-
-	#add examples folders
+	# additional files
+	tmp = []
 	data_files = []
-	directories = sorted([x[0] for x in os.walk('example')])
-	print(directories)
-	for directory in directories:
-		files = glob.glob(directory+'/*')
-		data_files.append((directory, files))
-	#print(data_files)
-
-	#cmdclass = versioneer.get_cmdclass()
+	for dirpath, dirnames, filenames in walk('example'):
+		for filename in filenames:
+			tmp.append(path.join(dirpath, filename))
+		data_files.append((dirpath, tmp))
+	print(data_files)
 
 	# Get the long description from the README file
 	here = path.abspath(path.dirname(__file__))
@@ -47,7 +44,7 @@ def main():
 			#'Development Status :: 4 - Beta',
 			'Development Status :: 5 - Production/Stable',
 			#'Development Status :: 6 - Mature',
-			#'Development Status :: 7 - Inactive',
+			#'Development Status :: 7 - Inactive',example
 
 			# Indicate who your project is intended for
 			'Intended Audience :: Science/Research',
@@ -79,11 +76,14 @@ def main():
 		install_requires=['numpy', 'pandas', 'statsmodels'],
 
 		# include files
+		# MANIFEST.in, sdist
+		include_package_data=True,
+		# bdist_wheel (only for non-python files inside of the package)
 		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-		package_data={
-			'': ['example/*'],
-		},
-		#include_package_data=True,
+		#package_data = {
+			#'pleione' : ['test/*.txt']
+			#},
+		#data_files=[('example', ['example/ucrit-twotails-5percent.txt'])],
 		data_files=data_files,
 
 		# others
