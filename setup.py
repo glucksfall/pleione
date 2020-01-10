@@ -8,18 +8,16 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path, walk
 import versioneer
-# include example folder
-import glob
 
 def main():
 	# additional files
-	tmp = []
 	data_files = []
 	for dirpath, dirnames, filenames in walk('example'):
+		tmp = []
 		for filename in filenames:
 			tmp.append(path.join(dirpath, filename))
 		data_files.append((dirpath, tmp))
-	print(data_files)
+	#print(data_files)
 
 	# Get the long description from the README file
 	here = path.abspath(path.dirname(__file__))
@@ -29,7 +27,7 @@ def main():
 	setup(
 		name='pleione',
 		license='GPLv3+',
-		version='1.5.8',
+		version='1.6',
 		#version=versioneer.get_version(),
 		description='Pleione: statistical and multi-objective strategies to calibrate rule-based models',
 		long_description=long_description,
@@ -44,7 +42,7 @@ def main():
 			#'Development Status :: 4 - Beta',
 			'Development Status :: 5 - Production/Stable',
 			#'Development Status :: 6 - Mature',
-			#'Development Status :: 7 - Inactive',example
+			#'Development Status :: 7 - Inactive',
 
 			# Indicate who your project is intended for
 			'Intended Audience :: Science/Research',
