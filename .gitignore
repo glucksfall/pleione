@@ -10,5 +10,4 @@ build/
 *.egg-info
 
 # others
-Makefile
 .ipynb_checkpoints
