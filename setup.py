@@ -12,11 +12,11 @@ import versioneer
 def main():
 	# additional files
 	data_files = []
-	for dirpath, dirnames, filenames in walk('example'):
+	for dirpath, dirnames, filenames in walk('pleione/example'):
 		tmp = []
 		for filename in filenames:
 			tmp.append(path.join(dirpath, filename))
-		data_files.append((dirpath, tmp))
+		data_files.append(('pleione', tmp))
 	#print(data_files)
 
 	# Get the long description from the README file
@@ -27,7 +27,7 @@ def main():
 	setup(
 		name='pleione',
 		license='GPLv3+',
-		version='1.6',
+		version='1.6.1',
 		#version=versioneer.get_version(),
 		description='Pleione: statistical and multi-objective strategies to calibrate rule-based models',
 		long_description=long_description,
@@ -71,21 +71,30 @@ def main():
 
 		python_requires='~=3.0',
 		keywords=['systems biology', 'stochastic modeling', 'parameter estimation'],
-		install_requires=['numpy', 'pandas', 'statsmodels'],
+		install_requires=['numpy', 'pandas', 'statsmodels', 'importlib-resources', 'importlib'],
 
-		# include files
-		# MANIFEST.in, sdist
-		include_package_data=True,
-		# bdist_wheel (only for non-python files inside of the package)
-		packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-		#package_data = {
-			#'pleione' : ['test/*.txt']
-			#},
-		#data_files=[('example', ['example/ucrit-twotails-5percent.txt'])],
-		data_files=data_files,
+		# WARNING: seems to be bdist_wheel only
+		packages=find_packages(exclude=('contrib', 'docs', 'tests', 'wellek')),
+		# using the MANIFEST.in file to exclude same folders from sdist
+		include_package_data=False,
+
+		# WARNING: use this way to install in the package folder and
+		# to have access files using importlib_resources or importlib.resources
+		# bdist_wheel only
+		package_data = {
+			'pleione' : [
+				'examples/*',
+				'examples/*/*',
+				'examples/*/*/*',
+				]
+			},
+
+		# WARNING: do not use data_files as the installation path is hard to determine
+		# e.g.: ubuntu 18.04 install to /usr/local/installation_path or /$USER/.local/installation_path
+		#data_files=[('installation_path', ['example/ucrit-twotails-5percent.txt'])],
+		#data_files=data_files,
 
 		# others
-		#cmdclass=cmdclass,
 		project_urls={
 			'Manual': 'https://pleione.readthedocs.io',
 			'Bug Reports': 'https://github.com/glucksfall/pleione/issues',
